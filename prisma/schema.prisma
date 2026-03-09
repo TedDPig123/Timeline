@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String       @id @default(uuid())
+  email       String       @unique
+  username    String
+  createdAt   DateTime     @default(now())
+  memories    Memory[]
+  memoryCards MemoryCard[]
+}
+
+model Memory {
+  id           String       @id @default(uuid())
+  user         User         @relation(fields: [user_id], references: [id])
+  user_id      String
+  type         ContentType
+  content      String //either a text or a url, can check using type
+  created_at   DateTime
+  memory_cards MemoryCard[]
+}
+
+model MemoryCard {
+  id         String   @id @default(uuid())
+  date       DateTime
+  position_x Int
+  position_y Int
+  z_index    Int
+  width      Int
+  height     Int
+
+  user      User   @relation(fields: [user_id], references: [id])
+  user_id   String
+  memory    Memory @relation(fields: [memory_id], references: [id])
+  memory_id String
+}
+
+enum ContentType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+}
