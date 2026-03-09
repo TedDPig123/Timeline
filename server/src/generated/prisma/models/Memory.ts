@@ -222,7 +222,7 @@ export type MemoryScalarWhereWithAggregatesInput = {
 
 export type MemoryCreateInput = {
   id?: string
-  created_at: Date | string
+  created_at?: Date | string
   date: Date | string
   user: Prisma.UserCreateNestedOneWithoutMemoriesInput
   memory_cards?: Prisma.MemoryCardCreateNestedManyWithoutMemoryInput
@@ -231,7 +231,7 @@ export type MemoryCreateInput = {
 export type MemoryUncheckedCreateInput = {
   id?: string
   user_id: string
-  created_at: Date | string
+  created_at?: Date | string
   date: Date | string
   memory_cards?: Prisma.MemoryCardUncheckedCreateNestedManyWithoutMemoryInput
 }
@@ -255,7 +255,7 @@ export type MemoryUncheckedUpdateInput = {
 export type MemoryCreateManyInput = {
   id?: string
   user_id: string
-  created_at: Date | string
+  created_at?: Date | string
   date: Date | string
 }
 
@@ -371,14 +371,14 @@ export type MemoryUpdateOneRequiredWithoutMemory_cardsNestedInput = {
 
 export type MemoryCreateWithoutUserInput = {
   id?: string
-  created_at: Date | string
+  created_at?: Date | string
   date: Date | string
   memory_cards?: Prisma.MemoryCardCreateNestedManyWithoutMemoryInput
 }
 
 export type MemoryUncheckedCreateWithoutUserInput = {
   id?: string
-  created_at: Date | string
+  created_at?: Date | string
   date: Date | string
   memory_cards?: Prisma.MemoryCardUncheckedCreateNestedManyWithoutMemoryInput
 }
@@ -421,7 +421,7 @@ export type MemoryScalarWhereInput = {
 
 export type MemoryCreateWithoutMemory_cardsInput = {
   id?: string
-  created_at: Date | string
+  created_at?: Date | string
   date: Date | string
   user: Prisma.UserCreateNestedOneWithoutMemoriesInput
 }
@@ -429,7 +429,7 @@ export type MemoryCreateWithoutMemory_cardsInput = {
 export type MemoryUncheckedCreateWithoutMemory_cardsInput = {
   id?: string
   user_id: string
-  created_at: Date | string
+  created_at?: Date | string
   date: Date | string
 }
 
@@ -465,7 +465,7 @@ export type MemoryUncheckedUpdateWithoutMemory_cardsInput = {
 
 export type MemoryCreateManyUserInput = {
   id?: string
-  created_at: Date | string
+  created_at?: Date | string
   date: Date | string
 }
 
