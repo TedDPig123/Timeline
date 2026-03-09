@@ -43,6 +43,8 @@ export type MemoryCardSumAggregateOutputType = {
 }
 
 export type MemoryCardMinAggregateOutputType = {
+  type: $Enums.ContentType | null
+  content: string | null
   id: string | null
   date: Date | null
   position_x: number | null
@@ -55,6 +57,8 @@ export type MemoryCardMinAggregateOutputType = {
 }
 
 export type MemoryCardMaxAggregateOutputType = {
+  type: $Enums.ContentType | null
+  content: string | null
   id: string | null
   date: Date | null
   position_x: number | null
@@ -67,6 +71,8 @@ export type MemoryCardMaxAggregateOutputType = {
 }
 
 export type MemoryCardCountAggregateOutputType = {
+  type: number
+  content: number
   id: number
   date: number
   position_x: number
@@ -97,6 +103,8 @@ export type MemoryCardSumAggregateInputType = {
 }
 
 export type MemoryCardMinAggregateInputType = {
+  type?: true
+  content?: true
   id?: true
   date?: true
   position_x?: true
@@ -109,6 +117,8 @@ export type MemoryCardMinAggregateInputType = {
 }
 
 export type MemoryCardMaxAggregateInputType = {
+  type?: true
+  content?: true
   id?: true
   date?: true
   position_x?: true
@@ -121,6 +131,8 @@ export type MemoryCardMaxAggregateInputType = {
 }
 
 export type MemoryCardCountAggregateInputType = {
+  type?: true
+  content?: true
   id?: true
   date?: true
   position_x?: true
@@ -220,6 +232,8 @@ export type MemoryCardGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 export type MemoryCardGroupByOutputType = {
+  type: $Enums.ContentType
+  content: string
   id: string
   date: Date
   position_x: number
@@ -255,6 +269,8 @@ export type MemoryCardWhereInput = {
   AND?: Prisma.MemoryCardWhereInput | Prisma.MemoryCardWhereInput[]
   OR?: Prisma.MemoryCardWhereInput[]
   NOT?: Prisma.MemoryCardWhereInput | Prisma.MemoryCardWhereInput[]
+  type?: Prisma.EnumContentTypeFilter<"MemoryCard"> | $Enums.ContentType
+  content?: Prisma.StringFilter<"MemoryCard"> | string
   id?: Prisma.StringFilter<"MemoryCard"> | string
   date?: Prisma.DateTimeFilter<"MemoryCard"> | Date | string
   position_x?: Prisma.IntFilter<"MemoryCard"> | number
@@ -269,6 +285,8 @@ export type MemoryCardWhereInput = {
 }
 
 export type MemoryCardOrderByWithRelationInput = {
+  type?: Prisma.SortOrder
+  content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   position_x?: Prisma.SortOrder
@@ -287,6 +305,8 @@ export type MemoryCardWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.MemoryCardWhereInput | Prisma.MemoryCardWhereInput[]
   OR?: Prisma.MemoryCardWhereInput[]
   NOT?: Prisma.MemoryCardWhereInput | Prisma.MemoryCardWhereInput[]
+  type?: Prisma.EnumContentTypeFilter<"MemoryCard"> | $Enums.ContentType
+  content?: Prisma.StringFilter<"MemoryCard"> | string
   date?: Prisma.DateTimeFilter<"MemoryCard"> | Date | string
   position_x?: Prisma.IntFilter<"MemoryCard"> | number
   position_y?: Prisma.IntFilter<"MemoryCard"> | number
@@ -300,6 +320,8 @@ export type MemoryCardWhereUniqueInput = Prisma.AtLeast<{
 }, "id">
 
 export type MemoryCardOrderByWithAggregationInput = {
+  type?: Prisma.SortOrder
+  content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   position_x?: Prisma.SortOrder
@@ -320,6 +342,8 @@ export type MemoryCardScalarWhereWithAggregatesInput = {
   AND?: Prisma.MemoryCardScalarWhereWithAggregatesInput | Prisma.MemoryCardScalarWhereWithAggregatesInput[]
   OR?: Prisma.MemoryCardScalarWhereWithAggregatesInput[]
   NOT?: Prisma.MemoryCardScalarWhereWithAggregatesInput | Prisma.MemoryCardScalarWhereWithAggregatesInput[]
+  type?: Prisma.EnumContentTypeWithAggregatesFilter<"MemoryCard"> | $Enums.ContentType
+  content?: Prisma.StringWithAggregatesFilter<"MemoryCard"> | string
   id?: Prisma.StringWithAggregatesFilter<"MemoryCard"> | string
   date?: Prisma.DateTimeWithAggregatesFilter<"MemoryCard"> | Date | string
   position_x?: Prisma.IntWithAggregatesFilter<"MemoryCard"> | number
@@ -332,6 +356,8 @@ export type MemoryCardScalarWhereWithAggregatesInput = {
 }
 
 export type MemoryCardCreateInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -344,6 +370,8 @@ export type MemoryCardCreateInput = {
 }
 
 export type MemoryCardUncheckedCreateInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -356,6 +384,8 @@ export type MemoryCardUncheckedCreateInput = {
 }
 
 export type MemoryCardUpdateInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -368,6 +398,8 @@ export type MemoryCardUpdateInput = {
 }
 
 export type MemoryCardUncheckedUpdateInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -380,6 +412,8 @@ export type MemoryCardUncheckedUpdateInput = {
 }
 
 export type MemoryCardCreateManyInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -392,6 +426,8 @@ export type MemoryCardCreateManyInput = {
 }
 
 export type MemoryCardUpdateManyMutationInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -402,6 +438,8 @@ export type MemoryCardUpdateManyMutationInput = {
 }
 
 export type MemoryCardUncheckedUpdateManyInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -424,6 +462,8 @@ export type MemoryCardOrderByRelationAggregateInput = {
 }
 
 export type MemoryCardCountOrderByAggregateInput = {
+  type?: Prisma.SortOrder
+  content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   position_x?: Prisma.SortOrder
@@ -444,6 +484,8 @@ export type MemoryCardAvgOrderByAggregateInput = {
 }
 
 export type MemoryCardMaxOrderByAggregateInput = {
+  type?: Prisma.SortOrder
+  content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   position_x?: Prisma.SortOrder
@@ -456,6 +498,8 @@ export type MemoryCardMaxOrderByAggregateInput = {
 }
 
 export type MemoryCardMinOrderByAggregateInput = {
+  type?: Prisma.SortOrder
+  content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   position_x?: Prisma.SortOrder
@@ -559,6 +603,10 @@ export type MemoryCardUncheckedUpdateManyWithoutMemoryNestedInput = {
   deleteMany?: Prisma.MemoryCardScalarWhereInput | Prisma.MemoryCardScalarWhereInput[]
 }
 
+export type EnumContentTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ContentType
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -568,6 +616,8 @@ export type IntFieldUpdateOperationsInput = {
 }
 
 export type MemoryCardCreateWithoutUserInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -579,6 +629,8 @@ export type MemoryCardCreateWithoutUserInput = {
 }
 
 export type MemoryCardUncheckedCreateWithoutUserInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -619,6 +671,8 @@ export type MemoryCardScalarWhereInput = {
   AND?: Prisma.MemoryCardScalarWhereInput | Prisma.MemoryCardScalarWhereInput[]
   OR?: Prisma.MemoryCardScalarWhereInput[]
   NOT?: Prisma.MemoryCardScalarWhereInput | Prisma.MemoryCardScalarWhereInput[]
+  type?: Prisma.EnumContentTypeFilter<"MemoryCard"> | $Enums.ContentType
+  content?: Prisma.StringFilter<"MemoryCard"> | string
   id?: Prisma.StringFilter<"MemoryCard"> | string
   date?: Prisma.DateTimeFilter<"MemoryCard"> | Date | string
   position_x?: Prisma.IntFilter<"MemoryCard"> | number
@@ -631,6 +685,8 @@ export type MemoryCardScalarWhereInput = {
 }
 
 export type MemoryCardCreateWithoutMemoryInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -642,6 +698,8 @@ export type MemoryCardCreateWithoutMemoryInput = {
 }
 
 export type MemoryCardUncheckedCreateWithoutMemoryInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -679,6 +737,8 @@ export type MemoryCardUpdateManyWithWhereWithoutMemoryInput = {
 }
 
 export type MemoryCardCreateManyUserInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -690,6 +750,8 @@ export type MemoryCardCreateManyUserInput = {
 }
 
 export type MemoryCardUpdateWithoutUserInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -701,6 +763,8 @@ export type MemoryCardUpdateWithoutUserInput = {
 }
 
 export type MemoryCardUncheckedUpdateWithoutUserInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -712,6 +776,8 @@ export type MemoryCardUncheckedUpdateWithoutUserInput = {
 }
 
 export type MemoryCardUncheckedUpdateManyWithoutUserInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -723,6 +789,8 @@ export type MemoryCardUncheckedUpdateManyWithoutUserInput = {
 }
 
 export type MemoryCardCreateManyMemoryInput = {
+  type: $Enums.ContentType
+  content: string
   id?: string
   date: Date | string
   position_x: number
@@ -734,6 +802,8 @@ export type MemoryCardCreateManyMemoryInput = {
 }
 
 export type MemoryCardUpdateWithoutMemoryInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -745,6 +815,8 @@ export type MemoryCardUpdateWithoutMemoryInput = {
 }
 
 export type MemoryCardUncheckedUpdateWithoutMemoryInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -756,6 +828,8 @@ export type MemoryCardUncheckedUpdateWithoutMemoryInput = {
 }
 
 export type MemoryCardUncheckedUpdateManyWithoutMemoryInput = {
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position_x?: Prisma.IntFieldUpdateOperationsInput | number
@@ -769,6 +843,8 @@ export type MemoryCardUncheckedUpdateManyWithoutMemoryInput = {
 
 
 export type MemoryCardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  type?: boolean
+  content?: boolean
   id?: boolean
   date?: boolean
   position_x?: boolean
@@ -783,6 +859,8 @@ export type MemoryCardSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
 }, ExtArgs["result"]["memoryCard"]>
 
 export type MemoryCardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  type?: boolean
+  content?: boolean
   id?: boolean
   date?: boolean
   position_x?: boolean
@@ -797,6 +875,8 @@ export type MemoryCardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
 }, ExtArgs["result"]["memoryCard"]>
 
 export type MemoryCardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  type?: boolean
+  content?: boolean
   id?: boolean
   date?: boolean
   position_x?: boolean
@@ -811,6 +891,8 @@ export type MemoryCardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 }, ExtArgs["result"]["memoryCard"]>
 
 export type MemoryCardSelectScalar = {
+  type?: boolean
+  content?: boolean
   id?: boolean
   date?: boolean
   position_x?: boolean
@@ -822,7 +904,7 @@ export type MemoryCardSelectScalar = {
   memory_id?: boolean
 }
 
-export type MemoryCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "date" | "position_x" | "position_y" | "z_index" | "width" | "height" | "user_id" | "memory_id", ExtArgs["result"]["memoryCard"]>
+export type MemoryCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"type" | "content" | "id" | "date" | "position_x" | "position_y" | "z_index" | "width" | "height" | "user_id" | "memory_id", ExtArgs["result"]["memoryCard"]>
 export type MemoryCardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   memory?: boolean | Prisma.MemoryDefaultArgs<ExtArgs>
@@ -843,6 +925,8 @@ export type $MemoryCardPayload<ExtArgs extends runtime.Types.Extensions.Internal
     memory: Prisma.$MemoryPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    type: $Enums.ContentType
+    content: string
     id: string
     date: Date
     position_x: number
@@ -935,8 +1019,8 @@ export interface MemoryCardDelegate<ExtArgs extends runtime.Types.Extensions.Int
    * // Get first 10 MemoryCards
    * const memoryCards = await prisma.memoryCard.findMany({ take: 10 })
    * 
-   * // Only select the `id`
-   * const memoryCardWithIdOnly = await prisma.memoryCard.findMany({ select: { id: true } })
+   * // Only select the `content`
+   * const memoryCardWithContentOnly = await prisma.memoryCard.findMany({ select: { content: true } })
    * 
    */
   findMany<T extends MemoryCardFindManyArgs>(args?: Prisma.SelectSubset<T, MemoryCardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemoryCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -980,9 +1064,9 @@ export interface MemoryCardDelegate<ExtArgs extends runtime.Types.Extensions.Int
    *   ]
    * })
    * 
-   * // Create many MemoryCards and only return the `id`
-   * const memoryCardWithIdOnly = await prisma.memoryCard.createManyAndReturn({
-   *   select: { id: true },
+   * // Create many MemoryCards and only return the `content`
+   * const memoryCardWithContentOnly = await prisma.memoryCard.createManyAndReturn({
+   *   select: { content: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -1071,9 +1155,9 @@ export interface MemoryCardDelegate<ExtArgs extends runtime.Types.Extensions.Int
    *   ]
    * })
    * 
-   * // Update zero or more MemoryCards and only return the `id`
-   * const memoryCardWithIdOnly = await prisma.memoryCard.updateManyAndReturn({
-   *   select: { id: true },
+   * // Update zero or more MemoryCards and only return the `content`
+   * const memoryCardWithContentOnly = await prisma.memoryCard.updateManyAndReturn({
+   *   select: { content: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1277,6 +1361,8 @@ export interface Prisma__MemoryCardClient<T, Null = never, ExtArgs extends runti
  * Fields of the MemoryCard model
  */
 export interface MemoryCardFieldRefs {
+  readonly type: Prisma.FieldRef<"MemoryCard", 'ContentType'>
+  readonly content: Prisma.FieldRef<"MemoryCard", 'String'>
   readonly id: Prisma.FieldRef<"MemoryCard", 'String'>
   readonly date: Prisma.FieldRef<"MemoryCard", 'DateTime'>
   readonly position_x: Prisma.FieldRef<"MemoryCard", 'Int'>
