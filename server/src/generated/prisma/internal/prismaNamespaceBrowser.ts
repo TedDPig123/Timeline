@@ -83,15 +83,16 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 export const MemoryScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
-  type: 'type',
-  content: 'content',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  date: 'date'
 } as const
 
 export type MemoryScalarFieldEnum = (typeof MemoryScalarFieldEnum)[keyof typeof MemoryScalarFieldEnum]
 
 
 export const MemoryCardScalarFieldEnum = {
+  type: 'type',
+  content: 'content',
   id: 'id',
   date: 'date',
   position_x: 'position_x',
