@@ -1,4 +1,6 @@
 import express from "express";
+import {} from "prisma";
+
 const app = express();
 const port = 3001;
 
