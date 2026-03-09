@@ -13,8 +13,11 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@prisma/adapter-neon": "^7.3.0",
+    "@prisma/client": "^6.19.2",
     "@tailwindcss/line-clamp": "^0.4.4",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "framer-motion": "^11.13.5",
     "gsap": "^3.12.7",
@@ -52,6 +55,7 @@
     "playwright": "^1.51.0",
     "postcss": "^8.5.0",
     "prettier-plugin-tailwindcss": "^0.5.14",
+    "prisma": "^6.19.2",
     "storybook": "^8.6.4",
     "tailwindcss": "^3.4.5",
     "ts-node": "^10.9.2",
