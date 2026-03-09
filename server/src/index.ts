@@ -83,7 +83,35 @@ app.post("/api/cards", async (req, res) => {
       memory_id: request.memory_id,
     },
   });
+  res.json(memory_card);
+});
 
+//TODO: update memory card position
+app.patch("/api/cards/position/:id", async (req, res) => {
+  const request = req.body;
+  const card_id = req.params.id;
+  const memory_card = await prisma.memoryCard.update({
+    where: { id: card_id as string },
+    data: {
+      position_x: request.position_x,
+      position_y: request.position_y,
+      z_index: request.z_index,
+    },
+  });
+  res.json(memory_card);
+});
+
+//TODO: update memory card size
+app.patch("/api/cards/size/:id", async (req, res) => {
+  const request = req.body;
+  const card_id = req.params.id;
+  const memory_card = await prisma.memoryCard.update({
+    where: { id: card_id as string },
+    data: {
+      width: request.width,
+      height: request.height,
+    },
+  });
   res.json(memory_card);
 });
 
