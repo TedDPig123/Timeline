@@ -1,5 +1,10 @@
+import dotenv from "dotenv";
+import path from "path";
+
 import express from "express";
 import prisma from "./db";
+
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const app = express();
 const port = 3001;
