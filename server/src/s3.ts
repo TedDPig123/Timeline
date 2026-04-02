@@ -18,16 +18,28 @@ const BUCKET = process.env.AWS_BUCKET_NAME!;
 export async function uploadFile(file: Express.Multer.File): Promise<string> {
   const key = `${Date.now()}-${file.originalname}`;
 
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    }),
-  );
+  console.log("Uploading to S3:", {
+    bucket: BUCKET,
+    key: key,
+    contentType: file.mimetype,
+    size: file.size,
+  });
 
-  return key;
+  try {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: BUCKET,
+        Key: key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      }),
+    );
+    console.log("Upload successful!");
+    return key;
+  } catch (error) {
+    console.error("S3 upload error:", error);
+    throw error;
+  }
 }
 
 export async function getPresignedUrl(key: string): Promise<string> {

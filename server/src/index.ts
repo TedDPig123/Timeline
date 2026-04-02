@@ -55,6 +55,7 @@ app.post("/api/memories", async (req, res) => {
 app.get("/api/memories/:date", async (req, res) => {
   const date = req.params.date;
   const user_id = req.query.user_id as string;
+
   const memory_with_cards = await prisma.memory.findFirst({
     where: {
       AND: [{ user_id: user_id }, { date: new Date(date) }],
@@ -63,7 +64,28 @@ app.get("/api/memories/:date", async (req, res) => {
       memory_cards: true,
     },
   });
-  res.json(memory_with_cards);
+
+  if (!memory_with_cards) {
+    //if it doesn't exist
+    return res.json(null);
+  }
+
+  // making presigned URLs for media cards
+  const cardsWithUrls = await Promise.all(
+    memory_with_cards.memory_cards.map(async (card) => {
+      if (card.type === "TEXT") {
+        return card; // text content dhouldn't be modified
+      }
+      // IMAGE, VIDEO, AUDIO - generate presigned URL
+      const url = await getPresignedUrl(card.content);
+      return { ...card, content: url };
+    }),
+  );
+
+  res.json({
+    ...memory_with_cards,
+    memory_cards: cardsWithUrls,
+  });
 });
 
 // ------------------------------ ALL MEMORY CARD ROUTES -----------------------------
