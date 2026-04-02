@@ -108,6 +108,20 @@ app.get("/api/memories/:date", async (req, res) => {
   }
 });
 
+// deleting memory
+app.delete("/api/memories/:id", async (req, res) => {
+  try {
+    const memory_id = req.params.id;
+    await prisma.memory.delete({
+      where: { id: memory_id },
+    });
+    res.json({ message: "Memory deleted" });
+  } catch (error) {
+    console.error("Error deleting memory:", error);
+    res.status(500).json({ error: "Failed to delete memory" });
+  }
+});
+
 // ------------------------------ ALL MEMORY CARD ROUTES -----------------------------
 //TODO: POST create a memory card given a lot of things
 app.post("/api/cards", upload.single("file"), async (req, res) => {
@@ -178,6 +192,20 @@ app.patch("/api/cards/size/:id", async (req, res) => {
   } catch (error) {
     console.error("Error updating memory card position:", error);
     res.status(500).json({ error: "Failed to update memory card position" });
+  }
+});
+
+//deleting memory card
+app.delete("/api/cards/:id", async (req, res) => {
+  try {
+    const card_id = req.params.id;
+    await prisma.memoryCard.delete({
+      where: { id: card_id },
+    });
+    res.json({ message: "Card deleted" });
+  } catch (error) {
+    console.error("Error deleting memory card:", error);
+    res.status(500).json({ error: "Failed to delete memory card" });
   }
 });
 
