@@ -1,0 +1,44 @@
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import prisma from "./db";
+import { env } from "process";
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: env.GOOGLE_CLIENT_ID!,
+      clientSecret: env.GOOGLE_CLIENT_SECRET!,
+      callbackURL: "http://localhost:3001/api/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // create user based on Google profile
+        const email = profile.emails?.[0]?.value;
+
+        if (!email) {
+          return done(new Error("No email found in Google profile"));
+        }
+
+        let user = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (!user) {
+          // this is to reate new user
+          user = await prisma.user.create({
+            data: {
+              email,
+              username: profile.displayName || email.split("@")[0],
+            },
+          });
+        }
+
+        done(null, user);
+      } catch (error) {
+        done(error as Error);
+      }
+    },
+  ),
+);
+
+export default passport;
