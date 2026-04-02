@@ -47,7 +47,7 @@ model MemoryCard {
 
   user      User   @relation(fields: [user_id], references: [id])
   user_id   String
-  memory    Memory @relation(fields: [memory_id], references: [id])
+  memory    Memory @relation(fields: [memory_id], references: [id], onDelete: Cascade)
   memory_id String
 }
 
