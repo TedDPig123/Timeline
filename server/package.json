@@ -20,6 +20,7 @@
     "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.1.0",
     "@types/passport-google-oauth20": "^2.0.17"
   }
