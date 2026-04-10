@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import prisma from "./db";
+import prisma from "../db";
 import { env } from "process";
 
 passport.use(
@@ -19,6 +19,7 @@ passport.use(
           return done(new Error("No email found in Google profile"));
         }
 
+        //if user already exists, no need to make a new user
         let user = await prisma.user.findUnique({
           where: { email },
         });
