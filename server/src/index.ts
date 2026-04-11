@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+import cors from "cors";
 
 import { ContentType } from "./generated/prisma/enums";
 import express from "express";
@@ -62,7 +63,7 @@ app.post("/api/memories", authenticateToken, async (req: AuthRequest, res) => {
     const request = req.body;
     const memory = await prisma.memory.create({
       data: {
-        user_id: request.userId!,
+        user_id: req.userId!,
         date: new Date(request.date),
       },
     });
@@ -70,6 +71,22 @@ app.post("/api/memories", authenticateToken, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error("Error creating memory:", error);
     res.status(500).json({ error: "Failed to create memory" });
+  }
+});
+
+// GET all memories for the logged-in user (for timeline overview)
+app.get("/api/memories", authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const user_id = req.userId!;
+    const memories = await prisma.memory.findMany({
+      where: { user_id },
+      include: { memory_cards: true },
+      orderBy: { date: "desc" },
+    });
+    res.json(memories);
+  } catch (error) {
+    console.error("Error fetching all memories:", error);
+    res.status(500).json({ error: "Failed to fetch memories" });
   }
 });
 
@@ -164,7 +181,7 @@ app.post(
           width: parseInt(request.width),
           height: parseInt(request.height),
 
-          user_id: request.userId!,
+          user_id: req.userId!,
           memory_id: request.memory_id,
         },
       });

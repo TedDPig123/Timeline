@@ -17,7 +17,7 @@ export function useSettingsContext() {
   return context;
 }
 
-import { MemoryCard } from "./MemoryCard";
+import { MemoryCard } from "../types";
 
 /* 
 export type MemModalType = {
