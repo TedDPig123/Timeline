@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useMemModalContext } from "./context";
-import { useEditingContext } from "./context";
+import { useMemModalContext } from "@/context/context";
+import { useEditingContext } from "@/context/context";
 import { MemoryModule } from "./MemoryModule";
 // TODO: Make memory modals reusable, input values { contentType, position, date }
 // Maybe use date to uniquely identify which memory the modals belong to
@@ -25,7 +25,7 @@ const MemModal = ({
 }) => {
   const [position, setPosition] = useState(memModal.position);
   const { memModals, setMemModals } = useMemModalContext();
-  console.log(memModals)
+  console.log(memModals);
   const { isEditMode } = useEditingContext();
 
   //When dragging around, memory modal must stay in bound
@@ -150,9 +150,7 @@ const MemModal = ({
       }}
       ref={memModalRef}
     >
-      <MemoryModule
-       memoryID = {memModal.memoryID}
-      />
+      <MemoryModule memoryID={memModal.memoryID} />
       {isEditMode && (
         <button
           className="delete-button absolute right-2 top-2 rounded bg-gray-200 px-2 py-1 text-xs text-white hover:bg-gray-400"
