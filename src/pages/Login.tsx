@@ -26,7 +26,7 @@ export default function Login() {
       <h1 className="mb-8 scale-y-[1.1] font-editorial text-6xl tracking-[-2px]">
         Timeline.
       </h1>
-      <p className="mb-8 text-gray-600">Your memories, beautifully organized.</p>
+      <p className="mb-8 text-gray-600">All your memories, on one line.</p>
       <button
         onClick={login}
         className="flex items-center gap-3 rounded-full bg-black px-6 py-3 font-editorial text-xl text-white transition hover:bg-gray-800"
