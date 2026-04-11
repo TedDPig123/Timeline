@@ -4,6 +4,7 @@ import RightArrow from "../../assets/graphics/arrow-right.png";
 export default function TimelineBar() {
   return (
     <div className="relative z-0 flex w-[100vw] flex-row items-center justify-center">
+      <div className="my-0 h-[100%] w-[5%] bg-white"></div>
       <img
         id="left-arrow"
         src={LeftArrow}
