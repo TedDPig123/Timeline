@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import gsap from "gsap";
-import Thumbnail from "./thumbnail";
+import Thumbnail from "./Thumbnail";
 import {
   filterMemoryByWeek,
   filterMemoryByMonth,

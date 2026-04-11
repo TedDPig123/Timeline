@@ -3,12 +3,14 @@ import { TimelineMainPage } from "./routing-pages/TimelineMainPage";
 import { EditMemoryPage } from "./routing-pages/EditMemoryPage";
 import { useState } from "react";
 import LoginSignup from "./routing-pages/login-signup/LoginSignup";
-import { MemModalContext, EditingContext } from "@/components/context";
+import { MemModalContext, EditingContext } from "@/context/context";
 import { MemoryCard } from "./components/MemoryCard";
 import { mockMemoryCards } from "./data/mockMemoryCards";
 
 function App() {
-  const [memModals, setMemModals] = useState<MemoryCard[]>([...mockMemoryCards]);
+  const [memModals, setMemModals] = useState<MemoryCard[]>([
+    ...mockMemoryCards,
+  ]);
   const [isEditMode, changeMode] = useState<boolean>(false);
   // FIXME
   // Function to update position of a modal
@@ -33,7 +35,7 @@ function App() {
             <Route path="/" element={<LoginSignup />} />
             <Route path="/edit/:date" element={<EditMemoryPage />} />
             {/* use useParam to extract date from URL */}
-            <Route path="/timeline" element={<TimelineMainPage/>}></Route>
+            <Route path="/timeline" element={<TimelineMainPage />}></Route>
           </Routes>
         </Router>
       </EditingContext.Provider>
@@ -41,6 +43,4 @@ function App() {
   );
 }
 
-
 export default App;
-
