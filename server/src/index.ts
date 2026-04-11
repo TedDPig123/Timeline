@@ -69,12 +69,27 @@ app.post("/api/users", async (req, res) => {
 app.post("/api/memories", authenticateToken, async (req: AuthRequest, res) => {
   try {
     const request = req.body;
-    const memory = await prisma.memory.create({
-      data: {
-        user_id: req.userId!,
-        date: new Date(request.date),
+    const user_id = req.userId!;
+    const date = new Date(request.date);
+
+    // Use upsert to either create or return existing
+    const memory = await prisma.memory.upsert({
+      where: {
+        user_id_date: {
+          user_id: user_id,
+          date: date,
+        },
+      },
+      update: {}, // Don't update anything if it exists
+      create: {
+        user_id: user_id,
+        date: date,
+      },
+      include: {
+        memory_cards: true,
       },
     });
+
     res.json(memory);
   } catch (error) {
     console.error("Error creating memory:", error);
@@ -207,6 +222,15 @@ app.post(
           memory_id: request.memory_id,
         },
       });
+
+      if (
+        memory_card.type === "IMAGE" ||
+        memory_card.type === "VIDEO" ||
+        memory_card.type === "AUDIO"
+      ) {
+        memory_card.content = await getPresignedUrl(memory_card.content);
+      }
+
       res.json(memory_card);
     } catch (error) {
       console.error("Error creating a memory card:", error);
