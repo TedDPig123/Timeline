@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import RightArrow from "../../assets/graphics/right-white.png";
 import { getAllMemories } from "@/services/api";
 import { MemoryCard, Memory } from "@/types";
-import ThumbnailSpacer from "./ThumbnailSpacer";
 
 interface TimelineSlot {
   date: string;
@@ -16,7 +15,8 @@ interface TimelineSlot {
 }
 
 export default function Timeline() {
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainer1 = useRef<HTMLDivElement | null>(null);
+  const scrollContainer2 = useRef<HTMLDivElement | null>(null);
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [baseDate, setBaseDate] = useState(new Date());
@@ -68,6 +68,10 @@ export default function Timeline() {
     return generateAllSlots(viewMode, baseDate, allCards);
   }, [viewMode, baseDate, allCards]);
 
+  // Split into top (even indices) and bottom (odd indices)
+  const topSlots = slots.filter((_, i) => i % 2 === 0);
+  const bottomSlots = slots.filter((_, i) => i % 2 === 1);
+
   function DateToggler({ ddate }: { ddate: Date }) {
     const shiftDate = (direction: "prev" | "next") => {
       const date = new Date(baseDate);
@@ -83,7 +87,7 @@ export default function Timeline() {
     };
 
     return (
-      <div className="flex w-[100%] items-center justify-center rounded-[25px] bg-black p-3 font-editorial text-2xl text-white">
+      <div className="flex w-[280px] items-center justify-between rounded-[25px] bg-black p-3 font-editorial text-2xl text-white">
         <img
           onClick={() => shiftDate("prev")}
           className="mr-[10px] h-[20px] scale-x-[-1] cursor-pointer"
@@ -118,82 +122,86 @@ export default function Timeline() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Adjust thumbnail sizes based on scroll position (labels don't scale)
+  // Adjust thumbnail sizes based on scroll position
   const adjustSizes = () => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    const containers = [scrollContainer1.current, scrollContainer2.current];
 
-    const items = container.querySelectorAll(".timeline-item");
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
+    containers.forEach((container) => {
+      if (!container) return;
 
-    items.forEach((item) => {
-      const el = item as HTMLElement;
-      const rect = el.getBoundingClientRect();
-      const itemCenterX = rect.left + rect.width / 2;
-      const distance = Math.abs(containerCenterX - itemCenterX);
-      const maxDistance = containerRect.width / 2;
+      const items = container.querySelectorAll(".timeline-item");
+      const containerRect = container.getBoundingClientRect();
+      const containerCenterX = containerRect.left + containerRect.width / 2;
 
-      //TODO: set the scaling as a tunable parameter in settings
-      const scale = Math.max(
-        0.3,
-        gaussian(0.7 * (1 - distance / maxDistance), 1, 0.7),
-      );
-      //note to self: the 0.7 here just kinda determines the range we consider the center
+      items.forEach((item) => {
+        const el = item as HTMLElement;
+        const rect = el.getBoundingClientRect();
+        const itemCenterX = rect.left + rect.width / 2;
+        const distance = Math.abs(containerCenterX - itemCenterX);
+        const maxDistance = containerRect.width / 2;
 
-      // Scale the thumbnail (only if it exists)
-      const thumbnail = el.querySelector(".thumbnail") as HTMLElement;
-      if (thumbnail) {
-        thumbnail.style.width = `${420 * scale}px`;
-        thumbnail.style.height = `${540 * scale}px`;
-      }
+        const scale = Math.max(
+          0.3,
+          gaussian(0.7 * (1 - distance / maxDistance), 1, 0.65),
+        );
 
-      // Scale the thumbnail spacer too
-      const thumbnailSpacer = el.querySelector(
-        ".thumbnail-spacer",
-      ) as HTMLElement;
-      if (thumbnailSpacer) {
-        thumbnailSpacer.style.width = `${420 * scale}px`;
-        thumbnailSpacer.style.height = `${540 * scale}px`;
-      }
-
-      // Scale the connecting line
-      const line = el.querySelector(".connect-line") as HTMLElement;
-      if (line) {
-        const hasThumb = el.querySelector(".thumbnail");
-        line.style.height = hasThumb ? `${120 * scale}px` : "40px";
-      }
-
-      // Update current date when item is near center
-      if (distance < 50) {
-        const dateAttr = el.getAttribute("data-date");
-        if (dateAttr) {
-          setCurrentDate(new Date(dateAttr));
+        // Scale the thumbnail inside this item
+        const thumbnail = el.querySelector(".thumbnail") as HTMLElement;
+        if (thumbnail) {
+          thumbnail.style.width = `${Math.min(350 * scale)}px`;
+          thumbnail.style.height = `${Math.min(400 * scale)}px`;
         }
-      }
+
+        // Update current date when item is near center
+        if (distance < 50) {
+          const dateAttr = el.getAttribute("data-date");
+          if (dateAttr) {
+            setCurrentDate(new Date(dateAttr));
+          }
+        }
+      });
     });
+  };
+
+  // Sync scroll between containers
+  const syncScroll = (source: HTMLDivElement, target: HTMLDivElement) => {
+    target.scrollLeft = source.scrollLeft;
   };
 
   // Scroll handling
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    const container1 = scrollContainer1.current;
+    const container2 = scrollContainer2.current;
+    if (!container1 || !container2) return;
 
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
-      container.scrollLeft += event.deltaY * 1.5;
+      const delta = event.deltaY * 1.5;
+      container1.scrollLeft += delta;
+      container2.scrollLeft += delta;
     };
 
-    const handleScroll = () => adjustSizes();
+    const handleScroll1 = () => {
+      syncScroll(container1, container2);
+      adjustSizes();
+    };
 
-    container.addEventListener("wheel", handleWheel, { passive: false });
-    container.addEventListener("scroll", handleScroll);
+    const handleScroll2 = () => {
+      syncScroll(container2, container1);
+      adjustSizes();
+    };
+
+    // Attach wheel to document so scrolling works anywhere
+    document.addEventListener("wheel", handleWheel, { passive: false });
+    container1.addEventListener("scroll", handleScroll1);
+    container2.addEventListener("scroll", handleScroll2);
 
     adjustSizes();
 
     return () => {
-      container.removeEventListener("wheel", handleWheel);
-      container.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("wheel", handleWheel);
+      container1.removeEventListener("scroll", handleScroll1);
+      container2.removeEventListener("scroll", handleScroll2);
     };
   }, [slots]);
 
@@ -205,22 +213,23 @@ export default function Timeline() {
   useEffect(() => {
     const leftArrow = document.getElementById("left-arrow");
     const rightArrow = document.getElementById("right-arrow");
-    const container = scrollContainerRef.current;
+    const container1 = scrollContainer1.current;
+    const container2 = scrollContainer2.current;
 
     const scrollAmount = vwidth * 0.4;
 
     const handleLeft = () => {
-      if (container) {
-        gsap.to(container, {
-          scrollLeft: container.scrollLeft - scrollAmount,
+      if (container1 && container2) {
+        gsap.to([container1, container2], {
+          scrollLeft: container1.scrollLeft - scrollAmount,
           duration: 0.5,
         });
       }
     };
     const handleRight = () => {
-      if (container) {
-        gsap.to(container, {
-          scrollLeft: container.scrollLeft + scrollAmount,
+      if (container1 && container2) {
+        gsap.to([container1, container2], {
+          scrollLeft: container1.scrollLeft + scrollAmount,
           duration: 0.5,
         });
       }
@@ -245,90 +254,69 @@ export default function Timeline() {
 
   return (
     <div className="relative flex h-full w-[100vw] flex-col items-center justify-center">
-      {/* Timeline container */}
-
+      {/* Top row - thumbnails above the line */}
       <div
-        ref={scrollContainerRef}
-        className="relative flex h-[85vh] w-full items-center overflow-x-auto overflow-y-hidden"
+        ref={scrollContainer1}
+        className="flex h-[45%] w-full items-end overflow-x-auto overflow-y-hidden"
         style={{ scrollbarWidth: "none" }}
       >
-        {/* Items */}
         <div
-          className="relative flex items-center"
+          className="flex items-end gap-[30px]"
           style={{
             paddingLeft: `${vwidth / 2}px`,
             paddingRight: `${vwidth / 2}px`,
-            gap: "60px",
           }}
         >
-          {slots.map((slot, index) => {
-            const isTop = index % 2 === 0;
+          {topSlots.map((slot) => (
+            <div
+              key={slot.date}
+              className="timeline-item flex flex-col items-center"
+              data-date={slot.date}
+            >
+              <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                <Thumbnail
+                  text={slot.hasMemory ? slot.text : null}
+                  image={slot.hasMemory ? slot.image : null}
+                  date={slot.label}
+                  isEmpty={!slot.hasMemory}
+                />
+              </button>
+              <div className="h-[30px] w-[4px] bg-black" />
+            </div>
+          ))}
+        </div>
+      </div>
 
-            return (
-              <div
-                key={slot.date}
-                className="timeline-item flex items-center"
-                data-date={slot.date}
-                style={{
-                  flexDirection: "column",
-                  justifyContent: "center",
-                }}
-              >
-                {/* Top content */}
-                {isTop && (
-                  <div className="flex flex-col items-center">
-                    {slot.hasMemory ? (
-                      <>
-                        <button onClick={() => navigate(`/edit/${slot.date}`)}>
-                          <Thumbnail
-                            text={slot.text}
-                            image={slot.image}
-                            date={slot.label}
-                          />
-                        </button>
-                        <div className="connect-line w-[4px] bg-black" />
-                        <ThumbnailSpacer></ThumbnailSpacer>
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-editorial text-lg text-gray-400">
-                          {slot.label}
-                        </span>
-                        <div className="connect-line w-[4px] bg-black" />
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {/* Bottom content */}
-                {!isTop && (
-                  <div className="flex flex-col items-center">
-                    {slot.hasMemory ? (
-                      <>
-                        <ThumbnailSpacer></ThumbnailSpacer>
-                        <div className="connect-line w-[4px] bg-black" />
-                        <button onClick={() => navigate(`/edit/${slot.date}`)}>
-                          <Thumbnail
-                            text={slot.text}
-                            image={slot.image}
-                            date={slot.label}
-                          />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <div className="connect-line w-[4px] bg-black" />
-
-                        <span className="font-editorial text-lg text-gray-400">
-                          {slot.label}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+      {/* Bottom row - thumbnails below the line */}
+      <div
+        ref={scrollContainer2}
+        className="flex h-[45%] w-full items-start overflow-x-auto overflow-y-hidden"
+        style={{ scrollbarWidth: "none" }}
+      >
+        <div
+          className="flex items-start gap-[30px]"
+          style={{
+            paddingLeft: `${vwidth / 2 + 60}px`, // Offset to stagger with top row
+            paddingRight: `${vwidth / 2}px`,
+          }}
+        >
+          {bottomSlots.map((slot) => (
+            <div
+              key={slot.date}
+              className="timeline-item flex flex-col items-center"
+              data-date={slot.date}
+            >
+              <div className="h-[30px] w-[4px] bg-black" />
+              <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                <Thumbnail
+                  text={slot.hasMemory ? slot.text : null}
+                  image={slot.hasMemory ? slot.image : null}
+                  date={slot.label}
+                  isEmpty={!slot.hasMemory}
+                />
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -363,12 +351,10 @@ function generateAllSlots(
   function getOrdinal(n: number): string {
     const s = ["TH", "ST", "ND", "RD"];
     const v = n % 100;
-    //lowk had to search this up
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   }
 
   if (viewMode === "week") {
-    // Get Monday of the week
     const date = new Date(baseDate);
     const day = date.getDay();
     const diff = date.getDate() - day + (day === 0 ? -6 : 1);
