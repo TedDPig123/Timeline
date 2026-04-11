@@ -246,17 +246,12 @@ export default function Timeline() {
   return (
     <div className="relative flex h-full w-[100vw] flex-col items-center justify-center">
       {/* Timeline container */}
+
       <div
         ref={scrollContainerRef}
         className="relative flex h-[85vh] w-full items-center overflow-x-auto overflow-y-hidden"
         style={{ scrollbarWidth: "none" }}
       >
-        {/* Horizontal timeline bar */}
-        <div
-          className="pointer-events-none absolute left-0 right-0 h-[4px] bg-black"
-          style={{ top: "50%", transform: "translateY(-50%)" }}
-        />
-
         {/* Items */}
         <div
           className="relative flex items-center"
