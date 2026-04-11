@@ -2,15 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useMemModalContext } from "@/context/context";
 import { useEditingContext } from "@/context/context";
 import { MemoryModule } from "./MemoryModule";
-// TODO: Make memory modals reusable, input values { contentType, position, date }
-// Maybe use date to uniquely identify which memory the modals belong to
-// Make sure to set an unique key for each memory component ex date-something
-export type MemoryCard = {
-  id: string; // new Date()
-  date: string; //YYYY-MM-DD
-  position: { x: number; y: number };
-  memoryID: string; // The memory contained for this card
-};
+import { MemoryCard } from "../../types";
 
 const MemModal = ({
   memModal,
@@ -23,7 +15,7 @@ const MemModal = ({
   updatePosition: (id: string, newPosition: { x: number; y: number }) => void;
   memPageRef: React.RefObject<HTMLDivElement>;
 }) => {
-  const [position, setPosition] = useState(memModal.position);
+  const [position, setPosition] = useState({ x: memModal.position_x, y: memModal.position_y });
   const { memModals, setMemModals } = useMemModalContext();
   console.log(memModals);
   const { isEditMode } = useEditingContext();
@@ -143,14 +135,16 @@ const MemModal = ({
 
   return (
     <div
-      className="memory-modal absolute h-[200px] w-[200px] rounded-lg border border-black bg-white p-4"
+      className="memory-modal absolute rounded-lg border border-black bg-white p-4"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
+        width: `${memModal.width}px`,
+        height: `${memModal.height}px`,
       }}
       ref={memModalRef}
     >
-      <MemoryModule memoryID={memModal.memoryID} />
+      <MemoryModule type={memModal.type} content={memModal.content} />
       {isEditMode && (
         <button
           className="delete-button absolute right-2 top-2 rounded bg-gray-200 px-2 py-1 text-xs text-white hover:bg-gray-400"

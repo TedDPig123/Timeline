@@ -1,45 +1,50 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { TimelineMainPage } from "./routing-pages/TimelineMainPage";
-import { EditMemoryPage } from "./routing-pages/EditMemoryPage";
 import { useState } from "react";
-import LoginSignup from "./routing-pages/login-signup/LoginSignup";
 import { MemModalContext, EditingContext } from "@/context/context";
-import { MemoryCard } from "./components/MemoryCard";
-import { mockMemoryCards } from "./data/mockMemoryCards";
+import { MemoryCard } from "./types";
+import { AuthProvider } from "./context/AuthContext";
+
+// Pages
+import AuthCallback from "./pages/AuthCallback";
+import Login from "./pages/Login";
+import EditMemoryPage from "./pages/EditMemoryPage";
+import TimelineMainPage from "./pages/TimelineMainPage";
 
 function App() {
-  const [memModals, setMemModals] = useState<MemoryCard[]>([
-    ...mockMemoryCards,
-  ]);
   const [isEditMode, changeMode] = useState<boolean>(false);
-  // FIXME
-  // Function to update position of a modal
+  const [memModals, setMemModals] = useState<MemoryCard[]>([]);
+
   const updateMemModalPosition = (
     id: string,
-    newPosition: { x: number; y: number },
+    newPosition: { x: number; y: number }
   ) => {
     setMemModals((prevModals) => {
       const updatedModals = prevModals.map((modal) =>
-        modal.id === id ? { ...modal, position: newPosition } : modal,
+        modal.id === id
+          ? { ...modal, position_x: newPosition.x, position_y: newPosition.y }
+          : modal
       );
       return updatedModals;
     });
   };
+
   return (
-    <MemModalContext.Provider
-      value={{ memModals, setMemModals, updateMemModalPosition }}
-    >
-      <EditingContext.Provider value={{ isEditMode, changeMode }}>
-        <Router>
-          <Routes>
-            <Route path="/" element={<LoginSignup />} />
-            <Route path="/edit/:date" element={<EditMemoryPage />} />
-            {/* use useParam to extract date from URL */}
-            <Route path="/timeline" element={<TimelineMainPage />}></Route>
-          </Routes>
-        </Router>
-      </EditingContext.Provider>
-    </MemModalContext.Provider>
+    <AuthProvider>
+      <MemModalContext.Provider
+        value={{ memModals, setMemModals, updateMemModalPosition }}
+      >
+        <EditingContext.Provider value={{ isEditMode, changeMode }}>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/auth-callback" element={<AuthCallback />} />
+              <Route path="/edit/:date" element={<EditMemoryPage />} />
+              <Route path="/timeline" element={<TimelineMainPage />} />
+            </Routes>
+          </Router>
+        </EditingContext.Provider>
+      </MemModalContext.Provider>
+    </AuthProvider>
   );
 }
 

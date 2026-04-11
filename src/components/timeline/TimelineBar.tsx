@@ -1,5 +1,5 @@
-import LeftArrow from "../assets/graphics/arrow-left.png";
-import RightArrow from "../assets/graphics/arrow-right.png";
+import LeftArrow from "../../assets/graphics/arrow-left.png";
+import RightArrow from "../../assets/graphics/arrow-right.png";
 
 export default function TimelineBar() {
   return (

@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
-import { MemModal, MemoryCard } from "./MemoryCard";
-import { useMemModalContext, useEditingContext } from "./context";
+import { MemModal } from "./MemoryCard";
+import { MemoryCard } from "../../types";
+import { useMemModalContext, useEditingContext } from "../../context/context";
 import { useNavigate } from "react-router-dom";
 
 // Each memory page should also be unique

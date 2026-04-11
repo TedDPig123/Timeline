@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { Settings } from "./Settings";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 // Timeline                  week|month|year                       settings    sign out
 // Font: PP Editorial New, in tailwind font-serif vertically stretched out looks similar
 const NavBar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleSignOut = () => {
+    logout();
+    navigate("/");
+  };
   //Implement the zooming in and out when clicked on the three views
   return (
     <div className="grid w-[100vw] grid-cols-3 items-center justify-center p-4 text-center text-black">
@@ -44,7 +51,7 @@ const NavBar = () => {
         />
         <button
           className="rounded-full bg-gray-700 px-3 py-1 font-editorial text-xl text-white hover:bg-gray-500"
-          onClick={() => navigate(`/`)}
+          onClick={handleSignOut}
         >
           sign out
         </button>
