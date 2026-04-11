@@ -29,3 +29,4 @@ dist-ssr
 .env
 
 /src/generated/prisma
+/node_modules
