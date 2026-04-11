@@ -8,6 +8,8 @@ export const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined,
 );
 
+// 0,1,2 -> week,month,year
+
 export function useSettingsContext() {
   const context = useContext(SettingsContext);
 
