@@ -54,11 +54,13 @@ export default function Thumbnail({
         ) : (
           <>
             {image && (
-              <img
-                className="mb-1 h-auto w-full rounded-[16px] object-cover"
-                src={image}
-                alt="thumbnail"
-              />
+              <div className="w-full overflow-hidden rounded-[16px] border-[3px] border-white bg-white">
+                <img
+                  className="h-auto w-full rounded-[12px] object-cover"
+                  src={image}
+                  alt="thumbnail"
+                />
+              </div>
             )}
             {text && (
               <div ref={containerRef} className="mt-1 h-full w-full flex-1">
