@@ -1,33 +1,36 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import gsap from "gsap";
 import Thumbnail from "./Thumbnail";
-import {
-  filterMemoryByWeek,
-  filterMemoryByMonth,
-  filterMemoryByYear,
-  thumbnailInfo,
-} from "@/utils/FilterMemoryByDateRange";
 import { useNavigate } from "react-router-dom";
 import RightArrow from "../../assets/graphics/right-white.png";
 import { getAllMemories } from "@/services/api";
 import { MemoryCard, Memory } from "@/types";
+import ThumbnailSpacer from "./ThumbnailSpacer";
+
+interface TimelineSlot {
+  date: string;
+  label: string;
+  hasMemory: boolean;
+  text: string | null;
+  image: string | null;
+}
 
 export default function Timeline() {
-  const scrollContainer1 = useRef<HTMLDivElement | null>(null);
-  const scrollContainer2 = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [baseDate, setBaseDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState("month");
+  const [viewMode, setViewMode] = useState<"week" | "month" | "year">("month");
   const [allCards, setAllCards] = useState<MemoryCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   // Fetch all memories on mount
   useEffect(() => {
     async function fetchMemories() {
       try {
         const memories: Memory[] = await getAllMemories();
-        // Flatten all memory_cards from all memories
         const cards = memories?.flatMap((m) => m.memory_cards || []) || [];
         setAllCards(cards);
       } catch (error) {
@@ -45,18 +48,9 @@ export default function Timeline() {
     const weekButton = document.getElementById("week-button");
     const yearButton = document.getElementById("year-button");
 
-    const handleMonth = () => {
-      setViewMode("month");
-      adjustThumbnailSize();
-    };
-    const handleWeek = () => {
-      setViewMode("week");
-      adjustThumbnailSize();
-    };
-    const handleYear = () => {
-      setViewMode("year");
-      adjustThumbnailSize();
-    };
+    const handleMonth = () => setViewMode("month");
+    const handleWeek = () => setViewMode("week");
+    const handleYear = () => setViewMode("year");
 
     monthButton?.addEventListener("click", handleMonth);
     weekButton?.addEventListener("click", handleWeek);
@@ -69,14 +63,14 @@ export default function Timeline() {
     };
   }, []);
 
-  const thumbnails = useMemo(
-    () => splitArray(viewShift(viewMode, currentDate, allCards)),
-    [viewMode, currentDate, allCards],
-  );
+  // Generate ALL slots for the view
+  const slots = useMemo(() => {
+    return generateAllSlots(viewMode, baseDate, allCards);
+  }, [viewMode, baseDate, allCards]);
 
   function DateToggler({ ddate }: { ddate: Date }) {
     const shiftDate = (direction: "prev" | "next") => {
-      const date = new Date(currentDate);
+      const date = new Date(baseDate);
       if (viewMode === "year") {
         date.setFullYear(date.getFullYear() + (direction === "next" ? 1 : -1));
       } else if (viewMode === "month") {
@@ -104,7 +98,7 @@ export default function Timeline() {
                   month: "long",
                   year: "numeric",
                 })
-              : ddate.toLocaleDateString()}
+              : `Week of ${ddate.toLocaleDateString()}`}
         </div>
         <img
           onClick={() => shiftDate("next")}
@@ -116,194 +110,128 @@ export default function Timeline() {
     );
   }
 
-  function viewShift(
-    view: string,
-    baseDate: Date,
-    cards: MemoryCard[],
-  ): thumbnailInfo[] {
-    const dateString = baseDate.toISOString().split("T")[0];
-    if (view === "week") {
-      return filterMemoryByWeek(dateString, cards);
-    } else if (view === "month") {
-      return filterMemoryByMonth(dateString, cards);
-    } else {
-      return filterMemoryByYear(dateString, cards);
-    }
-  }
-
-  function getWindowDimensions() {
-    const { innerWidth: vwidth, innerHeight: vheight } = window;
-    return { vwidth, vheight };
-  }
-
-  function useWindowDimensions() {
-    const [windowDimensions, setWindowDimensions] = useState(
-      getWindowDimensions(),
-    );
-
-    useEffect(() => {
-      function handleResize() {
-        setWindowDimensions(getWindowDimensions());
-      }
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    return windowDimensions;
-  }
-
-  const { vwidth } = useWindowDimensions();
-
+  // Window dimensions
+  const [vwidth, setVwidth] = useState(window.innerWidth);
   useEffect(() => {
-    const leftArrow = document.getElementById("left-arrow");
-    const handleLeftClick = () => {
-      gsap.to([scrollContainer1.current, scrollContainer2.current], {
-        scrollLeft: (index: number) =>
-          index === 0
-            ? (scrollContainer1.current?.scrollLeft ?? 0) -
-              0.5 * (vwidth - 2 * (0.048 * vwidth + 70))
-            : (scrollContainer2.current?.scrollLeft ?? 0) -
-              0.5 * (vwidth - 2 * (0.048 * vwidth + 70)),
-        duration: 2,
-        ease: "power2.out",
-      });
-    };
+    const handleResize = () => setVwidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-    if (leftArrow) {
-      leftArrow.addEventListener("click", handleLeftClick);
-    }
+  // Adjust thumbnail sizes based on scroll position (labels don't scale)
+  const adjustSizes = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-    return () => {
-      if (leftArrow) {
-        leftArrow.removeEventListener("click", handleLeftClick);
+    const items = container.querySelectorAll(".timeline-item");
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+
+    items.forEach((item) => {
+      const el = item as HTMLElement;
+      const rect = el.getBoundingClientRect();
+      const itemCenterX = rect.left + rect.width / 2;
+      const distance = Math.abs(containerCenterX - itemCenterX);
+      const maxDistance = containerRect.width / 2;
+
+      const scale = Math.max(
+        0.4,
+        gaussian(0.7 * (1 - distance / maxDistance), 1, 0.7),
+      );
+
+      // Scale the thumbnail (only if it exists)
+      const thumbnail = el.querySelector(".thumbnail") as HTMLElement;
+      if (thumbnail) {
+        thumbnail.style.width = `${280 * scale}px`;
+        thumbnail.style.height = `${360 * scale}px`;
       }
-    };
-  }, [vwidth]);
 
-  useEffect(() => {
-    const rightArrow = document.getElementById("right-arrow");
-    const handleRightClick = () => {
-      gsap.to([scrollContainer1.current, scrollContainer2.current], {
-        scrollLeft: (index: number) =>
-          index === 0
-            ? (scrollContainer1.current?.scrollLeft ?? 0) +
-              0.5 * (vwidth - 2 * (0.048 * vwidth + 70))
-            : (scrollContainer2.current?.scrollLeft ?? 0) +
-              0.5 * (vwidth - 2 * (0.048 * vwidth + 70)),
-        duration: 2,
-        ease: "power2.out",
-      });
-    };
-
-    if (rightArrow) {
-      rightArrow.addEventListener("click", handleRightClick);
-    }
-
-    return () => {
-      if (rightArrow) {
-        rightArrow.removeEventListener("click", handleRightClick);
+      // Scale the thumbnail spacer too
+      const thumbnailSpacer = el.querySelector(
+        ".thumbnail-spacer",
+      ) as HTMLElement;
+      if (thumbnailSpacer) {
+        thumbnailSpacer.style.width = `${280 * scale}px`;
+        thumbnailSpacer.style.height = `${360 * scale}px`;
       }
-    };
-  }, [vwidth]);
 
-  const adjustThumbnailSize = () => {
-    const scrollContainers = [
-      scrollContainer1.current,
-      scrollContainer2.current,
-    ];
+      // Scale the connecting line
+      const line = el.querySelector(".connect-line") as HTMLElement;
+      if (line) {
+        const hasThumb = el.querySelector(".thumbnail");
+        line.style.height = hasThumb ? `${120 * scale}px` : "40px";
+      }
 
-    scrollContainers.forEach((container) => {
-      if (!container) return;
-
-      const thumbnails = container.querySelectorAll(".thumbnail");
-      const containerRect = container.getBoundingClientRect();
-      const containerCenterX = containerRect.left + containerRect.width / 2;
-
-      thumbnails.forEach((thumbnail) => {
-        const el = thumbnail as HTMLElement;
-        const thumbnailRect = el.getBoundingClientRect();
-        const thumbnailCenterX = thumbnailRect.left + thumbnailRect.width / 2;
-        const distance = Math.abs(containerCenterX - thumbnailCenterX);
-        const maxDistance = containerRect.width / 2;
-
-        const scale = Math.max(
-          0.2,
-          gaussian(0.7 * (1 - distance / maxDistance), 1, 0.7),
-        );
-        const height = 600 * scale;
-        const width = 460 * scale;
-
-        el.style.width = `${width}px`;
-        el.style.height = `${height}px`;
-
-        if (distance < 0.1 * vwidth) {
-          const dateAttr = el.getAttribute("data-date");
-          if (dateAttr) {
-            setCurrentDate(new Date(dateAttr));
-          }
+      // Update current date when item is near center
+      if (distance < 50) {
+        const dateAttr = el.getAttribute("data-date");
+        if (dateAttr) {
+          setCurrentDate(new Date(dateAttr));
         }
-      });
+      }
     });
   };
 
+  // Scroll handling
   useEffect(() => {
-    adjustThumbnailSize();
-  }, [allCards]);
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-  useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
-      const scrollSpeed = vwidth * 0.0014;
-      const delta = event.deltaY * scrollSpeed;
-
-      gsap.to([scrollContainer1.current, scrollContainer2.current], {
-        scrollLeft: (index: number) =>
-          index === 0
-            ? (scrollContainer1.current?.scrollLeft ?? 0) + delta
-            : (scrollContainer2.current?.scrollLeft ?? 0) + delta,
-        duration: 0.2,
-        ease: "power3.out",
-      });
+      container.scrollLeft += event.deltaY * 1.5;
     };
 
-    const container1 = scrollContainer1.current;
-    const container2 = scrollContainer2.current;
+    const handleScroll = () => adjustSizes();
 
-    if (container1 && container2) {
-      container1.addEventListener("wheel", handleWheel, { passive: false });
-      container2.addEventListener("wheel", handleWheel, { passive: false });
-    }
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("scroll", handleScroll);
+
+    adjustSizes();
 
     return () => {
-      if (container1 && container2) {
-        container1.removeEventListener("wheel", handleWheel);
-        container2.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [slots]);
+
+  useEffect(() => {
+    setTimeout(adjustSizes, 50);
+  }, [viewMode, baseDate, allCards]);
+
+  // Arrow button handlers
+  useEffect(() => {
+    const leftArrow = document.getElementById("left-arrow");
+    const rightArrow = document.getElementById("right-arrow");
+    const container = scrollContainerRef.current;
+
+    const scrollAmount = vwidth * 0.4;
+
+    const handleLeft = () => {
+      if (container) {
+        gsap.to(container, {
+          scrollLeft: container.scrollLeft - scrollAmount,
+          duration: 0.5,
+        });
       }
     };
-  }, [vwidth]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      adjustThumbnailSize();
+    const handleRight = () => {
+      if (container) {
+        gsap.to(container, {
+          scrollLeft: container.scrollLeft + scrollAmount,
+          duration: 0.5,
+        });
+      }
     };
 
-    const c1 = scrollContainer1.current;
-    const c2 = scrollContainer2.current;
-
-    c1?.addEventListener("scroll", handleScroll);
-    c2?.addEventListener("scroll", handleScroll);
+    leftArrow?.addEventListener("click", handleLeft);
+    rightArrow?.addEventListener("click", handleRight);
 
     return () => {
-      c1?.removeEventListener("scroll", handleScroll);
-      c2?.removeEventListener("scroll", handleScroll);
+      leftArrow?.removeEventListener("click", handleLeft);
+      rightArrow?.removeEventListener("click", handleRight);
     };
-  }, []);
-
-  useEffect(() => {
-    adjustThumbnailSize();
-  }, [vwidth, baseDate]);
-
-  const navigate = useNavigate();
+  }, [vwidth]);
 
   if (isLoading) {
     return (
@@ -314,89 +242,99 @@ export default function Timeline() {
   }
 
   return (
-    <div className="align-center z-50 flex w-[100vw] flex-col justify-center">
-      {/* top scroll */}
+    <div className="relative flex h-full w-[100vw] flex-col items-center justify-center">
+      {/* Timeline container */}
       <div
-        className="gallery-wrap align-center flex items-center justify-center"
-        style={{
-          marginLeft: `${0.048 * vwidth + 70}px`,
-          marginRight: `${0.048 * vwidth + 70}px`,
-        }}
+        ref={scrollContainerRef}
+        className="relative flex h-[85vh] w-full items-center overflow-x-auto overflow-y-hidden"
+        style={{ scrollbarWidth: "none" }}
       >
+        {/* Horizontal timeline bar */}
         <div
-          ref={scrollContainer1}
-          className="thumbnail-gallery flex h-[45vh] w-[100vw] items-end overflow-x-scroll pb-4"
+          className="pointer-events-none absolute left-0 right-0 h-[4px] bg-black"
+          style={{ top: "50%", transform: "translateY(-50%)" }}
+        />
+
+        {/* Items */}
+        <div
+          className="relative flex items-center"
+          style={{
+            paddingLeft: `${vwidth / 2}px`,
+            paddingRight: `${vwidth / 2}px`,
+            gap: "60px",
+          }}
         >
-          <div
-            className="grid grid-flow-col items-end gap-[40px] p-[10px]"
-            style={{
-              marginLeft: `${0.3 * vwidth}px`,
-              marginRight: `${0.3 * vwidth}px`,
-            }}
-          >
-            {thumbnails[0].length > 0 &&
-              thumbnails[0].map((e) => (
-                <div
-                  className="align-end relative flex justify-center"
-                  key={e.date ?? Math.random()}
-                >
-                  <div className="absolute z-0 h-[500px] w-[0.4rem] bg-black"></div>
-                  <button onClick={() => navigate(`/edit/${e.date!}`)}>
-                    <Thumbnail text={e.text} image={e.image} date={e.date} />
-                  </button>
-                </div>
-              ))}
-            {thumbnails[0].length === 0 && (
-              <div className="w-full text-center text-xl text-gray-400">
-                No entries for this time range.
+          {slots.map((slot, index) => {
+            const isTop = index % 2 === 0;
+
+            return (
+              <div
+                key={slot.date}
+                className="timeline-item flex items-center"
+                data-date={slot.date}
+                style={{
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
+                {/* Top content */}
+                {isTop && (
+                  <div className="flex flex-col items-center">
+                    {slot.hasMemory ? (
+                      <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                        <Thumbnail
+                          text={slot.text}
+                          image={slot.image}
+                          date={slot.label}
+                        />
+                      </button>
+                    ) : (
+                      <span className="font-editorial text-lg text-gray-400">
+                        {slot.label}
+                      </span>
+                    )}
+                    <div className="connect-line w-[4px] bg-black" />
+                    <ThumbnailSpacer></ThumbnailSpacer>
+                  </div>
+                )}
+
+                {/* Bottom content */}
+                {!isTop && (
+                  <div className="flex flex-col items-center">
+                    <div className="connect-line w-[4px] bg-black" />
+                    {slot.hasMemory ? (
+                      <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                        <Thumbnail
+                          text={slot.text}
+                          image={slot.image}
+                          date={slot.label}
+                        />
+                      </button>
+                    ) : (
+                      <span className="font-editorial text-lg text-gray-400">
+                        {slot.label}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* bottom scroll */}
-      <div
-        className="gallery-wrap align-end flex items-end justify-end"
-        style={{
-          marginLeft: `${0.048 * vwidth + 70}px`,
-          marginRight: `${0.048 * vwidth + 70}px`,
-        }}
-      >
-        <div
-          ref={scrollContainer2}
-          className="thumbnail-gallery flex h-[45vh] w-[100vw] overflow-x-scroll pt-4"
-        >
-          <div
-            className="grid h-[100%] grid-flow-col gap-[40px] p-[10px]"
-            style={{
-              marginLeft: `${0.3 * vwidth + 70}px`,
-              marginRight: `${0.3 * vwidth + 70}px`,
-            }}
-          >
-            {thumbnails[1].length > 0 &&
-              thumbnails[1].map((e) => (
-                <div
-                  className="relative flex justify-center"
-                  key={e.date ?? Math.random()}
-                >
-                  <div className="absolute top-1/2 z-0 mt-[-200px] h-[200px] w-[0.4rem] -translate-y-1/2 bg-black"></div>
-                  <Thumbnail text={e.text} image={e.image} date={e.date} />
-                </div>
-              ))}
-          </div>
-        </div>
-      </div>
-
+      {/* Date toggler */}
       <div className="pointer-events-auto fixed bottom-[20px] left-[20px] z-[100] select-none">
         <DateToggler ddate={currentDate} />
       </div>
+
+      {/* New memory button */}
       <div className="pointer-events-auto fixed bottom-[20px] right-[20px] z-[100]">
         <button
           onClick={() =>
             navigate(`/edit/${new Date().toISOString().split("T")[0]}`)
           }
-          className="flex w-[100%] cursor-pointer select-none items-center justify-center rounded-[25px] bg-black p-3 font-editorial text-2xl text-white hover:bg-gray-800"
+          className="flex cursor-pointer select-none items-center justify-center rounded-[25px] bg-black p-3 font-editorial text-2xl text-white hover:bg-gray-800"
         >
           + new memory
         </button>
@@ -405,32 +343,117 @@ export default function Timeline() {
   );
 }
 
+// Generate ALL slots for the view (empty or not)
+function generateAllSlots(
+  viewMode: "week" | "month" | "year",
+  baseDate: Date,
+  cards: MemoryCard[],
+): TimelineSlot[] {
+  const slots: TimelineSlot[] = [];
+
+  function getOrdinal(n: number): string {
+    const s = ["TH", "ST", "ND", "RD"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  if (viewMode === "week") {
+    // Get Monday of the week
+    const date = new Date(baseDate);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(date);
+    monday.setDate(diff);
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const dateStr = d.toISOString().split("T")[0];
+
+      const dayCards = cards.filter((c) => c.date.split("T")[0] === dateStr);
+      const hasMemory = dayCards.length > 0;
+
+      slots.push({
+        date: dateStr,
+        label: getOrdinal(d.getDate()),
+        hasMemory,
+        text: hasMemory
+          ? dayCards.find((c) => c.type === "TEXT")?.content || null
+          : null,
+        image: hasMemory
+          ? dayCards.find((c) => c.type === "IMAGE")?.content || null
+          : null,
+      });
+    }
+  } else if (viewMode === "month") {
+    const year = baseDate.getFullYear();
+    const month = baseDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const d = new Date(year, month, day);
+      const dateStr = d.toISOString().split("T")[0];
+
+      const dayCards = cards.filter((c) => c.date.split("T")[0] === dateStr);
+      const hasMemory = dayCards.length > 0;
+
+      slots.push({
+        date: dateStr,
+        label: getOrdinal(day),
+        hasMemory,
+        text: hasMemory
+          ? dayCards.find((c) => c.type === "TEXT")?.content || null
+          : null,
+        image: hasMemory
+          ? dayCards.find((c) => c.type === "IMAGE")?.content || null
+          : null,
+      });
+    }
+  } else if (viewMode === "year") {
+    const year = baseDate.getFullYear();
+    const monthNames = [
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC",
+    ];
+
+    for (let month = 0; month < 12; month++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+
+      const monthCards = cards.filter((c) => {
+        const cardDate = new Date(c.date);
+        return cardDate.getFullYear() === year && cardDate.getMonth() === month;
+      });
+      const hasMemory = monthCards.length > 0;
+
+      slots.push({
+        date: dateStr,
+        label: monthNames[month],
+        hasMemory,
+        text: hasMemory
+          ? monthCards.find((c) => c.type === "TEXT")?.content || null
+          : null,
+        image: hasMemory
+          ? monthCards.find((c) => c.type === "IMAGE")?.content || null
+          : null,
+      });
+    }
+  }
+
+  return slots;
+}
+
 function gaussian(x: number, mean: number, stdDev: number): number {
   const exponent = -0.5 * Math.pow((x - mean) / stdDev, 2);
   const coefficient = 1 / (stdDev * Math.sqrt(2 * Math.PI));
   return coefficient * Math.exp(exponent);
-}
-
-function splitArray(arr: thumbnailInfo[]): [thumbnailInfo[], thumbnailInfo[]] {
-  const evenIndexed: thumbnailInfo[] = [];
-  const oddIndexed: thumbnailInfo[] = [];
-
-  arr.forEach((item, index) => {
-    if (index % 2 === 0) {
-      evenIndexed.push(item);
-    } else {
-      oddIndexed.push(item);
-    }
-  });
-
-  if (evenIndexed.length === 0) {
-    return [[], []];
-  }
-
-  if (evenIndexed.length <= oddIndexed.length) {
-    evenIndexed.push(oddIndexed[oddIndexed.length - 1]);
-    oddIndexed.pop();
-  }
-
-  return [evenIndexed, oddIndexed];
 }

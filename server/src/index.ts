@@ -23,6 +23,14 @@ import { authenticateToken, AuthRequest } from "./middleware";
 //note: just to allow the app to parse json
 app.use(express.json());
 
+//just to allow... requests to be made to different origins
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });

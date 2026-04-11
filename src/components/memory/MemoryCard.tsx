@@ -3,6 +3,7 @@ import { useMemModalContext } from "@/context/context";
 import { useEditingContext } from "@/context/context";
 import { MemoryModule } from "./MemoryModule";
 import { MemoryCard } from "../../types";
+import { updateCardPosition, deleteCard } from "../../services/api";
 
 const MemModal = ({
   memModal,
@@ -15,31 +16,13 @@ const MemModal = ({
   updatePosition: (id: string, newPosition: { x: number; y: number }) => void;
   memPageRef: React.RefObject<HTMLDivElement>;
 }) => {
-  const [position, setPosition] = useState({ x: memModal.position_x, y: memModal.position_y });
+  const [position, setPosition] = useState({
+    x: memModal.position_x,
+    y: memModal.position_y,
+  });
   const { memModals, setMemModals } = useMemModalContext();
-  console.log(memModals);
   const { isEditMode } = useEditingContext();
 
-  //When dragging around, memory modal must stay in bound
-
-  //FIXME: If time implement, for now use if mouse out of memory page disable move
-
-  // const setInBounds = (card: HTMLDivElement, mouseMoveDir = { x: 0, y: 0 }) => {
-  //   const container = memPageRef.current!.getBoundingClientRect(); // Get memory page bounds
-  //   const cardRect = card.getBoundingClientRect(); // Get modal bounds
-
-  //   // Calculate new positions
-  //   let newX = card.offsetLeft - mouseMoveDir.x;
-  //   let newY = card.offsetTop - mouseMoveDir.y;
-
-  //   // Prevent moving out of bounds
-  //   newX = Math.max(0, Math.min(newX, container.width - cardRect.width));
-  //   newY = Math.max(0, Math.min(newY, container.height - cardRect.height));
-
-  //   return { x: newX, y: newY };
-  // };
-
-  // Helper function to move memory modal to top when selected
   const bringToTop = (card: HTMLDivElement) => {
     const otherCards = document.getElementsByClassName(
       "memory-modal",
@@ -58,9 +41,14 @@ const MemModal = ({
     });
   };
 
-  const handleDelete = (id: string) => {
-    const updatedModules = memModals.filter((modal) => modal.id !== id);
-    setMemModals(updatedModules);
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCard(id);
+      const updatedModules = memModals.filter((modal) => modal.id !== id);
+      setMemModals(updatedModules);
+    } catch (error) {
+      console.error("Error deleting card:", error);
+    }
   };
 
   const memModalRef = useRef<HTMLDivElement>(null);
@@ -78,16 +66,15 @@ const MemModal = ({
   });
 
   useEffect(() => {
-    if (!isEditMode) return; // Disable drag unless in edit mode
-    if (!memModalRef.current || !memPageRef.current) return; // make sure the elements in question actually exist
+    if (!isEditMode) return;
+    if (!memModalRef.current || !memPageRef.current) return;
 
     const memPage = memPageRef.current;
     const memModal = memModalRef.current;
 
     const handleMouseDown = (e: MouseEvent) => {
-      if (!isEditMode) return; // Disable drag unless in edit mode
+      if (!isEditMode) return;
 
-      // Reset `lastX` and `lastY` before a new drag starts
       coords.current.lastX = memModal.offsetLeft;
       coords.current.lastY = memModal.offsetTop;
 
@@ -97,12 +84,25 @@ const MemModal = ({
       bringToTop(memModal);
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = async () => {
+      if (!isClicked.current) return;
+
       isClicked.current = false;
-      // Store new position
       coords.current.lastX = memModal.offsetLeft;
       coords.current.lastY = memModal.offsetTop;
+
       updatePosition(id, { x: coords.current.lastX, y: coords.current.lastY });
+
+      // Save to backend
+      try {
+        await updateCardPosition(id, {
+          position_x: coords.current.lastX,
+          position_y: coords.current.lastY,
+          z_index: parseInt(memModal.style.zIndex) || 1,
+        });
+      } catch (error) {
+        console.error("Error saving position:", error);
+      }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -114,8 +114,7 @@ const MemModal = ({
       memModal.style.top = `${nextY}px`;
       memModal.style.left = `${nextX}px`;
 
-      setPosition({ x: nextX, y: nextY }); //Update positon locally as move is performed
-      updatePosition(memModal.id, { x: nextX, y: nextY }); // Update global state
+      setPosition({ x: nextX, y: nextY });
     };
 
     memModal.addEventListener("mousedown", handleMouseDown);
@@ -131,7 +130,7 @@ const MemModal = ({
     };
 
     return cleanUp;
-  }, [isEditMode]);
+  }, [isEditMode, id]);
 
   return (
     <div
@@ -147,11 +146,10 @@ const MemModal = ({
       <MemoryModule type={memModal.type} content={memModal.content} />
       {isEditMode && (
         <button
-          className="delete-button absolute right-2 top-2 rounded bg-gray-200 px-2 py-1 text-xs text-white hover:bg-gray-400"
+          className="delete-button absolute right-2 top-2 rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
           onClick={() => handleDelete(id)}
         >
-          {" "}
-          X{" "}
+          X
         </button>
       )}
     </div>
