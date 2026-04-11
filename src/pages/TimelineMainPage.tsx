@@ -39,7 +39,7 @@ export default function TimelineMainPage() {
         <div
           className="pointer-events-none absolute z-30 h-[6px] bg-black"
           style={{
-            top: "49.6%",
+            top: "44.4%",
             left: "90px",
             right: "90px",
           }}
@@ -58,7 +58,7 @@ export default function TimelineMainPage() {
             id="left-arrow"
             src={LeftArrow}
             alt="move-left"
-            className="pointer-events-auto relative z-40 ml-[30px] w-[50px] cursor-pointer"
+            className="pointer-events-auto relative z-40 mb-[74px] ml-[30px] w-[50px] cursor-pointer"
           />
         </div>
 
@@ -75,7 +75,7 @@ export default function TimelineMainPage() {
             id="right-arrow"
             src={RightArrow}
             alt="move-right"
-            className="pointer-events-auto relative z-40 mr-[30px] w-[50px] cursor-pointer"
+            className="pointer-events-auto relative z-40 mb-[75px] mr-[30px] w-[50px] cursor-pointer"
           />
         </div>
       </div>
