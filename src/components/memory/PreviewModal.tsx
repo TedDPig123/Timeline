@@ -66,7 +66,7 @@ export default function PreviewModal({
             className="text-white hover:text-gray-300"
             title="Close"
           >
-            •••
+            X
           </button>
         </div>
 
