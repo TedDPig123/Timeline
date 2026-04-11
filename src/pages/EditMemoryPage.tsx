@@ -1,21 +1,52 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useEditingContext } from "../context/context";
+import { useEditingContext, useMemModalContext } from "../context/context";
 import { MemoryPage } from "../components/memory/MemoryPage";
 import { NavBar } from "../components/ui/NavBar";
+import { getMemory, createMemory } from "../services/api";
+import { Memory } from "../types";
 
 export default function EditMemoryPage() {
   const { date } = useParams<{ date: string }>();
   const { user, isLoading } = useAuth();
   const { changeMode } = useEditingContext();
+  const { setMemModals } = useMemModalContext();
   const navigate = useNavigate();
+  const [memoryLoading, setMemoryLoading] = useState(true);
+  const [memory, setMemory] = useState<Memory | null>(null);
 
   // Set edit mode on mount
   useEffect(() => {
     changeMode(true);
-    return () => changeMode(false); // Reset on unmount
+    return () => changeMode(false);
   }, [changeMode]);
+
+  // Fetch memory for this date
+  useEffect(() => {
+    async function fetchMemory() {
+      if (!date) return;
+
+      try {
+        let mem = await getMemory(date);
+
+        // If no memory exists for this date, create one
+        if (!mem) {
+          mem = await createMemory(date);
+          mem.memory_cards = [];
+        }
+
+        setMemory(mem);
+        setMemModals(mem.memory_cards || []);
+      } catch (error) {
+        console.error("Error fetching memory:", error);
+      } finally {
+        setMemoryLoading(false);
+      }
+    }
+
+    fetchMemory();
+  }, [date, setMemModals]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -24,7 +55,7 @@ export default function EditMemoryPage() {
     }
   }, [user, isLoading, navigate]);
 
-  if (isLoading) {
+  if (isLoading || memoryLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <p>Loading...</p>
@@ -56,7 +87,7 @@ export default function EditMemoryPage() {
             })}
           </h1>
         </div>
-        <MemoryPage date={date} />
+        <MemoryPage date={date} memoryId={memory?.id} />
       </div>
     </div>
   );

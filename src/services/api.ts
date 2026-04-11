@@ -100,3 +100,44 @@ export async function deleteCard(id: string) {
   });
   return res.json();
 }
+
+export async function createCardWithFile(data: {
+  type: string;
+  content?: string;
+  file?: File;
+  date: string;
+  position_x: number;
+  position_y: number;
+  z_index: number;
+  width: number;
+  height: number;
+  memory_id: string;
+}) {
+  const token = getToken();
+  const formData = new FormData();
+
+  formData.append("type", data.type);
+  formData.append("date", data.date);
+  formData.append("position_x", data.position_x.toString());
+  formData.append("position_y", data.position_y.toString());
+  formData.append("z_index", data.z_index.toString());
+  formData.append("width", data.width.toString());
+  formData.append("height", data.height.toString());
+  formData.append("memory_id", data.memory_id);
+
+  if (data.file) {
+    formData.append("file", data.file);
+  } else if (data.content) {
+    formData.append("content", data.content);
+  }
+
+  const res = await fetch(`${API_URL}/cards`, {
+    method: "POST",
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` }),
+      // Don't set Content-Type - browser will set it with boundary for FormData
+    },
+    body: formData,
+  });
+  return res.json();
+}
