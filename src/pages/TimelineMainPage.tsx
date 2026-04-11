@@ -51,7 +51,7 @@ export default function TimelineMainPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to right, white 0%, white 30%, transparent 100%)",
+                "linear-gradient(to right, white 0%, white 55%, transparent 100%)",
             }}
           />
           <img
@@ -68,7 +68,7 @@ export default function TimelineMainPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to left, white 0%, white 30%, transparent 100%)",
+                "linear-gradient(to left, white 0%, white 55%, transparent 100%)",
             }}
           />
           <img

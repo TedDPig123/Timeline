@@ -24,6 +24,8 @@ export default function Timeline() {
   const [allCards, setAllCards] = useState<MemoryCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const isSyncing = useRef(false);
+
   const navigate = useNavigate();
 
   // Fetch all memories on mount
@@ -141,15 +143,15 @@ export default function Timeline() {
         const maxDistance = containerRect.width / 2;
 
         const scale = Math.max(
-          0.3,
-          gaussian(0.7 * (1 - distance / maxDistance), 1, 0.65),
+          0.2,
+          gaussian(0.7 * (1 - distance / maxDistance), 1, 0.7),
         );
 
         // Scale the thumbnail inside this item
         const thumbnail = el.querySelector(".thumbnail") as HTMLElement;
         if (thumbnail) {
-          thumbnail.style.width = `${Math.min(350 * scale)}px`;
-          thumbnail.style.height = `${Math.min(400 * scale)}px`;
+          thumbnail.style.width = `${Math.min(400 * scale)}px`;
+          thumbnail.style.height = `${Math.min(500 * scale)}px`;
         }
 
         // Update current date when item is near center
@@ -165,7 +167,12 @@ export default function Timeline() {
 
   // Sync scroll between containers
   const syncScroll = (source: HTMLDivElement, target: HTMLDivElement) => {
+    if (isSyncing.current) return;
+    isSyncing.current = true;
     target.scrollLeft = source.scrollLeft;
+    requestAnimationFrame(() => {
+      isSyncing.current = false;
+    });
   };
 
   // Scroll handling
@@ -177,8 +184,15 @@ export default function Timeline() {
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
       const delta = event.deltaY * 1.5;
+
+      // Scroll both containers directly, no sync needed
+      isSyncing.current = true;
       container1.scrollLeft += delta;
       container2.scrollLeft += delta;
+      requestAnimationFrame(() => {
+        isSyncing.current = false;
+        adjustSizes();
+      });
     };
 
     const handleScroll1 = () => {
@@ -191,7 +205,6 @@ export default function Timeline() {
       adjustSizes();
     };
 
-    // Attach wheel to document so scrolling works anywhere
     document.addEventListener("wheel", handleWheel, { passive: false });
     container1.addEventListener("scroll", handleScroll1);
     container2.addEventListener("scroll", handleScroll2);
