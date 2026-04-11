@@ -134,16 +134,18 @@ export default function Timeline() {
       const distance = Math.abs(containerCenterX - itemCenterX);
       const maxDistance = containerRect.width / 2;
 
+      //TODO: set the scaling as a tunable parameter in settings
       const scale = Math.max(
-        0.4,
+        0.3,
         gaussian(0.7 * (1 - distance / maxDistance), 1, 0.7),
       );
+      //note to self: the 0.7 here just kinda determines the range we consider the center
 
       // Scale the thumbnail (only if it exists)
       const thumbnail = el.querySelector(".thumbnail") as HTMLElement;
       if (thumbnail) {
-        thumbnail.style.width = `${280 * scale}px`;
-        thumbnail.style.height = `${360 * scale}px`;
+        thumbnail.style.width = `${420 * scale}px`;
+        thumbnail.style.height = `${540 * scale}px`;
       }
 
       // Scale the thumbnail spacer too
@@ -151,8 +153,8 @@ export default function Timeline() {
         ".thumbnail-spacer",
       ) as HTMLElement;
       if (thumbnailSpacer) {
-        thumbnailSpacer.style.width = `${280 * scale}px`;
-        thumbnailSpacer.style.height = `${360 * scale}px`;
+        thumbnailSpacer.style.width = `${420 * scale}px`;
+        thumbnailSpacer.style.height = `${540 * scale}px`;
       }
 
       // Scale the connecting line
@@ -281,39 +283,51 @@ export default function Timeline() {
                 {isTop && (
                   <div className="flex flex-col items-center">
                     {slot.hasMemory ? (
-                      <button onClick={() => navigate(`/edit/${slot.date}`)}>
-                        <Thumbnail
-                          text={slot.text}
-                          image={slot.image}
-                          date={slot.label}
-                        />
-                      </button>
+                      <>
+                        <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                          <Thumbnail
+                            text={slot.text}
+                            image={slot.image}
+                            date={slot.label}
+                          />
+                        </button>
+                        <div className="connect-line w-[4px] bg-black" />
+                        <ThumbnailSpacer></ThumbnailSpacer>
+                      </>
                     ) : (
-                      <span className="font-editorial text-lg text-gray-400">
-                        {slot.label}
-                      </span>
+                      <>
+                        <span className="font-editorial text-lg text-gray-400">
+                          {slot.label}
+                        </span>
+                        <div className="connect-line w-[4px] bg-black" />
+                      </>
                     )}
-                    <div className="connect-line w-[4px] bg-black" />
-                    <ThumbnailSpacer></ThumbnailSpacer>
                   </div>
                 )}
 
                 {/* Bottom content */}
                 {!isTop && (
                   <div className="flex flex-col items-center">
-                    <div className="connect-line w-[4px] bg-black" />
                     {slot.hasMemory ? (
-                      <button onClick={() => navigate(`/edit/${slot.date}`)}>
-                        <Thumbnail
-                          text={slot.text}
-                          image={slot.image}
-                          date={slot.label}
-                        />
-                      </button>
+                      <>
+                        <ThumbnailSpacer></ThumbnailSpacer>
+                        <div className="connect-line w-[4px] bg-black" />
+                        <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                          <Thumbnail
+                            text={slot.text}
+                            image={slot.image}
+                            date={slot.label}
+                          />
+                        </button>
+                      </>
                     ) : (
-                      <span className="font-editorial text-lg text-gray-400">
-                        {slot.label}
-                      </span>
+                      <>
+                        <div className="connect-line w-[4px] bg-black" />
+
+                        <span className="font-editorial text-lg text-gray-400">
+                          {slot.label}
+                        </span>
+                      </>
                     )}
                   </div>
                 )}
@@ -354,6 +368,7 @@ function generateAllSlots(
   function getOrdinal(n: number): string {
     const s = ["TH", "ST", "ND", "RD"];
     const v = n % 100;
+    //lowk had to search this up
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   }
 
