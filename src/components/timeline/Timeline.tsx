@@ -6,6 +6,9 @@ import RightArrow from "../../assets/graphics/right-white.png";
 import { getAllMemories } from "@/services/api";
 import { MemoryCard, Memory } from "@/types";
 
+import PreviewModal from "../memory/PreviewModal";
+import { getMemory } from "@/services/api";
+
 interface TimelineSlot {
   date: string;
   label: string;
@@ -25,9 +28,32 @@ export default function Timeline() {
   const [allCards, setAllCards] = useState<MemoryCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // states just for previews
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewDate, setPreviewDate] = useState<string | null>(null);
+  const [previewCards, setPreviewCards] = useState<MemoryCard[]>([]);
+
   const isSyncing = useRef(false);
 
   const navigate = useNavigate();
+
+  const handleThumbnailClick = async (date: string, hasMemory: boolean) => {
+    if (!hasMemory) {
+      // No memory, go straight to edit
+      navigate(`/edit/${date}`);
+      return;
+    }
+
+    try {
+      const memory = await getMemory(date);
+      setPreviewDate(date);
+      setPreviewCards(memory?.memory_cards || []);
+      setPreviewOpen(true);
+    } catch (error) {
+      console.error("Error fetching memory:", error);
+      navigate(`/edit/${date}`);
+    }
+  };
 
   // Fetch all memories on mount
   useEffect(() => {
@@ -76,6 +102,13 @@ export default function Timeline() {
   const bottomSlots = slots.filter((_, i) => i % 2 === 1);
 
   function DateToggler({ ddate }: { ddate: Date }) {
+    function getMonday(d: Date) {
+      d = new Date(d);
+      const day = d.getDay(),
+        diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+      return new Date(d.setDate(diff));
+    }
+
     const shiftDate = (direction: "prev" | "next") => {
       const date = new Date(baseDate);
       if (viewMode === "year") {
@@ -105,7 +138,7 @@ export default function Timeline() {
                   month: "long",
                   year: "numeric",
                 })
-              : `Week of ${ddate.toLocaleDateString()}`}
+              : `Week of ${getMonday(ddate).toLocaleDateString()}`}
         </div>
         <img
           onClick={() => shiftDate("next")}
@@ -294,7 +327,11 @@ export default function Timeline() {
                   </span>
                 </div>
               ) : (
-                <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                <button
+                  onClick={() =>
+                    handleThumbnailClick(slot.date, slot.hasMemory)
+                  }
+                >
                   <Thumbnail
                     text={slot.hasMemory ? slot.text : null}
                     image={slot.hasMemory ? slot.image : null}
@@ -304,7 +341,7 @@ export default function Timeline() {
                 </button>
               )}
               <div
-                className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-300" : "bg-black"}`}
+                className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-400" : "bg-black"}`}
               />
             </div>
           ))}
@@ -331,7 +368,7 @@ export default function Timeline() {
               data-date={slot.date}
             >
               <div
-                className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-300" : "bg-black"}`}
+                className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-400" : "bg-black"}`}
               />
               {slot.isFuture ? (
                 <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400 bg-gray-50">
@@ -340,7 +377,11 @@ export default function Timeline() {
                   </span>
                 </div>
               ) : (
-                <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                <button
+                  onClick={() =>
+                    handleThumbnailClick(slot.date, slot.hasMemory)
+                  }
+                >
                   <Thumbnail
                     text={slot.hasMemory ? slot.text : null}
                     image={slot.hasMemory ? slot.image : null}
@@ -370,6 +411,13 @@ export default function Timeline() {
           + new memory
         </button>
       </div>
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        date={previewDate || ""}
+        cards={previewCards}
+      />
     </div>
   );
 }

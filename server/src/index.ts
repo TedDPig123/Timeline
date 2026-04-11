@@ -91,6 +91,20 @@ app.get("/api/memories", authenticateToken, async (req: AuthRequest, res) => {
       include: { memory_cards: true },
       orderBy: { date: "desc" },
     });
+
+    // Generate presigned URLs for all image cards
+    for (const memory of memories) {
+      for (const card of memory.memory_cards) {
+        if (
+          card.type === "IMAGE" ||
+          card.type === "VIDEO" ||
+          card.type === "AUDIO"
+        ) {
+          card.content = await getPresignedUrl(card.content);
+        }
+      }
+    }
+
     res.json(memories);
   } catch (error) {
     console.error("Error fetching all memories:", error);
