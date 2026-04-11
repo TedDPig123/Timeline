@@ -288,8 +288,8 @@ export default function Timeline() {
               data-date={slot.date}
             >
               {slot.isFuture ? (
-                <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-300 bg-gray-50">
-                  <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-300">
+                <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400 bg-gray-50">
+                  <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-400">
                     {slot.label}
                   </span>
                 </div>
@@ -334,8 +334,8 @@ export default function Timeline() {
                 className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-300" : "bg-black"}`}
               />
               {slot.isFuture ? (
-                <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-300 bg-gray-50">
-                  <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-300">
+                <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400 bg-gray-50">
+                  <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-400">
                     {slot.label}
                   </span>
                 </div>
