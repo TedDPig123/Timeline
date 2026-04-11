@@ -12,6 +12,7 @@ interface TimelineSlot {
   hasMemory: boolean;
   text: string | null;
   image: string | null;
+  isFuture: boolean;
 }
 
 export default function Timeline() {
@@ -286,15 +287,25 @@ export default function Timeline() {
               className="timeline-item flex flex-col items-center"
               data-date={slot.date}
             >
-              <button onClick={() => navigate(`/edit/${slot.date}`)}>
-                <Thumbnail
-                  text={slot.hasMemory ? slot.text : null}
-                  image={slot.hasMemory ? slot.image : null}
-                  date={slot.label}
-                  isEmpty={!slot.hasMemory}
-                />
-              </button>
-              <div className="h-[30px] w-[4px] bg-black" />
+              {slot.isFuture ? (
+                <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-300 bg-gray-50">
+                  <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-300">
+                    {slot.label}
+                  </span>
+                </div>
+              ) : (
+                <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                  <Thumbnail
+                    text={slot.hasMemory ? slot.text : null}
+                    image={slot.hasMemory ? slot.image : null}
+                    date={slot.label}
+                    isEmpty={!slot.hasMemory}
+                  />
+                </button>
+              )}
+              <div
+                className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-300" : "bg-black"}`}
+              />
             </div>
           ))}
         </div>
@@ -309,7 +320,7 @@ export default function Timeline() {
         <div
           className="flex items-start gap-[30px]"
           style={{
-            paddingLeft: `${vwidth / 2 + 60}px`, // Offset to stagger with top row
+            paddingLeft: `${vwidth / 2 + 60}px`,
             paddingRight: `${vwidth / 2}px`,
           }}
         >
@@ -319,15 +330,25 @@ export default function Timeline() {
               className="timeline-item flex flex-col items-center"
               data-date={slot.date}
             >
-              <div className="h-[30px] w-[4px] bg-black" />
-              <button onClick={() => navigate(`/edit/${slot.date}`)}>
-                <Thumbnail
-                  text={slot.hasMemory ? slot.text : null}
-                  image={slot.hasMemory ? slot.image : null}
-                  date={slot.label}
-                  isEmpty={!slot.hasMemory}
-                />
-              </button>
+              <div
+                className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-300" : "bg-black"}`}
+              />
+              {slot.isFuture ? (
+                <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-300 bg-gray-50">
+                  <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-300">
+                    {slot.label}
+                  </span>
+                </div>
+              ) : (
+                <button onClick={() => navigate(`/edit/${slot.date}`)}>
+                  <Thumbnail
+                    text={slot.hasMemory ? slot.text : null}
+                    image={slot.hasMemory ? slot.image : null}
+                    date={slot.label}
+                    isEmpty={!slot.hasMemory}
+                  />
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -361,6 +382,9 @@ function generateAllSlots(
 ): TimelineSlot[] {
   const slots: TimelineSlot[] = [];
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   function getOrdinal(n: number): string {
     const s = ["TH", "ST", "ND", "RD"];
     const v = n % 100;
@@ -379,10 +403,14 @@ function generateAllSlots(
       d.setDate(monday.getDate() + i);
       const dateStr = d.toISOString().split("T")[0];
 
+      const slotDate = new Date(dateStr);
+      const isFuture = slotDate > today;
+
       const dayCards = cards.filter((c) => c.date.split("T")[0] === dateStr);
       const hasMemory = dayCards.length > 0;
 
       slots.push({
+        isFuture: isFuture,
         date: dateStr,
         label: getOrdinal(d.getDate()),
         hasMemory,
@@ -403,10 +431,14 @@ function generateAllSlots(
       const d = new Date(year, month, day);
       const dateStr = d.toISOString().split("T")[0];
 
+      const slotDate = new Date(dateStr);
+      const isFuture = slotDate > today;
+
       const dayCards = cards.filter((c) => c.date.split("T")[0] === dateStr);
       const hasMemory = dayCards.length > 0;
 
       slots.push({
+        isFuture: isFuture,
         date: dateStr,
         label: getOrdinal(day),
         hasMemory,
@@ -438,6 +470,9 @@ function generateAllSlots(
     for (let month = 0; month < 12; month++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-01`;
 
+      const slotDate = new Date(dateStr);
+      const isFuture = slotDate > today;
+
       const monthCards = cards.filter((c) => {
         const cardDate = new Date(c.date);
         return cardDate.getFullYear() === year && cardDate.getMonth() === month;
@@ -445,6 +480,7 @@ function generateAllSlots(
       const hasMemory = monthCards.length > 0;
 
       slots.push({
+        isFuture: isFuture,
         date: dateStr,
         label: monthNames[month],
         hasMemory,
