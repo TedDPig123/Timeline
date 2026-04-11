@@ -184,8 +184,8 @@ export default function Timeline() {
         // Scale the thumbnail inside this item
         const thumbnail = el.querySelector(".thumbnail") as HTMLElement;
         if (thumbnail) {
-          thumbnail.style.width = `${Math.min(400 * scale)}px`;
-          thumbnail.style.height = `${Math.min(500 * scale)}px`;
+          thumbnail.style.width = `${Math.min(450 * scale)}px`;
+          thumbnail.style.height = `${Math.min(540 * scale)}px`;
         }
 
         // Update current date when item is near center
@@ -300,7 +300,7 @@ export default function Timeline() {
   }
 
   return (
-    <div className="relative flex h-full w-[100vw] flex-col items-center justify-center">
+    <div className="relative flex h-full w-[100vw] flex-col items-center justify-start">
       {/* Top row - thumbnails above the line */}
       <div
         ref={scrollContainer1}
@@ -341,7 +341,7 @@ export default function Timeline() {
                 </button>
               )}
               <div
-                className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-400" : "bg-black"}`}
+                className={`h-[20px] w-[4px] ${slot.isFuture ? "bg-gray-400" : "bg-black"}`}
               />
             </div>
           ))}
@@ -396,11 +396,11 @@ export default function Timeline() {
       </div>
 
       {/* Date toggler */}
-      <div className="pointer-events-auto fixed bottom-[20px] left-[20px] z-[100] select-none">
+      <div className="pointer-events-auto fixed bottom-[20px] left-1/2 z-[50] -translate-x-1/2 select-none ">
         <DateToggler ddate={currentDate} />
       </div>
 
-      {/* New memory button */}
+      {/* New memory button
       <div className="pointer-events-auto fixed bottom-[20px] right-[20px] z-[100]">
         <button
           onClick={() =>
@@ -410,7 +410,7 @@ export default function Timeline() {
         >
           + new memory
         </button>
-      </div>
+      </div> */}
       {/* Preview Modal */}
       <PreviewModal
         isOpen={previewOpen}
