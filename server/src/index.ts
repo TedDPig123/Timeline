@@ -28,7 +28,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      process.env.FRONTEND_URL || "https://timeline-one-omega.vercel.app/",
+      process.env.FRONTEND_URL || "https://timeline-one-omega.vercel.app",
     ],
     credentials: true,
   }),
