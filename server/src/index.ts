@@ -26,7 +26,10 @@ app.use(express.json());
 //just to allow... requests to be made to different origins
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      process.env.FRONTEND_URL || "https://timeline-one-omega.vercel.app/",
+    ],
     credentials: true,
   }),
 );
@@ -342,7 +345,8 @@ app.get(
     );
 
     // redirect to frontend with token
-    res.redirect(`http://localhost:5173/auth-callback?token=${token}`);
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    res.redirect(`${frontendUrl}/auth-callback?token=${token}`);
   },
 );
 
