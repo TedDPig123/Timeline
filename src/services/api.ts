@@ -1,5 +1,5 @@
 const API_URL = import.meta.env.PROD
-  ? "https://timeline-api-production.up.railway.app/api" /
+  ? "https://timeline-production-600c.up.railway.app/api"
   : "http://localhost:3001/api";
 
 function getToken(): string | null {
