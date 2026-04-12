@@ -1,14 +1,16 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import prisma from "../db";
-import { env } from "process";
 
 passport.use(
   new GoogleStrategy(
     {
-      clientID: env.GOOGLE_CLIENT_ID!,
-      clientSecret: env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: "http://localhost:3001/api/auth/google/callback",
+      clientID: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      callbackURL:
+        process.env.NODE_ENV === "production"
+          ? "https://timeline-production-600c.up.railway.app/api/auth/google/callback"
+          : "http://localhost:3001/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
