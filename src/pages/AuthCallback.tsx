@@ -13,7 +13,7 @@ export default function AuthCallback() {
       // Save token to localStorage
       localStorage.setItem("token", token);
       // Redirect to main app
-      navigate("/home");
+      navigate("/timeline");
     } else {
       // No token, redirect to login
       navigate("/");
