@@ -2,16 +2,23 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
+const API_URL = import.meta.env.PROD
+  ? "https://timeline-production-600c.up.railway.app/api"
+  : "http://localhost:3001/api";
+
 export default function Login() {
-  const { login, user, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // If already logged in, redirect to timeline
   useEffect(() => {
     if (user && !isLoading) {
       navigate("/timeline");
     }
   }, [user, isLoading, navigate]);
+
+  const handleLogin = () => {
+    window.location.href = `${API_URL}/auth/google`;
+  };
 
   if (isLoading) {
     return (
@@ -28,7 +35,7 @@ export default function Login() {
       </h1>
       <p className="mb-8 text-gray-600">All your memories, on one line.</p>
       <button
-        onClick={login}
+        onClick={handleLogin}
         className="flex items-center gap-3 rounded-full bg-black px-6 py-3 font-editorial text-xl text-white transition hover:bg-gray-800"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24">
