@@ -14,6 +14,9 @@ export default function Thumbnail({
   const [lineClamp, setLineClamp] = useState(2);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  // const thumbnailRef = useRef<HTMLDivElement | null>(null);
+  // const [currThumbnailDim, setCurrThumbnailDim] = useState([1, 1]);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -27,19 +30,31 @@ export default function Thumbnail({
       }
     };
 
-    const resizeObserver = new ResizeObserver(updateLineClamp);
-    resizeObserver.observe(containerRef.current);
+    // const updateDim = () => {
+    //   if (thumbnailRef.current) {
+    //     const width = thumbnailRef.current.clientWidth;
+    //     const height = thumbnailRef.current.clientHeight;
+    //     setCurrThumbnailDim([width, height]);
+    //   }
+    // };
 
+    const resizeObserverClamp = new ResizeObserver(updateLineClamp);
+    resizeObserverClamp.observe(containerRef.current);
     updateLineClamp();
 
+    // const resizeObserverDim = new ResizeObserver(updateDim);
+    // resizeObserverDim.observe(thumbnailRef.current);
+    // updateDim();
+
     return () => {
-      resizeObserver.disconnect();
+      resizeObserverClamp.disconnect();
+      // resizeObserverDim.disconnect();
     };
   }, []);
 
   return (
     <span
-      className="thumbnail relative z-10 flex flex-col items-center justify-start rounded-[28px] border-[3px] border-black bg-white"
+      className="thumbnail relative z-10 flex flex-col items-center justify-start rounded-[28px] border-[3px] border-black bg-white hover:scale-110"
       data-date={date}
     >
       <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold">
