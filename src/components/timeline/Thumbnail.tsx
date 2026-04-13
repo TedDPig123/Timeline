@@ -54,7 +54,7 @@ export default function Thumbnail({
 
   return (
     <span
-      className="thumbnail relative z-10 flex flex-col items-center justify-start rounded-[28px] border-[3px] border-black bg-white delay-75 ease-in-out hover:scale-[1.02] hover:shadow-md"
+      className="thumbnail relative z-10 flex flex-col items-center justify-start rounded-[28px] border-[3px] border-black bg-white hover:scale-[1.01] hover:shadow-md"
       data-date={date}
     >
       <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold">
