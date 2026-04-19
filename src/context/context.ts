@@ -30,6 +30,11 @@ export type MemModalType = {
 }; 
 */
 
+//specifies what our context will look like
+//in our case, it looks like:
+// - an array of MemoryCard objects
+// - setMemModal, a function to set the array of MemoryCards
+// - updateMemModalPosition, a function to set the position of a specific memory card
 type MemModalContextType = {
   memModals: MemoryCard[];
   setMemModals: (arg: MemoryCard[]) => void;
@@ -39,10 +44,13 @@ type MemModalContextType = {
   ) => void;
 };
 
+//call createContext to create a context with undefined as its default value
 export const MemModalContext = createContext<MemModalContextType | undefined>(
   undefined,
 );
 
+//useContext reads the data from the MemModalContext
+//returns the current value of the context if it exists
 export function useMemModalContext() {
   const context = useContext(MemModalContext);
   if (context === undefined) {
@@ -56,6 +64,7 @@ type EditContextType = {
   isEditMode: boolean;
   changeMode: (arg: boolean) => void;
 };
+
 export const EditingContext = createContext<EditContextType | undefined>(
   undefined,
 );

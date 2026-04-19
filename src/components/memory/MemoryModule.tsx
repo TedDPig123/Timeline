@@ -5,6 +5,7 @@ interface MemoryModuleProps {
   content: string;
 }
 
+//the module takes in the type of the media and its content and displays them accordingly
 export default function MemoryModule({ type, content }: MemoryModuleProps) {
   switch (type) {
     case "TEXT":
@@ -16,12 +17,16 @@ export default function MemoryModule({ type, content }: MemoryModuleProps) {
     case "IMAGE":
       return (
         <div className="image-memory h-full">
-          <img src={content} alt="memory" className="h-full w-full object-cover rounded" />
+          <img
+            src={content}
+            alt="memory"
+            className="h-full w-full rounded object-cover"
+          />
         </div>
       );
     case "AUDIO":
       return (
-        <div className="audio-memory flex items-center justify-center h-full">
+        <div className="audio-memory flex h-full items-center justify-center">
           <audio controls className="w-full">
             <source src={content} type="audio/mpeg" />
           </audio>
@@ -30,7 +35,7 @@ export default function MemoryModule({ type, content }: MemoryModuleProps) {
     case "VIDEO":
       return (
         <div className="video-memory h-full">
-          <video controls className="h-full w-full object-cover rounded">
+          <video controls className="h-full w-full rounded object-cover">
             <source src={content} type="video/mp4" />
           </video>
         </div>

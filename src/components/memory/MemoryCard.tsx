@@ -6,23 +6,34 @@ import { MemoryCard } from "../../types";
 import { updateCardPosition, deleteCard } from "../../services/api";
 
 const MemModal = ({
-  memModal,
+  //the memory card was called the memmodal, TODO: should change it to memcard or smth more fitting
+  memModal, //the memorycard object, TODO: Rename
   id,
-  updatePosition,
-  memPageRef,
+  updatePosition, //updates position of card in database
+  memPageRef, //a reference to the memory page itself
 }: {
   memModal: MemoryCard;
   id: string;
   updatePosition: (id: string, newPosition: { x: number; y: number }) => void;
   memPageRef: React.RefObject<HTMLDivElement>;
 }) => {
+  //sets the current x and y position of the card given by the memModal memory object
   const [position, setPosition] = useState({
     x: memModal.position_x,
     y: memModal.position_y,
   });
+
+  //unpack memModals and setMemModals from useMemModalContext()
+  // - memModals is the array of memoryCards loaded
+  //unpack isEditMode from useEditingContext()
   const { memModals, setMemModals } = useMemModalContext();
   const { isEditMode } = useEditingContext();
 
+  //this function brings the input card to the top
+  // - gets all memory-modals (still should be memory-cards)
+  // - if the card isn't already at the top:
+  //   - set the card to have the highest index
+  //   - decrement the z-value of all other cards, capping to z=0
   const bringToTop = (card: HTMLDivElement) => {
     const otherCards = document.getElementsByClassName(
       "memory-modal",
@@ -41,6 +52,9 @@ const MemModal = ({
     });
   };
 
+  //calls the delete card function to delete from database
+  //then uses filter method to remove the deleted modal from the memModals array
+  //updates the memModals context
   const handleDelete = async (id: string) => {
     try {
       await deleteCard(id);
@@ -51,8 +65,12 @@ const MemModal = ({
     }
   };
 
+  //reference for the memModal div container (AKA the container being returned)
   const memModalRef = useRef<HTMLDivElement>(null);
+  //ref to keep track of click status
   const isClicked = useRef<boolean>(false);
+
+  //ref for coordinates
   const coords = useRef<{
     startX: number;
     startY: number;
@@ -65,6 +83,7 @@ const MemModal = ({
     lastY: 0,
   });
 
+  //this section triggers a rerender when isEditMode changes? and id changes? look into this.
   useEffect(() => {
     if (!isEditMode) return;
     if (!memModalRef.current || !memPageRef.current) return;
