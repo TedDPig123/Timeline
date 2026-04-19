@@ -86,33 +86,58 @@ const MemModal = ({
   //this section triggers a rerender when isEditMode changes? and id changes? look into this.
   useEffect(() => {
     if (!isEditMode) return;
+
+    //if the memory card has not been rendered yet, or the memory page has not been rendered yet either, return
     if (!memModalRef.current || !memPageRef.current) return;
 
+    //memPage is the actual page, memModal is the card html element itself
     const memPage = memPageRef.current;
     const memModal = memModalRef.current;
 
+    //function for handling the mouse-down part of the dragging process
+    //  - if it's not in edit mode, return
+    //  - record the last coordinates of the card
+    //  - set isClicked to true
+    //  - record the starting coordinates of the cursor
+    //  - bring the current memModal to the top
     const handleMouseDown = (e: MouseEvent) => {
       if (!isEditMode) return;
 
+      //leftposition and top position relative to the parent
       coords.current.lastX = memModal.offsetLeft;
       coords.current.lastY = memModal.offsetTop;
 
       isClicked.current = true;
+
+      //set the starting coordinates for the cursor
       coords.current.startX = e.clientX;
       coords.current.startY = e.clientY;
       bringToTop(memModal);
     };
 
-    const handleMouseUp = async () => {
+    const handleMouseMove = (e: MouseEvent) => {
       if (!isClicked.current) return;
 
+      //(e.clientX - coords.current.startX) this is the difference between the start and end position
+      //add that the memoryCard's last coordinates and you get the new x and y offsets
+      const nextX = e.clientX - coords.current.startX + coords.current.lastX;
+      const nextY = e.clientY - coords.current.startY + coords.current.lastY;
+
+      memModal.style.top = `${nextY}px`;
+      memModal.style.left = `${nextX}px`;
+
+      setPosition({ x: nextX, y: nextY });
+    };
+
+    const handleMouseUp = async () => {
+      if (!isClicked.current) return;
       isClicked.current = false;
       coords.current.lastX = memModal.offsetLeft;
       coords.current.lastY = memModal.offsetTop;
 
       updatePosition(id, { x: coords.current.lastX, y: coords.current.lastY });
 
-      // Save to backend
+      // save to backend
       try {
         await updateCardPosition(id, {
           position_x: coords.current.lastX,
@@ -122,18 +147,6 @@ const MemModal = ({
       } catch (error) {
         console.error("Error saving position:", error);
       }
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isClicked.current) return;
-
-      const nextX = e.clientX - coords.current.startX + coords.current.lastX;
-      const nextY = e.clientY - coords.current.startY + coords.current.lastY;
-
-      memModal.style.top = `${nextY}px`;
-      memModal.style.left = `${nextX}px`;
-
-      setPosition({ x: nextX, y: nextY });
     };
 
     memModal.addEventListener("mousedown", handleMouseDown);
