@@ -4,6 +4,7 @@ import { useEditingContext } from "@/context/context";
 import { MemoryModule } from "./MemoryModule";
 import { MemoryCard } from "../../types";
 import { updateCardPosition, deleteCard } from "../../services/api";
+import DeleteIcon from "../../assets/graphics/cancel.svg?react";
 
 const MemModal = ({
   //the memory card was called the memmodal, TODO: should change it to memcard or smth more fitting
@@ -178,10 +179,10 @@ const MemModal = ({
       <MemoryModule type={memModal.type} content={memModal.content} />
       {isEditMode && (
         <button
-          className="delete-button absolute right-2 top-2 rounded bg-black px-2 py-1 text-xs text-white hover:bg-red-600"
+          className="delete-button absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
           onClick={() => handleDelete(id)}
         >
-          X
+          <DeleteIcon className="h-4 w-4 text-white" />
         </button>
       )}
     </div>
