@@ -3,8 +3,13 @@ import { useMemModalContext } from "@/context/context";
 import { useEditingContext } from "@/context/context";
 import { MemoryModule } from "./MemoryModule";
 import { MemoryCard } from "../../types";
-import { updateCardPosition, deleteCard } from "../../services/api";
+import {
+  updateCardPosition,
+  deleteCard,
+  updateCardSize,
+} from "../../services/api";
 import DeleteIcon from "../../assets/graphics/cancel.svg?react";
+import ResizeIcon from "../../assets/graphics/resize.svg?react";
 
 const MemModal = ({
   //the memory card was called the memmodal, TODO: should change it to memcard or smth more fitting
@@ -29,6 +34,7 @@ const MemModal = ({
   //unpack isEditMode from useEditingContext()
   const { memModals, setMemModals } = useMemModalContext();
   const { isEditMode } = useEditingContext();
+  const [resizeMode, setResizeMode] = useState(false);
 
   //this function brings the input card to the top
   // - gets all memory-modals (still should be memory-cards)
@@ -66,6 +72,10 @@ const MemModal = ({
     }
   };
 
+  const handleResize = async (id: string) => {
+    return null;
+  };
+
   //reference for the memModal div container (AKA the container being returned)
   const memModalRef = useRef<HTMLDivElement>(null);
   //ref to keep track of click status
@@ -82,6 +92,19 @@ const MemModal = ({
     startY: 0,
     lastX: 0,
     lastY: 0,
+  });
+
+  //ref for dimensions
+  const dimensions = useRef<{
+    startWidth: number;
+    startHeight: number;
+    lastWidth: number;
+    lastHeight: number;
+  }>({
+    startWidth: memModal.width,
+    startHeight: memModal.height,
+    lastWidth: memModal.width,
+    lastHeight: memModal.height,
   });
 
   //this section triggers a rerender when isEditMode changes? and id changes? look into this.
@@ -108,6 +131,10 @@ const MemModal = ({
       coords.current.lastX = memModal.offsetLeft;
       coords.current.lastY = memModal.offsetTop;
 
+      //current dimensions of the card
+      dimensions.current.lastHeight = memModal.clientHeight;
+      dimensions.current.lastWidth = memModal.clientWidth;
+
       isClicked.current = true;
 
       //set the starting coordinates for the cursor
@@ -119,15 +146,27 @@ const MemModal = ({
     const handleMouseMove = (e: MouseEvent) => {
       if (!isClicked.current) return;
 
-      //(e.clientX - coords.current.startX) this is the difference between the start and end position
-      //add that the memoryCard's last coordinates and you get the new x and y offsets
-      const nextX = e.clientX - coords.current.startX + coords.current.lastX;
-      const nextY = e.clientY - coords.current.startY + coords.current.lastY;
+      const diffX = e.clientX - coords.current.startX;
+      const diffY = e.clientY - coords.current.startY;
 
-      memModal.style.top = `${nextY}px`;
-      memModal.style.left = `${nextX}px`;
+      //if resizing
+      if (resizeMode) {
+        const nextHeight = diffY + dimensions.current.lastHeight;
+        const nextWidth = diffX + dimensions.current.lastWidth;
 
-      setPosition({ x: nextX, y: nextY });
+        memModal.style.height = `${nextHeight}px`;
+        memModal.style.width = `${nextWidth}px`;
+      } else {
+        //(e.clientX - coords.current.startX) this is the difference between the start and end position
+        //add that the memoryCard's last coordinates and you get the new x and y offsets
+        const nextX = diffX + coords.current.lastX;
+        const nextY = diffY + coords.current.lastY;
+
+        memModal.style.top = `${nextY}px`;
+        memModal.style.left = `${nextX}px`;
+
+        setPosition({ x: nextX, y: nextY });
+      }
     };
 
     const handleMouseUp = async () => {
@@ -135,6 +174,9 @@ const MemModal = ({
       isClicked.current = false;
       coords.current.lastX = memModal.offsetLeft;
       coords.current.lastY = memModal.offsetTop;
+
+      dimensions.current.lastHeight = memModal.clientHeight;
+      dimensions.current.lastWidth = memModal.clientWidth;
 
       updatePosition(id, { x: coords.current.lastX, y: coords.current.lastY });
 
@@ -147,6 +189,15 @@ const MemModal = ({
         });
       } catch (error) {
         console.error("Error saving position:", error);
+      }
+
+      try {
+        await updateCardSize(id, {
+          height: dimensions.current.lastHeight,
+          width: dimensions.current.lastWidth,
+        });
+      } catch (error) {
+        console.error("Error saving card size");
       }
     };
 
@@ -163,7 +214,7 @@ const MemModal = ({
     };
 
     return cleanUp;
-  }, [isEditMode, id]);
+  }, [isEditMode, resizeMode, id]);
 
   return (
     <div
@@ -178,12 +229,28 @@ const MemModal = ({
     >
       <MemoryModule type={memModal.type} content={memModal.content} />
       {isEditMode && (
-        <button
-          className="delete-button absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
-          onClick={() => handleDelete(id)}
-        >
-          <DeleteIcon className="h-4 w-4 text-white" />
-        </button>
+        <>
+          <button
+            className="delete-button absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
+            onClick={() => handleDelete(id)}
+          >
+            <DeleteIcon className="h-4 w-4 text-white" />
+          </button>
+          <button
+            className="delete-button absolute bottom-[-6px] right-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
+            onClick={() => handleResize(id)}
+            onMouseDown={() => {
+              setResizeMode(true);
+              console.log("RESIZE ON");
+            }}
+            onMouseUp={() => {
+              setResizeMode(false);
+              console.log("RESIZE OFF");
+            }}
+          >
+            <ResizeIcon className="h-4 w-4 text-white" />
+          </button>
+        </>
       )}
     </div>
   );
