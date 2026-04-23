@@ -98,11 +98,13 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
         ))}
       </div>
 
-      <AddCardModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onAdd={handleAddCard}
-      />
+      <div className="z-[1000]">
+        <AddCardModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddCard}
+        />
+      </div>
     </>
   );
 };
