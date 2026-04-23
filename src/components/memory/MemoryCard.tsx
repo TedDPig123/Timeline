@@ -178,7 +178,7 @@ const MemModal = ({
       <MemoryModule type={memModal.type} content={memModal.content} />
       {isEditMode && (
         <button
-          className="delete-button absolute right-2 top-2 rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
+          className="delete-button absolute right-2 top-2 rounded bg-black px-2 py-1 text-xs text-white hover:bg-red-600"
           onClick={() => handleDelete(id)}
         >
           X

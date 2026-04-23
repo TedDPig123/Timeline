@@ -1,6 +1,14 @@
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+dotenv.config({
+  path: path.resolve(__dirname, "../.env.local"),
+  override: true,
+});
+
+console.log("GOOGLE_CALLBACK_URL:", process.env.GOOGLE_CALLBACK_URL);
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+
 import cors from "cors";
 
 import { ContentType } from "./generated/prisma/enums";
