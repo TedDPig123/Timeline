@@ -72,10 +72,6 @@ const MemModal = ({
     }
   };
 
-  const handleResize = async (id: string) => {
-    return null;
-  };
-
   //reference for the memModal div container (AKA the container being returned)
   const memModalRef = useRef<HTMLDivElement>(null);
   //ref to keep track of click status
