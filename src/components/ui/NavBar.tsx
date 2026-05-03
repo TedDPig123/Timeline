@@ -1,20 +1,16 @@
 import { useState } from "react";
 import { Settings } from "./Settings";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useViewMode, ViewMode } from "../../context/context"; // adjust path if needed
 
 const NavBar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { viewMode, setViewMode } = useViewMode();
 
-  const [viewMode, setViewMode] = useState(1);
+  const buttonClass = (mode: ViewMode) =>
+    `scale-y-[1.1] hover:underline ${viewMode === mode ? "underline" : ""}`;
 
-  const handleSignOut = () => {
-    logout();
-    navigate("/");
-  };
-  //Implement the zooming in and out when clicked on the three views
   return (
     <div className="grid w-[100vw] grid-cols-3 items-center justify-center p-4 text-center text-black">
       {/* App name */}
@@ -26,36 +22,30 @@ const NavBar = () => {
       {/* View Navigation */}
       <div className="flex items-center gap-4 justify-self-center font-editorial text-4xl">
         <button
-          className={`scale-y-[1.1] hover:underline ${viewMode == 0 ? "underline" : ""}`}
+          className={buttonClass("week")}
           id="week-button"
-          onClick={() => {
-            setViewMode(0);
-          }}
+          onClick={() => setViewMode("week")}
         >
           week
         </button>
         <div className="h-8 w-[2px] scale-y-[1.6] bg-black"></div>
         <button
-          className={`scale-y-[1.1] hover:underline ${viewMode == 1 ? "underline" : ""}`}
+          className={buttonClass("month")}
           id="month-button"
-          onClick={() => {
-            setViewMode(1);
-          }}
+          onClick={() => setViewMode("month")}
         >
           month
         </button>
         <div className="h-8 w-[2px] scale-y-[1.6] bg-black"></div>
         <button
-          className={`scale-y-[1.1] hover:underline ${viewMode == 2 ? "underline" : ""}`}
+          className={buttonClass("year")}
           id="year-button"
-          onClick={() => {
-            setViewMode(2);
-          }}
+          onClick={() => setViewMode("year")}
         >
           year
         </button>
       </div>
-      {/* Buttons TODO: add zooming frame */}
+      {/* Buttons */}
       <div className="text-right">
         <button
           className="mr-4 rounded-full bg-gray-700 px-3 py-1 font-editorial text-xl text-white hover:bg-gray-500"
@@ -69,7 +59,7 @@ const NavBar = () => {
         />
         <button
           className="rounded-full bg-gray-700 px-3 py-1 font-editorial text-xl text-white hover:bg-gray-500"
-          onClick={handleSignOut}
+          onClick={() => navigate(`/`)}
         >
           sign out
         </button>
