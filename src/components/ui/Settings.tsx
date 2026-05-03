@@ -7,7 +7,6 @@ const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
   if (!isSettingsOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay, for blurred background */}
       <div
         className="absolute inset-0 bg-gray-500 bg-opacity-10 backdrop-blur-[2px]"
         onClick={onClose}
