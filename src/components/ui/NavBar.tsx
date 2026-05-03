@@ -2,11 +2,19 @@ import { useState } from "react";
 import { Settings } from "./Settings";
 import { useNavigate } from "react-router-dom";
 import { useViewMode, ViewMode } from "../../context/context"; // adjust path if needed
+import { useAuth } from "@/context/AuthContext";
 
 const NavBar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
   const { viewMode, setViewMode } = useViewMode();
+
+  const { logout } = useAuth();
+
+  const handleSignOut = () => {
+    logout();
+    navigate("/");
+  };
 
   const buttonClass = (mode: ViewMode) =>
     `scale-y-[1.1] hover:underline ${viewMode === mode ? "underline" : ""}`;
@@ -59,7 +67,7 @@ const NavBar = () => {
         />
         <button
           className="rounded-full bg-gray-700 px-3 py-1 font-editorial text-xl text-white hover:bg-gray-500"
-          onClick={() => navigate(`/`)}
+          onClick={handleSignOut}
         >
           sign out
         </button>
