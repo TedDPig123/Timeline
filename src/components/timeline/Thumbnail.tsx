@@ -39,14 +39,14 @@ export default function Thumbnail({
 
   return (
     <span
-      className="thumbnail relative z-10 flex flex-col items-center justify-start rounded-[28px] border-[3px] border-black bg-white"
+      className="thumbnail relative z-10 flex flex-col items-center justify-start rounded-[28px] border-[3px] border-black bg-white hover:scale-[1.01] hover:shadow-md"
       data-date={date}
     >
       <span className="absolute top-[-15px] z-20 bg-white pl-1 pr-1 font-bold">
         {dayLabel && <span className="mr-2">{dayLabel}</span>}
         {date}
       </span>
-      <div className="flex h-full w-full flex-col items-center overflow-hidden p-2">
+      <div className="w-full overflow-hidden rounded-[16px] border-[3px] border-white bg-white">
         {image && (
           <img
             className="mb-1 h-auto w-full rounded-[16px]"

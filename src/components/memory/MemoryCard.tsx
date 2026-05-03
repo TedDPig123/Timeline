@@ -177,6 +177,8 @@ const MemModal = ({
       updatePosition(id, { x: coords.current.lastX, y: coords.current.lastY });
 
       // save to backend
+
+      //TODO: make sure that backend is only updated if state changes
       try {
         await updateCardPosition(id, {
           position_x: coords.current.lastX,
