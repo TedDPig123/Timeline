@@ -8,10 +8,12 @@ import { MemoryCard, Memory } from "@/types";
 
 import PreviewModal from "../memory/PreviewModal";
 import { getMemory } from "@/services/api";
+import { useViewMode } from "../../context/context"; // adjust path if needed
 
 interface TimelineSlot {
   date: string;
   label: string;
+  dayLabel: string | null;
   hasMemory: boolean;
   text: string | null;
   image: string | null;
@@ -24,9 +26,9 @@ export default function Timeline() {
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [baseDate, setBaseDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<"week" | "month" | "year">("month");
   const [allCards, setAllCards] = useState<MemoryCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { viewMode, setViewMode } = useViewMode();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -38,8 +40,16 @@ export default function Timeline() {
   const navigate = useNavigate();
 
   const handleThumbnailClick = async (date: string, hasMemory: boolean) => {
+    if (viewMode === "year") {
+      const [y, m] = date.split("-").map(Number);
+      const monthStart = new Date(y, m - 1, 1);
+      setCurrentDate(monthStart);
+      setBaseDate(monthStart);
+      setViewMode("month");
+      return;
+    }
+
     if (!hasMemory) {
-      // No memory, go straight to edit
       navigate(`/edit/${date}`);
       return;
     }
@@ -69,27 +79,6 @@ export default function Timeline() {
       }
     }
     fetchMemories();
-  }, []);
-
-  // Handle view mode button clicks
-  useEffect(() => {
-    const monthButton = document.getElementById("month-button");
-    const weekButton = document.getElementById("week-button");
-    const yearButton = document.getElementById("year-button");
-
-    const handleMonth = () => setViewMode("month");
-    const handleWeek = () => setViewMode("week");
-    const handleYear = () => setViewMode("year");
-
-    monthButton?.addEventListener("click", handleMonth);
-    weekButton?.addEventListener("click", handleWeek);
-    yearButton?.addEventListener("click", handleYear);
-
-    return () => {
-      monthButton?.removeEventListener("click", handleMonth);
-      weekButton?.removeEventListener("click", handleWeek);
-      yearButton?.removeEventListener("click", handleYear);
-    };
   }, []);
 
   // Generate ALL slots for the view
@@ -323,6 +312,9 @@ export default function Timeline() {
               {slot.isFuture ? (
                 <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400 bg-gray-50">
                   <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-400">
+                    {slot.dayLabel && (
+                      <span className="mr-2">{slot.dayLabel}</span>
+                    )}
                     {slot.label}
                   </span>
                 </div>
@@ -336,7 +328,7 @@ export default function Timeline() {
                     text={slot.hasMemory ? slot.text : null}
                     image={slot.hasMemory ? slot.image : null}
                     date={slot.label}
-                    isEmpty={!slot.hasMemory}
+                    dayLabel={slot.dayLabel}
                   />
                 </button>
               )}
@@ -373,6 +365,9 @@ export default function Timeline() {
               {slot.isFuture ? (
                 <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400 bg-gray-50">
                   <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-400">
+                    {slot.dayLabel && (
+                      <span className="mr-2">{slot.dayLabel}</span>
+                    )}
                     {slot.label}
                   </span>
                 </div>
@@ -386,7 +381,7 @@ export default function Timeline() {
                     text={slot.hasMemory ? slot.text : null}
                     image={slot.hasMemory ? slot.image : null}
                     date={slot.label}
-                    isEmpty={!slot.hasMemory}
+                    dayLabel={slot.dayLabel}
                   />
                 </button>
               )}
@@ -433,6 +428,8 @@ function generateAllSlots(
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
   function getOrdinal(n: number): string {
     const s = ["TH", "ST", "ND", "RD"];
     const v = n % 100;
@@ -461,6 +458,7 @@ function generateAllSlots(
         isFuture: isFuture,
         date: dateStr,
         label: getOrdinal(d.getDate()),
+        dayLabel: dayNames[d.getDay()],
         hasMemory,
         text: hasMemory
           ? dayCards.find((c) => c.type === "TEXT")?.content || null
@@ -488,7 +486,8 @@ function generateAllSlots(
       slots.push({
         isFuture: isFuture,
         date: dateStr,
-        label: getOrdinal(day),
+        label: getOrdinal(d.getDate()),
+        dayLabel: dayNames[d.getDay()],
         hasMemory,
         text: hasMemory
           ? dayCards.find((c) => c.type === "TEXT")?.content || null
@@ -531,6 +530,7 @@ function generateAllSlots(
         isFuture: isFuture,
         date: dateStr,
         label: monthNames[month],
+        dayLabel: null,
         hasMemory,
         text: hasMemory
           ? monthCards.find((c) => c.type === "TEXT")?.content || null

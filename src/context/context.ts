@@ -77,3 +77,21 @@ export function useEditingContext() {
   }
   return context;
 }
+
+//context for viewmode
+export type ViewMode = "week" | "month" | "year";
+
+type ViewModeContextType = {
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
+};
+
+export const ViewModeContext = createContext<ViewModeContextType | undefined>(
+  undefined,
+);
+
+export const useViewMode = () => {
+  const ctx = useContext(ViewModeContext);
+  if (!ctx) throw new Error("useViewMode must be used within ViewModeProvider");
+  return ctx;
+};
