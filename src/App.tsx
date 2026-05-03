@@ -14,6 +14,7 @@ import AuthCallback from "./pages/AuthCallback";
 import Login from "./pages/Login";
 import EditMemoryPage from "./pages/EditMemoryPage";
 import TimelineMainPage from "./pages/TimelineMainPage";
+import Landing from "./pages/Landing";
 
 function App() {
   const [isEditMode, changeMode] = useState<boolean>(false);
@@ -42,7 +43,8 @@ function App() {
           <EditingContext.Provider value={{ isEditMode, changeMode }}>
             <Router>
               <Routes>
-                <Route path="/" element={<Login />} />
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/auth-callback" element={<AuthCallback />} />
                 <Route path="/edit/:date" element={<EditMemoryPage />} />
                 <Route path="/timeline" element={<TimelineMainPage />} />
