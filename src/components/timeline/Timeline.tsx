@@ -178,7 +178,7 @@ export default function Timeline() {
         }
 
         // Update current date when item is near center
-        if (distance < 50) {
+        if (distance < 200) {
           const dateAttr = el.getAttribute("data-date");
           if (dateAttr) {
             setCurrentDate(new Date(dateAttr));
