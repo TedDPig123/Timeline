@@ -21,6 +21,7 @@ export default function MemoryModule({ type, content }: MemoryModuleProps) {
             src={content}
             alt="memory"
             className="h-full w-full rounded object-cover"
+            onDragStart={(event) => event.preventDefault()}
           />
         </div>
       );
