@@ -73,7 +73,7 @@ export function useEditingContext() {
   const context = useContext(EditingContext);
 
   if (context === undefined) {
-    throw new Error("Cannot use null context");
+    throw new Error("Cannot use editing mode");
   }
   return context;
 }
