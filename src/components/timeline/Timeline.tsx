@@ -417,7 +417,7 @@ export default function Timeline() {
   );
 }
 
-// Generate ALL slots for the view (empty or not)
+// generate all slots for the view (empty or not)
 function generateAllSlots(
   viewMode: "week" | "month" | "year",
   baseDate: Date,
