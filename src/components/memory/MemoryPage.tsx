@@ -1,11 +1,15 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { MemModal } from "./MemoryCard";
 import { MemoryCard, ContentType } from "../../types";
 import { useMemModalContext, useEditingContext } from "../../context/context";
 import { useNavigate } from "react-router-dom";
 import AddCardModal from "./AddCardModal";
-import { createCardWithFile } from "../../services/api";
-import { useEffect } from "react";
+import {
+  createCardWithFile,
+  deleteCard,
+  updateCardPosition,
+  updateCardSize,
+} from "../../services/api";
 
 interface MemoryPageProps {
   date: string;
@@ -20,6 +24,16 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
   const navigate = useNavigate();
   const [showAddModal, setShowAddModal] = useState(false);
 
+  // snapshot of cards as they were when edit mode started (needed for cancel)
+  const snapshotRef = useRef<MemoryCard[] | null>(null);
+
+  // pending delete ids
+  const pendingDeletes = useRef<Set<string>>(new Set());
+
+  // ids of cards added during new session
+  const newCardIds = useRef<Set<string>>(new Set());
+
+  // ensure we start in view mode
   useEffect(() => {
     changeMode(false);
   }, []);
@@ -28,6 +42,98 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
     const modalDate = modal.date.split("T")[0];
     return modalDate === date;
   });
+
+  // edit, save, and cancel logic
+
+  const enterEditMode = () => {
+    // snapshot current state of THIS date's cards so cancel can restore them
+    snapshotRef.current = curModals.map((m) => ({ ...m }));
+    pendingDeletes.current.clear();
+    newCardIds.current.clear();
+    changeMode(true);
+  };
+
+  const handleSave = async () => {
+    const snapshot = snapshotRef.current ?? [];
+
+    // delete the removed cards
+    const deletePromises = Array.from(pendingDeletes.current).map((id) =>
+      deleteCard(id).catch((err) =>
+        console.error(`Failed to delete card ${id}:`, err),
+      ),
+    );
+
+    // persist position/size changes for cards surviving the culling
+    const updatePromises = curModals.flatMap((current) => {
+      const original = snapshot.find((s) => s.id === current.id);
+      const isNew = newCardIds.current.has(current.id);
+      // skipping new cards
+      if (!original || isNew) return [];
+
+      const promises: Promise<unknown>[] = [];
+
+      if (
+        original.position_x !== current.position_x ||
+        original.position_y !== current.position_y ||
+        original.z_index !== current.z_index
+      ) {
+        promises.push(
+          updateCardPosition(current.id, {
+            position_x: current.position_x,
+            position_y: current.position_y,
+            z_index: current.z_index,
+          }).catch((err) => console.error("Error saving position:", err)),
+        );
+      }
+
+      if (
+        original.width !== current.width ||
+        original.height !== current.height
+      ) {
+        promises.push(
+          updateCardSize(current.id, {
+            width: current.width,
+            height: current.height,
+          }).catch((err) => console.error("Error saving size:", err)),
+        );
+      }
+
+      return promises;
+    });
+
+    await Promise.all([...deletePromises, ...updatePromises]);
+
+    // clean up the staging
+    pendingDeletes.current.clear();
+    newCardIds.current.clear();
+    snapshotRef.current = null;
+    changeMode(false);
+  };
+
+  const handleCancel = () => {
+    const snapshot = snapshotRef.current;
+    if (snapshot) {
+      // drop everything for this date in memModals, replace with snapshot
+      const otherDates = memModals.filter((m) => m.date.split("T")[0] !== date);
+      setMemModals([...otherDates, ...snapshot]);
+    }
+    pendingDeletes.current.clear();
+    newCardIds.current.clear();
+    snapshotRef.current = null;
+    changeMode(false);
+  };
+
+  // IN-MEMORY CARD CHANGES
+
+  const queueDelete = (id: string) => {
+    // if the card was newly added in this session, just drop it
+    if (newCardIds.current.has(id)) {
+      newCardIds.current.delete(id);
+    } else {
+      pendingDeletes.current.add(id);
+    }
+    setMemModals(memModals.filter((m) => m.id !== id));
+  };
 
   const handleAddCard = async (data: {
     type: ContentType;
@@ -53,6 +159,7 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
         memory_id: memoryId,
       });
 
+      newCardIds.current.add(newCard.id);
       setMemModals([...memModals, newCard]);
     } catch (error) {
       console.error("Error creating card:", error);
@@ -86,37 +193,41 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
             memModal={memModal}
             id={memModal.id}
             updatePosition={updateMemModalPosition}
+            queueDelete={queueDelete}
             memPageRef={memPageRef}
           />
         ))}
       </div>
-      <div className="flex w-full justify-between py-2">
+
+      <div className="flex w-full items-center justify-between py-2">
         <button
           onClick={() => navigate("/timeline")}
-          className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-300"
+          className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-400"
         >
           ← Back to Timeline
         </button>
-        {!isEditMode && (
+
+        {isEditMode ? (
+          <div className="flex gap-2">
+            <button
+              className="rounded bg-gray-300 px-4 py-2 text-sm text-black hover:bg-gray-400"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+            <button
+              className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-700"
+              onClick={handleSave}
+            >
+              Save
+            </button>
+          </div>
+        ) : (
           <button
-            className="w-10 rounded bg-black px-2 py-1 text-xs text-white hover:bg-gray-400"
-            onClick={() => {
-              navigate(`/edit/${date}`);
-              changeMode(!isEditMode);
-            }}
+            className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-700"
+            onClick={enterEditMode}
           >
             Edit
-          </button>
-        )}
-        {isEditMode && (
-          <button
-            className=" z-[1000] w-10 rounded bg-black px-2 py-1 text-xs text-white hover:bg-gray-400"
-            onClick={() => {
-              navigate(`/edit/${date}`);
-              changeMode(!isEditMode);
-            }}
-          >
-            Save
           </button>
         )}
       </div>

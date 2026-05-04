@@ -1,53 +1,53 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useMemModalContext } from "@/context/context";
-import { useEditingContext } from "@/context/context";
+import { useMemModalContext, useEditingContext } from "@/context/context";
 import { MemoryModule } from "./MemoryModule";
 import { MemoryCard } from "../../types";
-import {
-  updateCardPosition,
-  deleteCard,
-  updateCardSize,
-} from "../../services/api";
 import DeleteIcon from "../../assets/graphics/cancel.svg?react";
 import ResizeIcon from "../../assets/graphics/resize.svg?react";
 
 const MemModal = ({
-  //the memory card was called the memmodal, TODO: should change it to memcard or smth more fitting
-  memModal, //the memorycard object, TODO: Rename
+  memModal,
   id,
-  updatePosition, //updates position of card in database
-  memPageRef, //a reference to the memory page itself
+  updatePosition,
+  queueDelete,
+  memPageRef,
 }: {
   memModal: MemoryCard;
   id: string;
   updatePosition: (id: string, newPosition: { x: number; y: number }) => void;
+  queueDelete: (id: string) => void;
   memPageRef: React.RefObject<HTMLDivElement>;
 }) => {
-  //sets the current x and y position of the card given by the memModal memory object
   const [position, setPosition] = useState({
     x: memModal.position_x,
     y: memModal.position_y,
   });
+  const [size, setSize] = useState({
+    width: memModal.width,
+    height: memModal.height,
+  });
 
-  //unpack memModals and setMemModals from useMemModalContext()
-  // - memModals is the array of memoryCards loaded
-  //unpack isEditMode from useEditingContext()
   const { memModals, setMemModals } = useMemModalContext();
   const { isEditMode } = useEditingContext();
   const [resizeMode, setResizeMode] = useState(false);
 
-  //this function brings the input card to the top
-  // - gets all memory-modals (still should be memory-cards)
-  // - if the card isn't already at the top:
-  //   - set the card to have the highest index
-  //   - decrement the z-value of all other cards, capping to z=0
+  // Keep local state in sync if memModals is reset (e.g. cancel)
+  useEffect(() => {
+    setPosition({ x: memModal.position_x, y: memModal.position_y });
+    setSize({ width: memModal.width, height: memModal.height });
+  }, [
+    memModal.position_x,
+    memModal.position_y,
+    memModal.width,
+    memModal.height,
+  ]);
+
   const bringToTop = (card: HTMLDivElement) => {
     const otherCards = document.getElementsByClassName(
       "memory-modal",
     ) as HTMLCollectionOf<HTMLDivElement>;
 
     if (card.style.zIndex === "999") return;
-
     card.style.zIndex = "999";
 
     Array.from(otherCards).forEach((otherCard: HTMLDivElement) => {
@@ -59,84 +59,32 @@ const MemModal = ({
     });
   };
 
-  //calls the delete card function to delete from database
-  //then uses filter method to remove the deleted modal from the memModals array
-  //updates the memModals context
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteCard(id);
-      const updatedModules = memModals.filter((modal) => modal.id !== id);
-      setMemModals(updatedModules);
-    } catch (error) {
-      console.error("Error deleting card:", error);
-    }
-  };
-
-  //reference for the memModal div container (AKA the container being returned)
   const memModalRef = useRef<HTMLDivElement>(null);
-  //ref to keep track of click status
   const isClicked = useRef<boolean>(false);
 
-  //ref for coordinates
-  const coords = useRef<{
-    startX: number;
-    startY: number;
-    lastX: number;
-    lastY: number;
-  }>({
-    startX: 0,
-    startY: 0,
-    lastX: 0,
-    lastY: 0,
-  });
-
-  //ref for dimensions
-  const dimensions = useRef<{
-    startWidth: number;
-    startHeight: number;
-    lastWidth: number;
-    lastHeight: number;
-  }>({
-    startWidth: memModal.width,
-    startHeight: memModal.height,
+  const coords = useRef({ startX: 0, startY: 0, lastX: 0, lastY: 0 });
+  const dimensions = useRef({
     lastWidth: memModal.width,
     lastHeight: memModal.height,
   });
 
-  //this section triggers a rerender when isEditMode changes? and id changes? look into this.
   useEffect(() => {
     if (!isEditMode) return;
-
-    //if the memory card has not been rendered yet, or the memory page has not been rendered yet either, return
     if (!memModalRef.current || !memPageRef.current) return;
 
-    //memPage is the actual page, memModal is the card html element itself
     const memPage = memPageRef.current;
-    const memModal = memModalRef.current;
+    const cardEl = memModalRef.current;
 
-    //function for handling the mouse-down part of the dragging process
-    //  - if it's not in edit mode, return
-    //  - record the last coordinates of the card
-    //  - set isClicked to true
-    //  - record the starting coordinates of the cursor
-    //  - bring the current memModal to the top
     const handleMouseDown = (e: MouseEvent) => {
-      if (!isEditMode) return;
-
-      //leftposition and top position relative to the parent
-      coords.current.lastX = memModal.offsetLeft;
-      coords.current.lastY = memModal.offsetTop;
-
-      //current dimensions of the card
-      dimensions.current.lastHeight = memModal.clientHeight;
-      dimensions.current.lastWidth = memModal.clientWidth;
+      coords.current.lastX = cardEl.offsetLeft;
+      coords.current.lastY = cardEl.offsetTop;
+      dimensions.current.lastWidth = cardEl.clientWidth;
+      dimensions.current.lastHeight = cardEl.clientHeight;
 
       isClicked.current = true;
-
-      //set the starting coordinates for the cursor
       coords.current.startX = e.clientX;
       coords.current.startY = e.clientY;
-      bringToTop(memModal);
+      bringToTop(cardEl);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -145,74 +93,77 @@ const MemModal = ({
       const diffX = e.clientX - coords.current.startX;
       const diffY = e.clientY - coords.current.startY;
 
-      //if resizing
       if (resizeMode) {
-        const nextHeight = diffY + dimensions.current.lastHeight;
         const nextWidth = diffX + dimensions.current.lastWidth;
-
-        memModal.style.height = `${nextHeight}px`;
-        memModal.style.width = `${nextWidth}px`;
+        const nextHeight = diffY + dimensions.current.lastHeight;
+        cardEl.style.width = `${nextWidth}px`;
+        cardEl.style.height = `${nextHeight}px`;
       } else {
-        //(e.clientX - coords.current.startX) this is the difference between the start and end position
-        //add that the memoryCard's last coordinates and you get the new x and y offsets
         const nextX = diffX + coords.current.lastX;
         const nextY = diffY + coords.current.lastY;
-
-        memModal.style.top = `${nextY}px`;
-        memModal.style.left = `${nextX}px`;
-
+        cardEl.style.left = `${nextX}px`;
+        cardEl.style.top = `${nextY}px`;
         setPosition({ x: nextX, y: nextY });
       }
     };
 
-    const handleMouseUp = async () => {
+    const handleMouseUp = () => {
       if (!isClicked.current) return;
       isClicked.current = false;
-      coords.current.lastX = memModal.offsetLeft;
-      coords.current.lastY = memModal.offsetTop;
 
-      dimensions.current.lastHeight = memModal.clientHeight;
-      dimensions.current.lastWidth = memModal.clientWidth;
+      const finalX = cardEl.offsetLeft;
+      const finalY = cardEl.offsetTop;
+      const finalWidth = cardEl.clientWidth;
+      const finalHeight = cardEl.clientHeight;
 
-      updatePosition(id, { x: coords.current.lastX, y: coords.current.lastY });
+      coords.current.lastX = finalX;
+      coords.current.lastY = finalY;
+      dimensions.current.lastWidth = finalWidth;
+      dimensions.current.lastHeight = finalHeight;
 
-      // save to backend
+      // Update position in shared context (parent reads this on save)
+      updatePosition(id, { x: finalX, y: finalY });
 
-      //TODO: make sure that backend is only updated if state changes
-      try {
-        await updateCardPosition(id, {
-          position_x: coords.current.lastX,
-          position_y: coords.current.lastY,
-          z_index: parseInt(memModal.style.zIndex) || 1,
-        });
-      } catch (error) {
-        console.error("Error saving position:", error);
-      }
+      // Update size in shared context too — extend updateMemModalPosition or add a setter,
+      // but the simplest approach: write directly back into memModals
+      setMemModals(
+        memModals.map((m) =>
+          m.id === id
+            ? {
+                ...m,
+                position_x: finalX,
+                position_y: finalY,
+                width: finalWidth,
+                height: finalHeight,
+                z_index: parseInt(cardEl.style.zIndex) || 1,
+              }
+            : m,
+        ),
+      );
 
-      try {
-        await updateCardSize(id, {
-          height: dimensions.current.lastHeight,
-          width: dimensions.current.lastWidth,
-        });
-      } catch (error) {
-        console.error("Error saving card size");
-      }
+      setSize({ width: finalWidth, height: finalHeight });
     };
 
-    memModal.addEventListener("mousedown", handleMouseDown);
-    memModal.addEventListener("mouseup", handleMouseUp);
+    cardEl.addEventListener("mousedown", handleMouseDown);
+    cardEl.addEventListener("mouseup", handleMouseUp);
     memPage.addEventListener("mousemove", handleMouseMove);
     memPage.addEventListener("mouseleave", handleMouseUp);
 
-    const cleanUp = () => {
-      memModal.removeEventListener("mousedown", handleMouseDown);
-      memModal.removeEventListener("mouseup", handleMouseUp);
+    return () => {
+      cardEl.removeEventListener("mousedown", handleMouseDown);
+      cardEl.removeEventListener("mouseup", handleMouseUp);
       memPage.removeEventListener("mousemove", handleMouseMove);
       memPage.removeEventListener("mouseleave", handleMouseUp);
     };
-
-    return cleanUp;
-  }, [isEditMode, resizeMode, id]);
+  }, [
+    isEditMode,
+    resizeMode,
+    id,
+    memModals,
+    setMemModals,
+    updatePosition,
+    memPageRef,
+  ]);
 
   return (
     <div
@@ -220,8 +171,8 @@ const MemModal = ({
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: `${memModal.width}px`,
-        height: `${memModal.height}px`,
+        width: `${size.width}px`,
+        height: `${size.height}px`,
       }}
       ref={memModalRef}
     >
@@ -229,19 +180,15 @@ const MemModal = ({
       {isEditMode && (
         <>
           <button
-            className="delete-button absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
-            onClick={() => handleDelete(id)}
+            className="absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
+            onClick={() => queueDelete(id)}
           >
             <DeleteIcon className="h-4 w-4 text-white" />
           </button>
           <button
-            className="delete-button absolute bottom-[-6px] right-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
-            onMouseDown={() => {
-              setResizeMode(true);
-            }}
-            onMouseUp={() => {
-              setResizeMode(false);
-            }}
+            className="absolute bottom-[-6px] right-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
+            onMouseDown={() => setResizeMode(true)}
+            onMouseUp={() => setResizeMode(false)}
           >
             <ResizeIcon className="h-4 w-4 text-white" />
           </button>
