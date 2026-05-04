@@ -1,24 +1,23 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const { setToken } = useAuth();
 
   useEffect(() => {
-    // Get token from URL
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
 
     if (token) {
-      // Save token to localStorage
       localStorage.setItem("token", token);
-      // Redirect to main app
-      navigate("/timeline");
+      setToken(token);
+      navigate("/timeline", { replace: true });
     } else {
-      // No token, redirect to login
-      navigate("/");
+      navigate("/timeline", { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, setToken]);
 
   return (
     <div className="flex h-screen items-center justify-center">
