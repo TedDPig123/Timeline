@@ -9,7 +9,7 @@ export default function Landing() {
     <div className="flex h-screen flex-col bg-white">
       <div className="flex items-center justify-between px-10 pt-6">
         <h1 className="scale-y-[1.1] font-editorial text-6xl tracking-[-2px]">
-          Timeline.
+          <span className="cursor-default">Timeline.</span>
         </h1>
         <button
           onClick={() => navigate("/login")}
@@ -22,7 +22,7 @@ export default function Landing() {
       <div className=" mb-8 flex flex-1 items-center justify-center px-10">
         <div className="flex w-full flex-col px-40">
           <div className="flex h-[35vh] w-full flex-row items-end">
-            <h2 className="font-helvetica-med mb-10 w-[2000px] text-7xl font-bold leading-tight tracking-tight">
+            <h2 className="font-helvetica-med mb-10 w-[2000px] cursor-default text-7xl font-bold leading-tight tracking-tight">
               All your memories.
               <br />
               Just one line.
@@ -30,7 +30,12 @@ export default function Landing() {
             <div className="slider-container h-full w-full items-start">
               <div className="landing-thumbnail ml-20 flex h-full w-[400px] flex-col items-center justify-end">
                 <div className="flex h-[90%] w-full items-center justify-center overflow-hidden rounded-[28px] border-[4px] border-black">
-                  <img src={ImageOne} alt="" className="h-[110%] w-[110%]" />
+                  <img
+                    src={ImageOne}
+                    alt=""
+                    className="h-[110%] w-[110%]"
+                    onDragStart={(event) => event.preventDefault()}
+                  />
                 </div>
                 <div className="mt-1 h-[8%] w-[6px] bg-black"></div>
               </div>
@@ -39,7 +44,7 @@ export default function Landing() {
           <div className="h-[6px] w-full bg-black"></div>
           <div className="flex h-[35vh] w-full flex-row items-start">
             <div></div>
-            <div className="font-helvetica-lite mb-10 mt-9 w-[1200px] flex-col text-5xl leading-tight tracking-tight text-gray-500">
+            <div className="font-helvetica-lite mb-10 mt-9 w-[1200px] cursor-default flex-col text-5xl leading-tight tracking-tight text-gray-500">
               <div>Keep track of your story</div>
               <div>one memory at a time.</div>
               <button
@@ -54,7 +59,12 @@ export default function Landing() {
               <div className="landing-thumbnail flex h-full w-[400px] flex-col items-center justify-start">
                 <div className="mb-1 h-[8%] w-[6px] bg-black"></div>
                 <div className="h-[90%] w-full items-center justify-center overflow-hidden rounded-[28px] border-[4px] border-black">
-                  <img src={ImageTwo} alt="" className="h-[110%] w-[110%]" />
+                  <img
+                    src={ImageTwo}
+                    alt=""
+                    className="h-[110%] w-[110%]"
+                    onDragStart={(event) => event.preventDefault()}
+                  />
                 </div>
               </div>
             </div>
