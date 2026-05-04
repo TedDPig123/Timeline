@@ -24,7 +24,7 @@ const NavBar = () => {
       {/* App name */}
       <div>
         <h1 className="scale-y-[1.1] text-left font-editorial text-4xl tracking-[-2px]">
-          <span>Timeline.</span>
+          <span className="cursor-default">Timeline.</span>
         </h1>
       </div>
       {/* View Navigation */}
