@@ -238,11 +238,9 @@ const MemModal = ({
             className="delete-button absolute bottom-[-6px] right-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
             onMouseDown={() => {
               setResizeMode(true);
-              console.log("RESIZE ON");
             }}
             onMouseUp={() => {
               setResizeMode(false);
-              console.log("RESIZE OFF");
             }}
           >
             <ResizeIcon className="h-4 w-4 text-white" />

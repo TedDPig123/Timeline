@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useEditingContext, useMemModalContext } from "../context/context";
 import { MemoryPage } from "../components/memory/MemoryPage";
-import { NavBar } from "../components/ui/NavBar";
 import { getMemory, createMemory } from "../services/api";
 import { Memory } from "../types";
 
@@ -68,10 +67,9 @@ export default function EditMemoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <NavBar />
-      <div className="flex flex-col items-center p-8">
-        <div className="mb-4 flex items-center gap-4">
+    <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="flex flex-col items-center">
+        <div className="mb-2 flex w-full items-center justify-between gap-4">
           <button
             onClick={() => navigate("/timeline")}
             className="rounded-full bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
