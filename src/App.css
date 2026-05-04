@@ -5,6 +5,18 @@
   src: url("./assets/fonts/EditorialNew-Regular.ttf");
 }
 
+@font-face {
+  font-family: "HelveticaNeueMedium";
+  src: url("./assets/fonts/HelveticaNeueMedium.otf");
+}
+
+@font-face {
+  font-family: "HelveticaNeueLight";
+  src: url("./assets/fonts/HelveticaNeueLight.otf");
+}
+
 @theme {
   --font-editorial: "PP-Editorial-New", "serif";
+  --font-helvetica-med: "HelveticaNeueMedium", "sans-serif";
+  --font-helvetica-lite: "HelveticaNeueLight", "sans-serif";
 }
