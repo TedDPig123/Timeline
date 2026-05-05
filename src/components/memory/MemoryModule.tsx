@@ -16,7 +16,7 @@ export default function MemoryModule({ type, content }: MemoryModuleProps) {
       );
     case "IMAGE":
       return (
-        <div className="image-memory h-full">
+        <div className="image-memory h-full items-start justify-start">
           <img
             src={content}
             alt="memory"

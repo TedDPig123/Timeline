@@ -169,7 +169,7 @@ const MemModal = ({
 
   return (
     <div
-      className="memory-modal absolute rounded-lg border border-black bg-white p-2"
+      className="memory-modal absolute rounded-lg border p-2"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
