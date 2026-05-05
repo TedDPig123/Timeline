@@ -65,18 +65,36 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
 
     // persist position/size changes for cards surviving the culling
     const updatePromises = curModals.flatMap((current) => {
+      //this is the original card
       const original = snapshot.find((s) => s.id === current.id);
-      const isNew = newCardIds.current.has(current.id);
+      // const isNew = newCardIds.current.has(current.id);
       // skipping new cards
-      if (!original || isNew) return [];
-
       const promises: Promise<unknown>[] = [];
+
+      if (!original) {
+        console.log("saving new");
+        promises.push(
+          updateCardPosition(current.id, {
+            position_x: current.position_x,
+            position_y: current.position_y,
+            z_index: current.z_index,
+          }).catch((err) => console.error("Error saving position:", err)),
+        );
+        promises.push(
+          updateCardSize(current.id, {
+            width: current.width,
+            height: current.height,
+          }).catch((err) => console.error("Error saving size:", err)),
+        );
+        return promises;
+      }
 
       if (
         original.position_x !== current.position_x ||
         original.position_y !== current.position_y ||
         original.z_index !== current.z_index
       ) {
+        console.log("saving position");
         promises.push(
           updateCardPosition(current.id, {
             position_x: current.position_x,
