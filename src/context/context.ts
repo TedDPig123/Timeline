@@ -18,8 +18,6 @@ export const ThemeContext = createContext<ThemeContextType | undefined>(
   undefined,
 );
 
-// 0,1,2 -> week,month,year
-
 export function useThemeContext() {
   const context = useContext(ThemeContext);
 
@@ -105,3 +103,25 @@ export const useViewMode = () => {
   if (!ctx) throw new Error("useViewMode must be used within ViewModeProvider");
   return ctx;
 };
+
+//SETTINGS!!!
+export type settings = {
+  useVerticalScroll: boolean;
+};
+
+type SettingsContextType = {
+  settings: settings;
+  setSettings: (currentSettings: settings) => void;
+};
+export const SettingsContext = createContext<SettingsContextType | undefined>(
+  undefined,
+);
+
+export function useSettingsContext() {
+  const context = useContext(SettingsContext);
+
+  if (context === undefined) {
+    throw new Error("Cannot use null context");
+  }
+  return context;
+}
