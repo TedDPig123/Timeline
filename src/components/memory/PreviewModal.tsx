@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { MemoryCard } from "../../types";
 import ExitIcon from "../../assets/graphics/cancel.svg?react";
 import FullScreen from "../../assets/graphics/fullscreen.svg?react";
+import { Tooltip } from "react-tooltip";
 
 interface PreviewModalProps {
   isOpen: boolean;
@@ -45,22 +46,21 @@ export default function PreviewModal({
               onClose();
               navigate(`/edit/${date}`);
             }}
-            className="text-white hover:text-gray-300"
-            title="Edit"
+            className="view-full text-white hover:text-gray-300"
           >
             <FullScreen className="h-5 w-5 text-white" />
           </button>
           <h2 className="font-editorial text-xl text-white">{displayDate}</h2>
           <button
             onClick={onClose}
-            className="text-white hover:text-gray-300"
+            className="exit-preview text-white hover:text-gray-300"
             title="Close"
           >
             <ExitIcon className="h-5 w-5 text-white" />
           </button>
         </div>
 
-        {/* Canvas - same size as MemoryPage */}
+        {/* canvas */}
         <div
           className="relative h-[550px] w-[550px] overflow-hidden"
           style={{
@@ -94,7 +94,7 @@ export default function PreviewModal({
                   />
                 )}
                 {card.type === "TEXT" && (
-                  <div className="h-full w-full overflow-hidden text-sm">
+                  <div className="h-full w-full overflow-hidden text-xs">
                     {card.content}
                   </div>
                 )}
@@ -115,6 +115,14 @@ export default function PreviewModal({
           )}
         </div>
       </div>
+
+      <Tooltip anchorSelect=".view-full" place="top">
+        View/Edit Memory
+      </Tooltip>
+
+      <Tooltip anchorSelect=".exit-preview" place="top">
+        Exit Preview
+      </Tooltip>
     </div>
   );
 }

@@ -2,22 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-.thumbnail-gallery::-webkit-scrollbar{
-    display:none;
+.thumbnail-gallery::-webkit-scrollbar {
+  display: none;
 }
 
-#left-arrow:hover{
-    width: 55px;
-    margin-right: 15px;
+#left-arrow:hover {
+  width: 55px;
+  margin-right: 15px;
 }
-#left-arrow{
-    transition: 0.3s;
+#left-arrow {
+  transition: 0.3s;
 }
 
-#right-arrow:hover{
-    width: 55px;
-    margin-left: 15px;
+#right-arrow:hover {
+  width: 55px;
+  margin-left: 15px;
 }
-#right-arrow{
-    transition: 0.3s;
+#right-arrow {
+  transition: 0.3s;
 }
