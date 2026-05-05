@@ -2,14 +2,13 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import gsap from "gsap";
 import Thumbnail from "./Thumbnail";
 import { useNavigate } from "react-router-dom";
-import RightArrow from "../../assets/graphics/right-white.png";
+import LeftArrow from "../../assets/graphics/left-arrow-noline.svg?react";
 import { getAllMemories } from "@/services/api";
 import { MemoryCard, Memory } from "@/types";
 
 import PreviewModal from "../memory/PreviewModal";
 import { getMemory } from "@/services/api";
-import { useViewMode } from "../../context/context"; // adjust path if needed
-
+import { useViewMode, useThemeContext } from "../../context/context"; // adjust path if needed
 interface TimelineSlot {
   date: string;
   label: string;
@@ -29,6 +28,7 @@ export default function Timeline() {
   const [allCards, setAllCards] = useState<MemoryCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { viewMode, setViewMode } = useViewMode();
+  const { theme } = useThemeContext();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -112,12 +112,17 @@ export default function Timeline() {
     };
 
     return (
-      <div className="flex w-[280px] items-center justify-between rounded-[25px] bg-black p-3 font-editorial text-2xl text-white">
-        <img
+      <div
+        className={`flex w-[280px] items-center justify-between rounded-full  p-3 font-editorial text-2xl text-white`}
+        style={{
+          border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
+          color: theme.secondaryColor,
+          backgroundColor: theme.primaryColor,
+        }}
+      >
+        <LeftArrow
           onClick={() => shiftDate("prev")}
-          className="mr-[10px] h-[20px] scale-x-[-1] cursor-pointer"
-          src={RightArrow}
-          alt=""
+          className="ml-[-10px] h-[30px] w-[50px] cursor-pointer"
         />
         <div className="scale-y-[1.1] justify-center text-center">
           {viewMode === "year"
@@ -129,11 +134,9 @@ export default function Timeline() {
                 })
               : `Week of ${getMonday(ddate).toLocaleDateString()}`}
         </div>
-        <img
+        <LeftArrow
           onClick={() => shiftDate("next")}
-          className="ml-[10px] h-[20px] cursor-pointer"
-          src={RightArrow}
-          alt=""
+          className="mr-[-10px] h-[30px] w-[50px] scale-x-[-1] cursor-pointer"
         />
       </div>
     );
@@ -289,7 +292,10 @@ export default function Timeline() {
   }
 
   return (
-    <div className="relative flex h-full w-[100vw] flex-col items-center justify-start">
+    <div
+      className="relative flex h-full w-[100vw] flex-col items-center justify-start"
+      style={{ backgroundColor: theme.primaryColor }}
+    >
       {/* Top row - thumbnails above the line */}
       <div
         ref={scrollContainer1}
@@ -310,8 +316,14 @@ export default function Timeline() {
               data-date={slot.date}
             >
               {slot.isFuture ? (
-                <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400 bg-gray-50">
-                  <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-400">
+                <div
+                  className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400"
+                  style={{ backgroundColor: theme.primaryColor }}
+                >
+                  <span
+                    className="absolute top-[-15px] z-20 px-2 font-bold text-gray-400"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
                     {slot.dayLabel && (
                       <span className="mr-2">{slot.dayLabel}</span>
                     )}
@@ -333,7 +345,12 @@ export default function Timeline() {
                 </button>
               )}
               <div
-                className={`h-[20px] w-[4px] ${slot.isFuture ? "bg-gray-400" : "bg-black"}`}
+                className={`h-[20px] w-[4px]`}
+                style={{
+                  backgroundColor: slot.isFuture
+                    ? "#9ca3af"
+                    : theme.secondaryColor,
+                }}
               />
             </div>
           ))}
@@ -360,11 +377,22 @@ export default function Timeline() {
               data-date={slot.date}
             >
               <div
-                className={`h-[30px] w-[4px] ${slot.isFuture ? "bg-gray-400" : "bg-black"}`}
+                className="h-[30px] w-[4px]"
+                style={{
+                  backgroundColor: slot.isFuture
+                    ? "#9ca3af"
+                    : theme.secondaryColor,
+                }}
               />
               {slot.isFuture ? (
-                <div className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400 bg-gray-50">
-                  <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold text-gray-400">
+                <div
+                  className="thumbnail relative flex items-center justify-center rounded-[28px] border-[3px] border-dashed border-gray-400"
+                  style={{ backgroundColor: theme.primaryColor }}
+                >
+                  <span
+                    className="absolute top-[-15px] z-20 px-2 font-bold text-gray-400"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
                     {slot.dayLabel && (
                       <span className="mr-2">{slot.dayLabel}</span>
                     )}

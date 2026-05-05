@@ -2,13 +2,14 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { NavBar } from "../components/ui/NavBar";
+import { useThemeContext } from "@/context/context";
 import Timeline from "../components/timeline/Timeline";
-import LeftArrow from "../assets/graphics/arrow-left.png";
-import RightArrow from "../assets/graphics/arrow-right.png";
+import LeftArrow from "../assets/graphics/left-arrow.svg?react";
 
 export default function TimelineMainPage() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const { theme } = useThemeContext();
 
   useEffect(() => {
     if (!user && !isLoading) {
@@ -29,7 +30,10 @@ export default function TimelineMainPage() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-white">
+    <div
+      className={`timeline-main-page relative h-screen w-screen overflow-hidden`}
+      style={{ backgroundColor: theme.primaryColor }}
+    >
       <NavBar />
 
       <div className="relative flex h-[calc(100vh-80px)] items-center">
@@ -37,11 +41,12 @@ export default function TimelineMainPage() {
 
         {/* Timeline bar*/}
         <div
-          className="pointer-events-none absolute z-30 h-[6px] bg-black"
+          className="pointer-events-none absolute z-30 h-[6px]"
           style={{
             top: "44.4%",
             left: "90px",
             right: "90px",
+            backgroundColor: theme.secondaryColor,
           }}
         />
 
@@ -50,15 +55,13 @@ export default function TimelineMainPage() {
           <div
             className="absolute inset-0"
             style={{
-              background:
-                "linear-gradient(to right, white 0%, white 55%, transparent 100%)",
+              background: `linear-gradient(to right, ${theme.primaryColor} 0%, ${theme.primaryColor} 55%, transparent 100%)`,
             }}
           />
-          <img
+          <LeftArrow
             id="left-arrow"
-            src={LeftArrow}
-            alt="move-left"
-            className="pointer-events-auto relative z-40 mb-[74px] ml-[30px] w-[50px] cursor-pointer"
+            style={{ color: theme.secondaryColor }}
+            className="pointer-events-auto relative z-40 mb-[74px] ml-[30px] h-[32px] w-[50px] cursor-pointer"
           />
         </div>
 
@@ -67,15 +70,13 @@ export default function TimelineMainPage() {
           <div
             className="absolute inset-0"
             style={{
-              background:
-                "linear-gradient(to left, white 0%, white 55%, transparent 100%)",
+              background: `linear-gradient(to left, ${theme.primaryColor} 0%, ${theme.primaryColor} 55%, transparent 100%)`,
             }}
           />
-          <img
+          <LeftArrow
             id="right-arrow"
-            src={RightArrow}
-            alt="move-right"
-            className="pointer-events-auto relative z-40 mb-[75px] mr-[30px] w-[50px] cursor-pointer"
+            style={{ color: theme.secondaryColor }}
+            className="pointer-events-auto relative z-40 mb-[75px] mr-[30px] h-[32px] w-[50px] scale-x-[-1] cursor-pointer"
           />
         </div>
       </div>

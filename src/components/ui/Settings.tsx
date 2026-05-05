@@ -1,27 +1,110 @@
+import { useState, useRef, useEffect } from "react";
+import { themes } from "@/context/theme";
+import { useThemeContext } from "@/context/context";
+
 type SettingsButtonProps = {
   isSettingsOpen: boolean;
   onClose: () => void;
 };
 
 const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
+  const { theme, setTheme } = useThemeContext();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
   if (!isSettingsOpen) return null;
+
+  const themeNames = Object.keys(themes) as (keyof typeof themes)[];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         className="absolute inset-0 bg-gray-500 bg-opacity-10 backdrop-blur-[2px]"
         onClick={onClose}
       ></div>
-      <div className="relative z-10 flex w-[400px] flex-col items-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg">
-        {/* Close button */}
+      <div
+        className="relative z-10 flex w-[400px] flex-col items-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg"
+        style={{ backgroundColor: theme.primaryColor }}
+      >
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 rounded bg-gray-200 px-2 py-1 text-xs text-white hover:bg-gray-400"
+          className="absolute right-3 top-3 rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-400"
+          style={{ color: theme.primaryColor }}
         >
           X
         </button>
+        <div className="flex w-full flex-col items-start">
+          <h2 className="mb-2 font-editorial text-3xl">Settings</h2>
+          <div
+            className="mb-2 h-[3px] w-full"
+            style={{ backgroundColor: theme.secondaryColor }}
+          ></div>
+          <p className="mb-2">Themes</p>
 
-        <h2 className="mb-2 font-editorial text-3xl">Settings</h2>
-        <p className="text-center text-gray-600">Work in progress.</p>
+          {/* Custom dropdown */}
+          <div className="relative w-full" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsOpen((o) => !o)}
+              className="flex w-full items-center justify-between rounded border px-3 py-2 text-sm transition-colors"
+              style={{
+                borderColor: theme.secondaryColor,
+                color: theme.secondaryColor,
+                backgroundColor: theme.primaryColor,
+              }}
+            >
+              <span>{theme.name ?? "Select theme"}</span>
+              <span
+                className={`ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`}
+              >
+                ▾
+              </span>
+            </button>
+
+            {isOpen && (
+              <ul
+                className="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded border shadow-lg"
+                style={{
+                  borderColor: theme.secondaryColor,
+                  backgroundColor: theme.primaryColor,
+                }}
+              >
+                {themeNames.map((name) => (
+                  <li key={name}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTheme(themes[name]);
+                        setIsOpen(false);
+                      }}
+                      className="block w-full px-3 py-2 text-left text-sm hover:opacity-80"
+                      style={{
+                        color: theme.secondaryColor,
+                        backgroundColor: theme.primaryColor,
+                      }}
+                    >
+                      {name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

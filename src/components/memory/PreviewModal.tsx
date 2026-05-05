@@ -3,6 +3,7 @@ import { MemoryCard } from "../../types";
 import ExitIcon from "../../assets/graphics/cancel.svg?react";
 import FullScreen from "../../assets/graphics/fullscreen.svg?react";
 import { Tooltip } from "react-tooltip";
+import { useThemeContext } from "@/context/context";
 
 interface PreviewModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function PreviewModal({
   cards,
 }: PreviewModalProps) {
   const navigate = useNavigate();
+  const { theme } = useThemeContext();
 
   if (!isOpen) return null;
 
@@ -36,11 +38,18 @@ export default function PreviewModal({
       onClick={onClose}
     >
       <div
-        className="relative flex flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl"
+        className="relative flex flex-col overflow-hidden rounded-[28px] shadow-2xl"
+        style={{
+          border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
+          backgroundColor: theme.primaryColor,
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between bg-black px-4 py-3">
+        <div
+          className="flex items-center justify-between  px-4 py-3"
+          style={{ backgroundColor: theme.secondaryColor }}
+        >
           <button
             onClick={() => {
               onClose();
@@ -48,15 +57,26 @@ export default function PreviewModal({
             }}
             className="view-full text-white hover:text-gray-300"
           >
-            <FullScreen className="h-5 w-5 text-white" />
+            <FullScreen
+              className="h-5 w-5"
+              style={{ color: theme.primaryColor }}
+            />
           </button>
-          <h2 className="font-editorial text-xl text-white">{displayDate}</h2>
+          <h2
+            className="font-editorial text-xl"
+            style={{ color: theme.primaryColor }}
+          >
+            {displayDate}
+          </h2>
           <button
             onClick={onClose}
             className="exit-preview text-white hover:text-gray-300"
             title="Close"
           >
-            <ExitIcon className="h-5 w-5 text-white" />
+            <ExitIcon
+              className="h-5 w-5"
+              style={{ color: theme.primaryColor }}
+            />
           </button>
         </div>
 
@@ -65,7 +85,7 @@ export default function PreviewModal({
           className="relative h-[550px] w-[550px] overflow-hidden"
           style={{
             backgroundImage:
-              "radial-gradient(circle, #e5e5e5 1px, transparent 1px)",
+              "radial-gradient(circle, rgba(229, 229, 229, 0.3) 1px, transparent 1px)",
             backgroundSize: "16px 16px",
           }}
         >
@@ -77,13 +97,16 @@ export default function PreviewModal({
             cards.map((card) => (
               <div
                 key={card.id}
-                className="absolute overflow-hidden rounded-lg border border-gray-200 bg-white p-2 shadow-sm"
+                className="absolute overflow-hidden rounded-lg border bg-white p-1 shadow-sm"
                 style={{
                   left: `${100 * (card.position_x / 700)}%`,
                   top: `${100 * (card.position_y / 700)}%`,
                   width: `${100 * (card.width / 700)}%`,
                   height: `${100 * (card.height / 700)}%`,
                   zIndex: card.z_index,
+                  borderColor: theme.secondaryColor,
+                  color: theme.secondaryColor,
+                  backgroundColor: theme.primaryColor,
                 }}
               >
                 {card.type === "IMAGE" && (

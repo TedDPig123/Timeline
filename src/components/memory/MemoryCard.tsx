@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useMemModalContext, useEditingContext } from "@/context/context";
+import {
+  useMemModalContext,
+  useEditingContext,
+  useThemeContext,
+} from "@/context/context";
 import { MemoryModule } from "./MemoryModule";
 import { MemoryCard } from "../../types";
 import DeleteIcon from "../../assets/graphics/cancel.svg?react";
@@ -30,6 +34,7 @@ const MemModal = ({
   const { memModals, setMemModals } = useMemModalContext();
   const { isEditMode } = useEditingContext();
   const [resizeMode, setResizeMode] = useState(false);
+  const { theme } = useThemeContext();
 
   // Keep local state in sync if memModals is reset (e.g. cancel)
   useEffect(() => {
@@ -170,6 +175,8 @@ const MemModal = ({
         top: `${position.y}px`,
         width: `${size.width}px`,
         height: `${size.height}px`,
+        borderColor: theme.secondaryColor,
+        backgroundColor: theme.primaryColor,
       }}
       ref={memModalRef}
     >
@@ -177,17 +184,35 @@ const MemModal = ({
       {isEditMode && (
         <>
           <button
-            className="absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
+            className="absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)]  hover:bg-gray-600"
+            style={{
+              backgroundColor: theme.primaryColor,
+              border: theme.isDark
+                ? `1px solid ${theme.secondaryColor}`
+                : `none`,
+            }}
             onClick={() => queueDelete(id)}
           >
-            <DeleteIcon className="h-4 w-4 text-white" />
+            <DeleteIcon
+              className="h-4 w-4"
+              style={{ color: theme.secondaryColor }}
+            />
           </button>
           <button
-            className="absolute bottom-[-6px] right-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)] hover:scale-105 hover:bg-gray-600"
+            className="absolute bottom-[-6px] right-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)]  hover:bg-gray-600"
+            style={{
+              backgroundColor: theme.primaryColor,
+              border: theme.isDark
+                ? `1px solid ${theme.secondaryColor}`
+                : `none`,
+            }}
             onMouseDown={() => setResizeMode(true)}
             onMouseUp={() => setResizeMode(false)}
           >
-            <ResizeIcon className="h-4 w-4 text-white" />
+            <ResizeIcon
+              className="h-4 w-4"
+              style={{ color: theme.secondaryColor }}
+            />
           </button>
         </>
       )}

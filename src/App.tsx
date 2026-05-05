@@ -5,7 +5,10 @@ import {
   EditingContext,
   ViewModeContext,
   ViewMode,
+  ThemeContext,
+  theme,
 } from "@/context/context";
+import { themes } from "./context/theme";
 import { MemoryCard } from "./types";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -20,6 +23,7 @@ function App() {
   const [isEditMode, changeMode] = useState<boolean>(false);
   const [memModals, setMemModals] = useState<MemoryCard[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
+  const [theme, setTheme] = useState<theme>(themes.dark);
   const updateMemModalPosition = (
     id: string,
     newPosition: { x: number; y: number },
@@ -36,23 +40,25 @@ function App() {
 
   return (
     <AuthProvider>
-      <ViewModeContext.Provider value={{ viewMode, setViewMode }}>
-        <MemModalContext.Provider
-          value={{ memModals, setMemModals, updateMemModalPosition }}
-        >
-          <EditingContext.Provider value={{ isEditMode, changeMode }}>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/auth-callback" element={<AuthCallback />} />
-                <Route path="/edit/:date" element={<EditMemoryPage />} />
-                <Route path="/timeline" element={<TimelineMainPage />} />
-              </Routes>
-            </Router>
-          </EditingContext.Provider>
-        </MemModalContext.Provider>
-      </ViewModeContext.Provider>
+      <ThemeContext.Provider value={{ theme, setTheme }}>
+        <ViewModeContext.Provider value={{ viewMode, setViewMode }}>
+          <MemModalContext.Provider
+            value={{ memModals, setMemModals, updateMemModalPosition }}
+          >
+            <EditingContext.Provider value={{ isEditMode, changeMode }}>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/auth-callback" element={<AuthCallback />} />
+                  <Route path="/edit/:date" element={<EditMemoryPage />} />
+                  <Route path="/timeline" element={<TimelineMainPage />} />
+                </Routes>
+              </Router>
+            </EditingContext.Provider>
+          </MemModalContext.Provider>
+        </ViewModeContext.Provider>
+      </ThemeContext.Provider>
     </AuthProvider>
   );
 }

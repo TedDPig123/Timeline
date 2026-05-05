@@ -1,7 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useEditingContext, useMemModalContext } from "../context/context";
+import {
+  useEditingContext,
+  useMemModalContext,
+  useThemeContext,
+} from "../context/context";
 import { MemoryPage } from "../components/memory/MemoryPage";
 import { getMemory, createMemory } from "../services/api";
 import { Memory } from "../types";
@@ -14,6 +18,7 @@ export default function EditMemoryPage() {
   const navigate = useNavigate();
   const [memoryLoading, setMemoryLoading] = useState(true);
   const [memory, setMemory] = useState<Memory | null>(null);
+  const { theme } = useThemeContext();
 
   // Set edit mode on mount
   useEffect(() => {
@@ -67,7 +72,13 @@ export default function EditMemoryPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
+    <div
+      className="flex min-h-screen items-center justify-center"
+      style={{
+        backgroundColor: theme.primaryColor,
+        color: theme.secondaryColor,
+      }}
+    >
       <div className="flex flex-col items-center">
         <div className="mb-2 flex w-full items-center justify-center gap-4">
           <h1 className="font-editorial text-2xl">

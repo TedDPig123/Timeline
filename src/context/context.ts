@@ -1,17 +1,27 @@
 import { createContext, useContext } from "react";
 
-// Save context for settings page
-type SettingsContextType = {
-  data: string[];
+export type theme = {
+  name: string;
+  primaryColor: string; //background
+  secondaryColor: string; //text and borders
+  tertiaryColor: string; //settings and signout buttons
+  highlightColor: string;
+  isDark: boolean;
 };
-export const SettingsContext = createContext<SettingsContextType | undefined>(
+
+// Save context for settings page
+type ThemeContextType = {
+  theme: theme;
+  setTheme: (currentTheme: theme) => void;
+};
+export const ThemeContext = createContext<ThemeContextType | undefined>(
   undefined,
 );
 
 // 0,1,2 -> week,month,year
 
-export function useSettingsContext() {
-  const context = useContext(SettingsContext);
+export function useThemeContext() {
+  const context = useContext(ThemeContext);
 
   if (context === undefined) {
     throw new Error("Cannot use null context");
