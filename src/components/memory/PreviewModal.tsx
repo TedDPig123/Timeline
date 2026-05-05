@@ -62,7 +62,7 @@ export default function PreviewModal({
 
         {/* Canvas - same size as MemoryPage */}
         <div
-          className="relative h-[700px] w-[700px] overflow-hidden"
+          className="relative h-[550px] w-[550px] overflow-hidden"
           style={{
             backgroundImage:
               "radial-gradient(circle, #e5e5e5 1px, transparent 1px)",
@@ -79,10 +79,10 @@ export default function PreviewModal({
                 key={card.id}
                 className="absolute overflow-hidden rounded-lg border border-gray-200 bg-white p-2 shadow-sm"
                 style={{
-                  left: `${card.position_x}px`,
-                  top: `${card.position_y}px`,
-                  width: `${card.width}px`,
-                  height: `${card.height}px`,
+                  left: `${100 * (card.position_x / 700)}%`,
+                  top: `${100 * (card.position_y / 700)}%`,
+                  width: `${100 * (card.width / 700)}%`,
+                  height: `${100 * (card.height / 700)}%`,
                   zIndex: card.z_index,
                 }}
               >
