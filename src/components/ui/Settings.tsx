@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { themes } from "@/context/theme";
-import { useThemeContext, useSettingsContext } from "@/context/context";
+import { useThemeContext } from "@/context/context";
 import ExitIcon from "../../assets/graphics/cancel.svg?react";
 
 type SettingsButtonProps = {
@@ -10,7 +10,6 @@ type SettingsButtonProps = {
 
 const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
   const { theme, setTheme } = useThemeContext();
-  const { settings, setSettings } = useSettingsContext();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -108,67 +107,6 @@ const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
                 ))}
               </ul>
             )}
-          </div>
-          <div
-            className="mb-2 mt-4 h-[1px] w-full opacity-60"
-            style={{ backgroundColor: theme.secondaryColor }}
-          ></div>
-          <p className="mb-2">Scroll Mode</p>
-          <div className="flex w-full justify-evenly">
-            <button
-              className="mr-1 w-full rounded py-2"
-              onClick={() => setSettings({ useVerticalScroll: true })}
-              style={{
-                border: `1px solid ${theme.secondaryColor}`,
-                color: theme.isDark
-                  ? settings.useVerticalScroll
-                    ? theme.primaryColor
-                    : theme.secondaryColor
-                  : settings.useVerticalScroll
-                    ? theme.primaryColor
-                    : theme.secondaryColor,
-                backgroundColor: theme.isDark
-                  ? settings.useVerticalScroll
-                    ? theme.secondaryColor
-                    : theme.primaryColor
-                  : settings.useVerticalScroll
-                    ? theme.secondaryColor
-                    : theme.primaryColor,
-                textDecoration: settings.useVerticalScroll
-                  ? "underline"
-                  : " none",
-                textUnderlineOffset: "3px",
-              }}
-            >
-              Vertical Scroll
-            </button>
-            <button
-              className="ml-1 w-full rounded py-2"
-              onClick={() => setSettings({ useVerticalScroll: false })}
-              style={{
-                border: `1px solid ${theme.secondaryColor}`,
-                color: theme.isDark
-                  ? !settings.useVerticalScroll
-                    ? theme.primaryColor
-                    : theme.secondaryColor
-                  : !settings.useVerticalScroll
-                    ? theme.primaryColor
-                    : theme.secondaryColor,
-                backgroundColor: theme.isDark
-                  ? !settings.useVerticalScroll
-                    ? theme.secondaryColor
-                    : theme.primaryColor
-                  : !settings.useVerticalScroll
-                    ? theme.secondaryColor
-                    : theme.primaryColor,
-                textDecoration: !settings.useVerticalScroll
-                  ? "underline"
-                  : " none",
-                textUnderlineOffset: "3px",
-              }}
-            >
-              Horizontal Scroll
-            </button>
           </div>
         </div>
       </div>

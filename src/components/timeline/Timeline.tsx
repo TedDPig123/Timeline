@@ -8,11 +8,7 @@ import { MemoryCard, Memory } from "@/types";
 
 import PreviewModal from "../memory/PreviewModal";
 import { getMemory } from "@/services/api";
-import {
-  useViewMode,
-  useThemeContext,
-  useSettingsContext,
-} from "../../context/context"; // adjust path if needed
+import { useViewMode, useThemeContext } from "../../context/context"; // adjust path if needed
 interface TimelineSlot {
   date: string;
   label: string;
@@ -33,7 +29,6 @@ export default function Timeline() {
   const [isLoading, setIsLoading] = useState(true);
   const { viewMode, setViewMode } = useViewMode();
   const { theme } = useThemeContext();
-  const { settings } = useSettingsContext();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -118,7 +113,7 @@ export default function Timeline() {
 
     return (
       <div
-        className={`flex w-[280px] items-center justify-between rounded-full  p-3 font-editorial text-2xl text-white`}
+        className={`flex w-[18vw] min-w-[300px] items-center justify-between rounded-full  p-3 font-editorial text-2xl text-white`}
         style={{
           border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
           color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
@@ -149,7 +144,7 @@ export default function Timeline() {
     );
   }
 
-  // Window dimensions
+  // window dimensions
   const [vwidth, setVwidth] = useState(window.innerWidth);
   useEffect(() => {
     const handleResize = () => setVwidth(window.innerWidth);
@@ -220,19 +215,9 @@ export default function Timeline() {
 
       // determine which axis the user is actually scrolling on
       const isHorizontalGesture = absX > absY;
-      const isVerticalGesture = absY > absX;
-
-      // only act if the gesture matches the curent setting
-      const shouldHandle = settings.useVerticalScroll
-        ? isVerticalGesture
-        : isHorizontalGesture;
-
-      if (!shouldHandle) return;
 
       event.preventDefault();
-      const sourceDelta = settings.useVerticalScroll
-        ? event.deltaY
-        : event.deltaX;
+      const sourceDelta = isHorizontalGesture ? event.deltaX : event.deltaY;
       const delta = sourceDelta * 1.5;
 
       isSyncing.current = true;
@@ -265,7 +250,7 @@ export default function Timeline() {
       container1.removeEventListener("scroll", handleScroll1);
       container2.removeEventListener("scroll", handleScroll2);
     };
-  }, [slots, settings.useVerticalScroll]);
+  }, [slots]);
 
   useEffect(() => {
     setTimeout(adjustSizes, 50);
