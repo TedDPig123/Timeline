@@ -33,7 +33,7 @@ export default function Timeline() {
   const [isLoading, setIsLoading] = useState(true);
   const { viewMode, setViewMode } = useViewMode();
   const { theme } = useThemeContext();
-  const { settings, setSettings } = useSettingsContext();
+  const { settings } = useSettingsContext();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
