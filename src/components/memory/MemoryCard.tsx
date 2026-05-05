@@ -212,8 +212,8 @@ const MemModal = ({
                 ? `1px solid ${theme.secondaryColor}`
                 : `none`,
             }}
-            onMouseDown={() => setResizeMode(true)}
-            onMouseUp={() => setResizeMode(false)}
+            onMouseEnter={() => setResizeMode(true)}
+            onMouseLeave={() => setResizeMode(false)}
           >
             <ResizeIcon
               className="h-4 w-4"
