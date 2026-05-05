@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { themes } from "@/context/theme";
 import { useThemeContext } from "@/context/context";
+import ExitIcon from "../../assets/graphics/cancel.svg?react";
 
 type SettingsButtonProps = {
   isSettingsOpen: boolean;
@@ -42,10 +43,13 @@ const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
       >
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-400"
-          style={{ color: theme.primaryColor }}
+          className="absolute right-3 top-3 rounded px-1 py-1 text-xs"
+          style={{ color: theme.secondaryColor }}
         >
-          X
+          <ExitIcon
+            className="h-5 w-5"
+            style={{ color: theme.secondaryColor }}
+          />
         </button>
         <div className="flex w-full flex-col items-start">
           <h2 className="mb-2 font-editorial text-3xl">Settings</h2>

@@ -184,9 +184,11 @@ const MemModal = ({
       {isEditMode && (
         <>
           <button
-            className="absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)]  hover:bg-gray-600"
+            className="absolute right-[-6px] top-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white   hover:bg-gray-600"
             style={{
-              backgroundColor: theme.primaryColor,
+              backgroundColor: theme.isDark
+                ? theme.primaryColor
+                : theme.secondaryColor,
               border: theme.isDark
                 ? `1px solid ${theme.secondaryColor}`
                 : `none`,
@@ -195,13 +197,17 @@ const MemModal = ({
           >
             <DeleteIcon
               className="h-4 w-4"
-              style={{ color: theme.secondaryColor }}
+              style={{
+                color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
+              }}
             />
           </button>
           <button
-            className="absolute bottom-[-6px] right-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white shadow-[0px_0px_4px_3px_rgba(0,_0,_0,_0.1)]  hover:bg-gray-600"
+            className="absolute bottom-[-6px] right-[-6px] rounded-full bg-black px-1 py-1 text-xs text-white  hover:bg-gray-600"
             style={{
-              backgroundColor: theme.primaryColor,
+              backgroundColor: theme.isDark
+                ? theme.primaryColor
+                : theme.secondaryColor,
               border: theme.isDark
                 ? `1px solid ${theme.secondaryColor}`
                 : `none`,
@@ -211,7 +217,9 @@ const MemModal = ({
           >
             <ResizeIcon
               className="h-4 w-4"
-              style={{ color: theme.secondaryColor }}
+              style={{
+                color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
+              }}
             />
           </button>
         </>
