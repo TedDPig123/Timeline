@@ -124,12 +124,20 @@ const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
                   ? settings.useVerticalScroll
                     ? theme.primaryColor
                     : theme.secondaryColor
-                  : theme.primaryColor,
+                  : settings.useVerticalScroll
+                    ? theme.primaryColor
+                    : theme.secondaryColor,
                 backgroundColor: theme.isDark
                   ? settings.useVerticalScroll
                     ? theme.secondaryColor
                     : theme.primaryColor
-                  : theme.secondaryColor,
+                  : settings.useVerticalScroll
+                    ? theme.secondaryColor
+                    : theme.primaryColor,
+                textDecoration: settings.useVerticalScroll
+                  ? "underline"
+                  : " none",
+                textUnderlineOffset: "3px",
               }}
             >
               Vertical Scroll
@@ -143,12 +151,20 @@ const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
                   ? !settings.useVerticalScroll
                     ? theme.primaryColor
                     : theme.secondaryColor
-                  : theme.primaryColor,
+                  : !settings.useVerticalScroll
+                    ? theme.primaryColor
+                    : theme.secondaryColor,
                 backgroundColor: theme.isDark
                   ? !settings.useVerticalScroll
                     ? theme.secondaryColor
                     : theme.primaryColor
-                  : theme.secondaryColor,
+                  : !settings.useVerticalScroll
+                    ? theme.secondaryColor
+                    : theme.primaryColor,
+                textDecoration: !settings.useVerticalScroll
+                  ? "underline"
+                  : " none",
+                textUnderlineOffset: "3px",
               }}
             >
               Horizontal Scroll
