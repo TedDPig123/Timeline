@@ -8,7 +8,11 @@ import { MemoryCard, Memory } from "@/types";
 
 import PreviewModal from "../memory/PreviewModal";
 import { getMemory } from "@/services/api";
-import { useViewMode, useThemeContext } from "../../context/context"; // adjust path if needed
+import {
+  useViewMode,
+  useThemeContext,
+  useSettingsContext,
+} from "../../context/context"; // adjust path if needed
 interface TimelineSlot {
   date: string;
   label: string;
@@ -29,6 +33,7 @@ export default function Timeline() {
   const [isLoading, setIsLoading] = useState(true);
   const { viewMode, setViewMode } = useViewMode();
   const { theme } = useThemeContext();
+  const { settings, setSettings } = useSettingsContext();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -210,10 +215,26 @@ export default function Timeline() {
     if (!container1 || !container2) return;
 
     const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      const delta = event.deltaY * 1.5;
+      const absX = Math.abs(event.deltaX);
+      const absY = Math.abs(event.deltaY);
 
-      // Scroll both containers directly, no sync needed
+      // determine which axis the user is actually scrolling on
+      const isHorizontalGesture = absX > absY;
+      const isVerticalGesture = absY > absX;
+
+      // only act if the gesture matches the curent setting
+      const shouldHandle = settings.useVerticalScroll
+        ? isVerticalGesture
+        : isHorizontalGesture;
+
+      if (!shouldHandle) return;
+
+      event.preventDefault();
+      const sourceDelta = settings.useVerticalScroll
+        ? event.deltaY
+        : event.deltaX;
+      const delta = sourceDelta * 1.5;
+
       isSyncing.current = true;
       container1.scrollLeft += delta;
       container2.scrollLeft += delta;
@@ -244,7 +265,7 @@ export default function Timeline() {
       container1.removeEventListener("scroll", handleScroll1);
       container2.removeEventListener("scroll", handleScroll2);
     };
-  }, [slots]);
+  }, [slots, settings.useVerticalScroll]);
 
   useEffect(() => {
     setTimeout(adjustSizes, 50);
