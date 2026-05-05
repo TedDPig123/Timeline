@@ -1,7 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import { MemModal } from "./MemoryCard";
 import { MemoryCard, ContentType } from "../../types";
-import { useMemModalContext, useEditingContext } from "../../context/context";
+import {
+  useMemModalContext,
+  useEditingContext,
+  useThemeContext,
+} from "../../context/context";
 import { useNavigate } from "react-router-dom";
 import AddCardModal from "./AddCardModal";
 import {
@@ -23,6 +27,11 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
   const { isEditMode, changeMode } = useEditingContext();
   const navigate = useNavigate();
   const [showAddModal, setShowAddModal] = useState(false);
+  const { theme } = useThemeContext();
+  const [isHoveredEdit, setIsHoveredEdit] = useState(false);
+  const [isHoveredLeave, setIsHoveredLeave] = useState(false);
+  const [isHoveredAddCard, setIsHoveredAddCard] = useState(false);
+  const [isHoveredCancel, setIsHoveredCancel] = useState(false);
 
   // snapshot of cards as they were when edit mode started (needed for cancel)
   const snapshotRef = useRef<MemoryCard[] | null>(null);
@@ -188,12 +197,30 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
     <>
       <div
         className="relative mx-auto h-[700px] w-[700px] overflow-hidden rounded-xl border-4 border-black bg-white p-4 shadow-lg"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, rgba(229, 229, 229, 0.3) 1px, transparent 1px)",
+          backgroundSize: "16px 16px",
+          borderColor: theme.secondaryColor,
+          backgroundColor: theme.primaryColor,
+        }}
         ref={memPageRef}
       >
         {isEditMode && (
           <button
             className="absolute left-2 top-2 z-[1000] rounded bg-black px-2 py-1 text-xs text-white hover:bg-gray-400"
             onClick={() => setShowAddModal(true)}
+            onMouseEnter={() => setIsHoveredAddCard(true)}
+            onMouseLeave={() => setIsHoveredAddCard(false)}
+            style={{
+              border: theme.isDark
+                ? `2px solid ${theme.secondaryColor}`
+                : `none`,
+              color: theme.secondaryColor,
+              backgroundColor: isHoveredAddCard
+                ? theme.highlightColor
+                : theme.primaryColor,
+            }}
           >
             + Add Card
           </button>
@@ -220,7 +247,16 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
       <div className="flex w-full items-center justify-between py-2">
         <button
           onClick={() => navigate("/timeline")}
+          onMouseEnter={() => setIsHoveredLeave(true)}
+          onMouseLeave={() => setIsHoveredLeave(false)}
           className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-400"
+          style={{
+            border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
+            color: theme.secondaryColor,
+            backgroundColor: isHoveredLeave
+              ? theme.highlightColor
+              : theme.primaryColor,
+          }}
         >
           ← Back to Timeline
         </button>
@@ -229,6 +265,14 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
           <div className="flex gap-2">
             <button
               className="rounded bg-gray-300 px-4 py-2 text-sm text-black hover:bg-gray-400"
+              onMouseEnter={() => setIsHoveredCancel(true)}
+              onMouseLeave={() => setIsHoveredCancel(false)}
+              style={{
+                color: theme.primaryColor,
+                backgroundColor: isHoveredCancel
+                  ? theme.highlightColor
+                  : theme.secondaryColor,
+              }}
               onClick={handleCancel}
             >
               Cancel
@@ -236,6 +280,17 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
             <button
               className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-700"
               onClick={handleSave}
+              onMouseEnter={() => setIsHoveredEdit(true)}
+              onMouseLeave={() => setIsHoveredEdit(false)}
+              style={{
+                border: theme.isDark
+                  ? `2px solid ${theme.secondaryColor}`
+                  : `none`,
+                color: theme.secondaryColor,
+                backgroundColor: isHoveredEdit
+                  ? theme.highlightColor
+                  : theme.primaryColor,
+              }}
             >
               Save
             </button>
@@ -244,6 +299,17 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
           <button
             className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-700"
             onClick={enterEditMode}
+            onMouseEnter={() => setIsHoveredEdit(true)}
+            onMouseLeave={() => setIsHoveredEdit(false)}
+            style={{
+              border: theme.isDark
+                ? `2px solid ${theme.secondaryColor}`
+                : `none`,
+              color: theme.secondaryColor,
+              backgroundColor: isHoveredEdit
+                ? theme.highlightColor
+                : theme.primaryColor,
+            }}
           >
             Edit
           </button>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useThemeContext } from "@/context/context";
 
 export default function Thumbnail({
   text,
@@ -11,6 +12,7 @@ export default function Thumbnail({
   date: string | null;
   dayLabel?: string | null;
 }) {
+  const { theme } = useThemeContext();
   const [lineClamp, setLineClamp] = useState(2);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -54,17 +56,31 @@ export default function Thumbnail({
 
   return (
     <span
-      className="thumbnail relative z-10 flex flex-col items-center justify-start rounded-[28px] border-[3px] border-black bg-white shadow-2xl hover:scale-[1.01] hover:shadow-md"
+      className="thumbnail relative z-10 flex flex-col items-center justify-start rounded-[28px] border-[3px] border-black shadow-md hover:scale-[1.01] hover:shadow-md"
+      style={{
+        backgroundColor: theme.primaryColor,
+        borderColor: theme.secondaryColor,
+        color: theme.secondaryColor,
+      }}
       data-date={date}
     >
-      <span className="absolute top-[-15px] z-20 bg-white px-2 font-bold">
+      <span
+        className="absolute top-[-15px] z-20 bg-white px-2 font-bold"
+        style={{
+          color: theme.secondaryColor,
+          backgroundColor: theme.primaryColor,
+        }}
+      >
         {dayLabel && <span className="mr-2">{dayLabel}</span>}
         {date}
       </span>
       <div className="flex h-full w-full flex-col items-center overflow-hidden p-2">
         <>
           {image && (
-            <div className="w-full overflow-hidden rounded-[16px] border-[3px] border-white bg-white">
+            <div
+              className="w-full overflow-hidden rounded-[16px] border-[3px] "
+              style={{ borderColor: theme.primaryColor }}
+            >
               <img
                 className="h-auto w-full rounded-[12px] object-cover"
                 src={image}

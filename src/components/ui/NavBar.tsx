@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Settings } from "./Settings";
 import { useNavigate } from "react-router-dom";
-import { useViewMode, ViewMode } from "../../context/context"; // adjust path if needed
+import { useViewMode, ViewMode, useThemeContext } from "../../context/context"; // adjust path if needed
 import { useAuth } from "@/context/AuthContext";
 
 const NavBar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
   const { viewMode, setViewMode } = useViewMode();
+  const { theme } = useThemeContext();
+  const [isHoveredSettings, setIsHoveredSettings] = useState(false);
+  const [isHoveredSign, setIsHoveredSign] = useState(false);
 
   const { logout } = useAuth();
 
@@ -20,7 +23,13 @@ const NavBar = () => {
     `scale-y-[1.1] hover:underline ${viewMode === mode ? "underline" : ""}`;
 
   return (
-    <div className="grid w-[100vw] grid-cols-3 items-center justify-center p-4 text-center text-black">
+    <div
+      className="grid w-[100vw] grid-cols-3 items-center justify-center p-4 text-center"
+      style={{
+        backgroundColor: theme.primaryColor,
+        color: theme.secondaryColor,
+      }}
+    >
       {/* App name */}
       <div>
         <h1 className="scale-y-[1.1] text-left font-editorial text-4xl tracking-[-2px]">
@@ -36,7 +45,10 @@ const NavBar = () => {
         >
           week
         </button>
-        <div className="h-8 w-[2px] scale-y-[1.6] bg-black"></div>
+        <div
+          className="h-8 w-[2px] scale-y-[1.6]"
+          style={{ backgroundColor: theme.secondaryColor }}
+        ></div>
         <button
           className={buttonClass("month")}
           id="month-button"
@@ -44,7 +56,10 @@ const NavBar = () => {
         >
           month
         </button>
-        <div className="h-8 w-[2px] scale-y-[1.6] bg-black"></div>
+        <div
+          className="h-8 w-[2px] scale-y-[1.6] bg-black"
+          style={{ backgroundColor: theme.secondaryColor }}
+        ></div>
         <button
           className={buttonClass("year")}
           id="year-button"
@@ -56,8 +71,17 @@ const NavBar = () => {
       {/* Buttons */}
       <div className="text-right">
         <button
-          className="mr-4 rounded-full bg-gray-700 px-3 py-1 font-editorial text-xl text-white hover:bg-gray-500"
+          className="mr-4 rounded-full px-3 py-1 font-editorial text-xl hover:bg-gray-500"
           onClick={() => setIsSettingsOpen(true)}
+          onMouseEnter={() => setIsHoveredSettings(true)}
+          onMouseLeave={() => setIsHoveredSettings(false)}
+          style={{
+            border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
+            color: theme.secondaryColor,
+            backgroundColor: isHoveredSettings
+              ? theme.highlightColor
+              : theme.primaryColor,
+          }}
         >
           settings
         </button>
@@ -66,8 +90,17 @@ const NavBar = () => {
           onClose={() => setIsSettingsOpen(false)}
         />
         <button
-          className="rounded-full bg-gray-700 px-3 py-1 font-editorial text-xl text-white hover:bg-gray-500"
+          className="rounded-full px-3 py-1 font-editorial text-xl hover:bg-gray-500"
           onClick={handleSignOut}
+          onMouseEnter={() => setIsHoveredSign(true)}
+          onMouseLeave={() => setIsHoveredSign(false)}
+          style={{
+            border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
+            color: theme.secondaryColor,
+            backgroundColor: isHoveredSign
+              ? theme.highlightColor
+              : theme.primaryColor,
+          }}
         >
           sign out
         </button>
