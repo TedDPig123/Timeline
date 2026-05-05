@@ -39,7 +39,10 @@ const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
       ></div>
       <div
         className="mb-15 relative z-10 flex w-[400px] flex-col items-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg"
-        style={{ backgroundColor: theme.primaryColor }}
+        style={{
+          backgroundColor: theme.primaryColor,
+          border: `2px solid ${theme.secondaryColor}`,
+        }}
       >
         <button
           onClick={onClose}

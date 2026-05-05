@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ContentType } from "../../types";
+import { useThemeContext } from "@/context/context";
 
 interface AddCardModalProps {
   isOpen: boolean;
@@ -15,6 +16,9 @@ export default function AddCardModal({
   const [type, setType] = useState<ContentType>("TEXT");
   const [textContent, setTextContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const { theme } = useThemeContext();
+  const [isHoveredAdd, setIsHoveredAdd] = useState(false);
+  const [isHoveredCancel, setIsHoveredCancel] = useState(false);
 
   if (!isOpen) return null;
 
@@ -36,7 +40,13 @@ export default function AddCardModal({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-[400px] rounded-lg bg-white p-6 shadow-xl">
+      <div
+        className="w-[400px] rounded-lg bg-white p-6 shadow-xl"
+        style={{
+          backgroundColor: theme.primaryColor,
+          border: `2px solid ${theme.secondaryColor}`,
+        }}
+      >
         <h2 className="mb-4 text-xl font-bold">Add New Card</h2>
 
         {/* Type selector */}
@@ -47,11 +57,16 @@ export default function AddCardModal({
               <button
                 key={t}
                 onClick={() => setType(t)}
-                className={`rounded px-3 py-1 text-sm ${
-                  type === t
-                    ? "bg-black text-white"
-                    : "bg-gray-200 text-black hover:bg-gray-300"
-                }`}
+                className={`font-helvetica-med rounded px-3 py-1 text-sm font-medium`}
+                style={{
+                  backgroundColor:
+                    type === t ? theme.secondaryColor : theme.primaryColor,
+                  color: type === t ? theme.primaryColor : theme.secondaryColor,
+                  border:
+                    type === t && theme.isDark
+                      ? `2px solid ${theme.primaryColor}`
+                      : `none`,
+                }}
               >
                 {t}
               </button>
@@ -66,7 +81,12 @@ export default function AddCardModal({
             <textarea
               value={textContent}
               onChange={(e) => setTextContent(e.target.value)}
-              className="w-full rounded border border-gray-300 p-2"
+              className="w-full rounded p-2"
+              style={{
+                color: theme.secondaryColor,
+                backgroundColor: theme.primaryColor,
+                border: `1px solid ${theme.secondaryColor}`,
+              }}
               rows={4}
               placeholder="Enter your text..."
             />
@@ -99,12 +119,34 @@ export default function AddCardModal({
           <button
             onClick={onClose}
             className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300"
+            onMouseEnter={() => setIsHoveredCancel(true)}
+            onMouseLeave={() => setIsHoveredCancel(false)}
+            style={{
+              color: theme.primaryColor,
+              backgroundColor: isHoveredCancel
+                ? theme.highlightColor
+                : theme.secondaryColor,
+            }}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
+            onMouseEnter={() => setIsHoveredAdd(true)}
+            onMouseLeave={() => setIsHoveredAdd(false)}
             className="rounded bg-black px-4 py-2 text-white hover:bg-gray-800"
+            style={{
+              border: `2px solid ${theme.secondaryColor}`,
+
+              color: theme.isDark
+                ? theme.secondaryColor
+                : isHoveredAdd
+                  ? theme.primaryColor
+                  : theme.secondaryColor,
+              backgroundColor: isHoveredAdd
+                ? theme.highlightColor
+                : theme.primaryColor,
+            }}
           >
             Add Card
           </button>
