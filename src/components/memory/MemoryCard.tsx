@@ -121,11 +121,8 @@ const MemModal = ({
       dimensions.current.lastWidth = finalWidth;
       dimensions.current.lastHeight = finalHeight;
 
-      // Update position in shared context (parent reads this on save)
       updatePosition(id, { x: finalX, y: finalY });
 
-      // Update size in shared context too — extend updateMemModalPosition or add a setter,
-      // but the simplest approach: write directly back into memModals
       setMemModals(
         memModals.map((m) =>
           m.id === id
