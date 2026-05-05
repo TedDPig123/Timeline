@@ -216,10 +216,12 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
               border: theme.isDark
                 ? `2px solid ${theme.secondaryColor}`
                 : `none`,
-              color: theme.secondaryColor,
+              color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
               backgroundColor: isHoveredAddCard
                 ? theme.highlightColor
-                : theme.primaryColor,
+                : theme.isDark
+                  ? theme.primaryColor
+                  : theme.secondaryColor,
             }}
           >
             + Add Card
@@ -252,10 +254,12 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
           className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-400"
           style={{
             border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
-            color: theme.secondaryColor,
+            color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
             backgroundColor: isHoveredLeave
               ? theme.highlightColor
-              : theme.primaryColor,
+              : theme.isDark
+                ? theme.primaryColor
+                : theme.secondaryColor,
           }}
         >
           ← Back to Timeline
@@ -278,15 +282,18 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
               Cancel
             </button>
             <button
-              className="rounded bg-black px-4 py-2 text-sm text-white hover:bg-gray-700"
+              className="rounded bg-black px-[14px] py-[6px] text-sm hover:bg-gray-700"
               onClick={handleSave}
               onMouseEnter={() => setIsHoveredEdit(true)}
               onMouseLeave={() => setIsHoveredEdit(false)}
               style={{
-                border: theme.isDark
-                  ? `2px solid ${theme.secondaryColor}`
-                  : `none`,
-                color: theme.secondaryColor,
+                border: `2px solid ${theme.secondaryColor}`,
+
+                color: theme.isDark
+                  ? theme.secondaryColor
+                  : isHoveredEdit
+                    ? theme.primaryColor
+                    : theme.secondaryColor,
                 backgroundColor: isHoveredEdit
                   ? theme.highlightColor
                   : theme.primaryColor,
@@ -305,10 +312,12 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
               border: theme.isDark
                 ? `2px solid ${theme.secondaryColor}`
                 : `none`,
-              color: theme.secondaryColor,
+              color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
               backgroundColor: isHoveredEdit
                 ? theme.highlightColor
-                : theme.primaryColor,
+                : theme.isDark
+                  ? theme.primaryColor
+                  : theme.secondaryColor,
             }}
           >
             Edit

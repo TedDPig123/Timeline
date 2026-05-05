@@ -77,10 +77,12 @@ const NavBar = () => {
           onMouseLeave={() => setIsHoveredSettings(false)}
           style={{
             border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
-            color: theme.secondaryColor,
+            color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
             backgroundColor: isHoveredSettings
               ? theme.highlightColor
-              : theme.primaryColor,
+              : theme.isDark
+                ? theme.primaryColor
+                : theme.secondaryColor,
           }}
         >
           settings
@@ -96,10 +98,12 @@ const NavBar = () => {
           onMouseLeave={() => setIsHoveredSign(false)}
           style={{
             border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
-            color: theme.secondaryColor,
+            color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
             backgroundColor: isHoveredSign
               ? theme.highlightColor
-              : theme.primaryColor,
+              : theme.isDark
+                ? theme.primaryColor
+                : theme.secondaryColor,
           }}
         >
           sign out

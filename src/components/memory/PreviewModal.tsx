@@ -40,7 +40,7 @@ export default function PreviewModal({
       <div
         className="relative flex flex-col overflow-hidden rounded-[28px] shadow-2xl"
         style={{
-          border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
+          border: `2px solid ${theme.secondaryColor}`,
           backgroundColor: theme.primaryColor,
         }}
         onClick={(e) => e.stopPropagation()}
@@ -84,8 +84,9 @@ export default function PreviewModal({
         <div
           className="relative h-[550px] w-[550px] overflow-hidden"
           style={{
-            backgroundImage:
-              "radial-gradient(circle, rgba(229, 229, 229, 0.3) 1px, transparent 1px)",
+            backgroundImage: theme.isDark
+              ? "radial-gradient(circle, rgba(229, 229, 229, 0.3) 1px, transparent 1px)"
+              : "radial-gradient(circle, rgba(160, 160, 160, 0.5) 1px, transparent 1px)",
             backgroundSize: "16px 16px",
           }}
         >

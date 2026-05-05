@@ -116,8 +116,10 @@ export default function Timeline() {
         className={`flex w-[280px] items-center justify-between rounded-full  p-3 font-editorial text-2xl text-white`}
         style={{
           border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
-          color: theme.secondaryColor,
-          backgroundColor: theme.primaryColor,
+          color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
+          backgroundColor: theme.isDark
+            ? theme.primaryColor
+            : theme.secondaryColor,
         }}
       >
         <LeftArrow
@@ -419,7 +421,7 @@ export default function Timeline() {
       </div>
 
       {/* Date toggler */}
-      <div className="pointer-events-auto fixed bottom-[20px] left-1/2 z-[50] -translate-x-1/2 select-none ">
+      <div className="pointer-events-auto fixed bottom-[20px] left-1/2 z-[10] -translate-x-1/2 select-none ">
         <DateToggler ddate={currentDate} />
       </div>
 
