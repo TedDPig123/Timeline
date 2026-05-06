@@ -104,7 +104,12 @@ export default function Thumbnail({
           )}
           {!image && !text && (
             <div className="flex h-full w-full items-center justify-center">
-              <span className="text-2xl text-gray-300">• • •</span>
+              <span
+                className="text-2xl"
+                style={{ color: theme.secondaryColor }}
+              >
+                • • •
+              </span>
             </div>
           )}
         </>
