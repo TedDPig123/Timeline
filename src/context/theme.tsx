@@ -31,4 +31,12 @@ export const themes = {
     highlightColor: "#99AD7A", //hover colors
     isDark: true,
   },
+  rose: {
+    name: "rose",
+    primaryColor: "#DEA193", //background
+    secondaryColor: "#000000", //text and borders
+    tertiaryColor: "#374151", //settings and signout buttons
+    highlightColor: "#FFA6A6", //hover colors
+    isDark: true,
+  },
 };

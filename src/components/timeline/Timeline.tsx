@@ -293,7 +293,10 @@ export default function Timeline() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
+      <div
+        className="flex h-full w-full items-center justify-center"
+        style={{ color: theme.secondaryColor }}
+      >
         <p>Loading memories...</p>
       </div>
     );
