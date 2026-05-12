@@ -1,6 +1,6 @@
 # Introduction
 
-![Screenshot of Landing Page]("src/assets/readme-images/LoginScreenshot.jpeg")
+![Screenshot of Landing Page](https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/LoginScreenshot.jpeg "Screenshot of landing page")
 
 - Write a short introduction to the project.
 - If you are using badges, add them here.
@@ -13,7 +13,7 @@
   - [Commands](#package-commands)
 - [Development](#wrench-development)
   - [Pre-Requisites](#notebook-pre-requisites)
-  - [Developmen Environment](#nut_and_bolt-development-environment)
+  - [Development Environment](#nut_and_bolt-development-environment)
   - [File Structure](#file_folder-file-structure)
   - [Build](#hammer-build)
   - [Deployment](#rocket-deployment)
