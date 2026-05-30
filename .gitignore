@@ -29,6 +29,7 @@ dist-ssr
 .env
 
 /src/generated/prisma
-/node_modules
+node_modules/
 /server/.env.local
 .vercel
+/server/node_modules
