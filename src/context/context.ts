@@ -122,6 +122,24 @@ export const useCurrentDate = () => {
   return ctx;
 };
 
+//context for base date
+type BaseDateContextType = {
+  baseDate: Date;
+  setBaseDate: (d: Date) => void;
+};
+
+export const BaseDateContext = createContext<BaseDateContextType | undefined>(
+  undefined,
+);
+
+export function useBaseDate() {
+  const context = useContext(BaseDateContext);
+  if (context === undefined) {
+    throw new Error("useBaseDate must be used within BaseDateProvider");
+  }
+  return context;
+}
+
 //SETTINGS!!!
 export type settings = {
   useVerticalScroll: boolean;
