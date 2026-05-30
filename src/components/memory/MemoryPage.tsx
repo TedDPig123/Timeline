@@ -196,7 +196,7 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
   return (
     <>
       <div
-        className="relative mx-auto h-[700px] w-[700px] overflow-hidden rounded-xl border-4 border-black bg-white p-4 shadow-lg"
+        className="relative mx-auto h-[85vh] w-[85vh] overflow-hidden rounded-xl border-4 border-black bg-white shadow-lg"
         style={{
           backgroundImage:
             "radial-gradient(circle, rgba(229, 229, 229, 0.3) 1px, transparent 1px)",
