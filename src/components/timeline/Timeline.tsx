@@ -8,7 +8,11 @@ import { MemoryCard, Memory } from "@/types";
 
 import PreviewModal from "../memory/PreviewModal";
 import { getMemory } from "@/services/api";
-import { useViewMode, useThemeContext } from "../../context/context"; // adjust path if needed
+import {
+  useViewMode,
+  useThemeContext,
+  useCurrentDate,
+} from "../../context/context"; // adjust path if needed
 interface TimelineSlot {
   date: string;
   label: string;
@@ -23,12 +27,14 @@ export default function Timeline() {
   const scrollContainer1 = useRef<HTMLDivElement | null>(null);
   const scrollContainer2 = useRef<HTMLDivElement | null>(null);
 
-  const [currentDate, setCurrentDate] = useState(new Date());
+  // const [currentDate, setCurrentDate] = useState(new Date());
+
   const [baseDate, setBaseDate] = useState(new Date());
   const [allCards, setAllCards] = useState<MemoryCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { viewMode, setViewMode } = useViewMode();
   const { theme } = useThemeContext();
+  const { currentDate, setCurrentDate } = useCurrentDate();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
