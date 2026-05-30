@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import gsap from "gsap";
 import Thumbnail from "./Thumbnail";
 import { useNavigate } from "react-router-dom";
-import LeftArrow from "../../assets/graphics/left-arrow-noline.svg?react";
 import { getAllMemories } from "@/services/api";
 import { MemoryCard, Memory } from "@/types";
 
@@ -12,6 +11,7 @@ import {
   useViewMode,
   useThemeContext,
   useCurrentDate,
+  useBaseDate,
 } from "../../context/context"; // adjust path if needed
 interface TimelineSlot {
   date: string;
@@ -29,7 +29,7 @@ export default function Timeline() {
 
   // const [currentDate, setCurrentDate] = useState(new Date());
 
-  const [baseDate, setBaseDate] = useState(new Date());
+  const { baseDate, setBaseDate } = useBaseDate();
   const [allCards, setAllCards] = useState<MemoryCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { viewMode, setViewMode } = useViewMode();
@@ -89,66 +89,12 @@ export default function Timeline() {
 
   // Generate ALL slots for the view
   const slots = useMemo(() => {
-    return generateAllSlots(viewMode, baseDate, allCards);
+    return generateAllSlots(viewMode, currentDate, allCards);
   }, [viewMode, baseDate, allCards]);
 
   // Split into top (even indices) and bottom (odd indices)
   const topSlots = slots.filter((_, i) => i % 2 === 0);
   const bottomSlots = slots.filter((_, i) => i % 2 === 1);
-
-  function DateToggler({ ddate }: { ddate: Date }) {
-    function getMonday(d: Date) {
-      d = new Date(d);
-      const day = d.getDay(),
-        diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
-      return new Date(d.setDate(diff));
-    }
-
-    const shiftDate = (direction: "prev" | "next") => {
-      const date = new Date(baseDate);
-      if (viewMode === "year") {
-        date.setFullYear(date.getFullYear() + (direction === "next" ? 1 : -1));
-      } else if (viewMode === "month") {
-        date.setMonth(date.getMonth() + (direction === "next" ? 1 : -1));
-      } else {
-        date.setDate(date.getDate() + (direction === "next" ? 7 : -7));
-      }
-      setCurrentDate(date);
-      setBaseDate(date);
-    };
-
-    return (
-      <div
-        className={`flex w-[18vw] min-w-[300px] items-center justify-between rounded-full  p-3 font-editorial text-2xl text-white`}
-        style={{
-          border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
-          color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
-          backgroundColor: theme.isDark
-            ? theme.primaryColor
-            : theme.secondaryColor,
-        }}
-      >
-        <LeftArrow
-          onClick={() => shiftDate("prev")}
-          className="ml-[-10px] h-[30px] w-[50px] cursor-pointer"
-        />
-        <div className="scale-y-[1.1] justify-center text-center">
-          {viewMode === "year"
-            ? ddate.getFullYear()
-            : viewMode === "month"
-              ? ddate.toLocaleString("default", {
-                  month: "long",
-                  year: "numeric",
-                })
-              : `Week of ${getMonday(ddate).toLocaleDateString()}`}
-        </div>
-        <LeftArrow
-          onClick={() => shiftDate("next")}
-          className="mr-[-10px] h-[30px] w-[50px] scale-x-[-1] cursor-pointer"
-        />
-      </div>
-    );
-  }
 
   // window dimensions
   const [vwidth, setVwidth] = useState(window.innerWidth);
@@ -209,6 +155,86 @@ export default function Timeline() {
     });
   };
 
+  // Drag handling
+  useEffect(() => {
+    const container1 = scrollContainer1.current;
+    const container2 = scrollContainer2.current;
+    if (!container1 || !container2) return;
+
+    let isDragging = false;
+    let startX = 0;
+    let startScrollLeft = 0;
+    let hasMoved = false;
+    const DRAG_THRESHOLD = 5; // px before we consider it a drag
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return; // left-click only
+      isDragging = true;
+      hasMoved = false;
+      startX = e.clientX;
+      startScrollLeft = container1.scrollLeft;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+
+      if (!hasMoved && Math.abs(dx) > DRAG_THRESHOLD) {
+        hasMoved = true;
+      }
+
+      if (hasMoved) {
+        // Negative because dragging right should move the content right
+        // (i.e. scroll left), which feels natural.
+        const target = startScrollLeft - dx;
+
+        // Clamp to the more restrictive of the two containers' limits,
+        // so both rows stop together at either edge.
+        const maxScroll = Math.min(
+          container1.scrollWidth - container1.clientWidth,
+          container2.scrollWidth - container2.clientWidth,
+        );
+        const clamped = Math.max(0, Math.min(target, maxScroll));
+
+        isSyncing.current = true;
+        container1.scrollLeft = clamped;
+        container2.scrollLeft = clamped;
+        requestAnimationFrame(() => {
+          isSyncing.current = false;
+          adjustSizes();
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      // If the user actually dragged (not just clicked), suppress the click
+      // event that would otherwise fire on a thumbnail button when releasing.
+      if (hasMoved) {
+        const suppressClick = (clickEvent: MouseEvent) => {
+          clickEvent.stopPropagation();
+          clickEvent.preventDefault();
+          window.removeEventListener("click", suppressClick, true);
+        };
+        window.addEventListener("click", suppressClick, true);
+      }
+    };
+
+    container1.addEventListener("mousedown", handleMouseDown);
+    container2.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      container1.removeEventListener("mousedown", handleMouseDown);
+      container2.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
   // Scroll handling
   useEffect(() => {
     const container1 = scrollContainer1.current;
@@ -219,16 +245,29 @@ export default function Timeline() {
       const absX = Math.abs(event.deltaX);
       const absY = Math.abs(event.deltaY);
 
-      // determine which axis the user is actually scrolling on
       const isHorizontalGesture = absX > absY;
 
       event.preventDefault();
       const sourceDelta = isHorizontalGesture ? event.deltaX : event.deltaY;
       const delta = sourceDelta * 1.5;
 
+      const maxScroll = Math.min(
+        container1.scrollWidth - container1.clientWidth,
+        container2.scrollWidth - container2.clientWidth,
+      );
+
+      const currentScroll = Math.min(
+        container1.scrollLeft,
+        container2.scrollLeft,
+      );
+      const nextScroll = Math.max(
+        0,
+        Math.min(currentScroll + delta, maxScroll),
+      );
+
       isSyncing.current = true;
-      container1.scrollLeft += delta;
-      container2.scrollLeft += delta;
+      container1.scrollLeft = nextScroll;
+      container2.scrollLeft = nextScroll;
       requestAnimationFrame(() => {
         isSyncing.current = false;
         adjustSizes();
@@ -273,16 +312,29 @@ export default function Timeline() {
 
     const handleLeft = () => {
       if (container1 && container2) {
+        const maxScroll = Math.min(
+          container1.scrollWidth - container1.clientWidth,
+          container2.scrollWidth - container2.clientWidth,
+        );
+        const target = Math.max(0, container1.scrollLeft - scrollAmount);
         gsap.to([container1, container2], {
-          scrollLeft: container1.scrollLeft - scrollAmount,
+          scrollLeft: Math.min(target, maxScroll),
           duration: 0.5,
         });
       }
     };
     const handleRight = () => {
       if (container1 && container2) {
+        const maxScroll = Math.min(
+          container1.scrollWidth - container1.clientWidth,
+          container2.scrollWidth - container2.clientWidth,
+        );
+        const target = Math.min(
+          maxScroll,
+          container1.scrollLeft + scrollAmount,
+        );
         gsap.to([container1, container2], {
-          scrollLeft: container1.scrollLeft + scrollAmount,
+          scrollLeft: target,
           duration: 0.5,
         });
       }
@@ -310,13 +362,13 @@ export default function Timeline() {
 
   return (
     <div
-      className="relative flex h-full w-[100vw] flex-col items-center justify-start"
+      className="relative flex h-full w-[100vw] flex-col items-center justify-center"
       style={{ backgroundColor: theme.primaryColor }}
     >
       {/* Top row - thumbnails above the line */}
       <div
         ref={scrollContainer1}
-        className="flex h-[45%] w-full items-end overflow-x-auto overflow-y-hidden"
+        className="flex h-[50%] w-full items-end overflow-x-auto overflow-y-hidden"
         style={{ scrollbarWidth: "none" }}
       >
         <div
@@ -377,7 +429,7 @@ export default function Timeline() {
       {/* Bottom row - thumbnails below the line */}
       <div
         ref={scrollContainer2}
-        className="flex h-[45%] w-full items-start overflow-x-auto overflow-y-hidden"
+        className="flex h-[50%] w-full items-start overflow-x-auto overflow-y-hidden"
         style={{ scrollbarWidth: "none" }}
       >
         <div
@@ -433,11 +485,6 @@ export default function Timeline() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Date toggler */}
-      <div className="pointer-events-auto fixed bottom-[20px] left-1/2 z-[10] -translate-x-1/2 select-none ">
-        <DateToggler ddate={currentDate} />
       </div>
 
       {/* New memory button
