@@ -5,6 +5,7 @@ import { NavBar } from "../components/ui/NavBar";
 import { useThemeContext } from "@/context/context";
 import Timeline from "../components/timeline/Timeline";
 import LeftArrow from "../assets/graphics/left-arrow.svg?react";
+import DateToggler from "@/components/ui/DateToggler";
 
 export default function TimelineMainPage() {
   const { user, isLoading } = useAuth();
@@ -43,7 +44,6 @@ export default function TimelineMainPage() {
         <div
           className="pointer-events-none absolute z-30 h-[6px]"
           style={{
-            top: "44.4%",
             left: "90px",
             right: "90px",
             backgroundColor: theme.secondaryColor,
@@ -61,7 +61,7 @@ export default function TimelineMainPage() {
           <LeftArrow
             id="left-arrow"
             style={{ color: theme.secondaryColor }}
-            className="pointer-events-auto relative z-40 mb-[74px] ml-[30px] h-[32px] w-[50px] cursor-pointer"
+            className="pointer-events-auto relative z-40  ml-[30px] h-[32px] w-[50px] cursor-pointer"
           />
         </div>
 
@@ -76,9 +76,13 @@ export default function TimelineMainPage() {
           <LeftArrow
             id="right-arrow"
             style={{ color: theme.secondaryColor }}
-            className="pointer-events-auto relative z-40 mb-[75px] mr-[30px] h-[32px] w-[50px] scale-x-[-1] cursor-pointer"
+            className="pointer-events-auto relative z-40 mr-[30px] h-[32px] w-[50px] scale-x-[-1] cursor-pointer"
           />
         </div>
+      </div>
+      {/* Date toggler */}
+      <div className="pointer-events-auto fixed bottom-[20px] left-1/2 z-[10] -translate-x-1/2 select-none ">
+        <DateToggler />
       </div>
     </div>
   );
