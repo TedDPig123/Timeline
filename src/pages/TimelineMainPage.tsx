@@ -32,12 +32,12 @@ export default function TimelineMainPage() {
 
   return (
     <div
-      className={`timeline-main-page relative h-screen w-screen overflow-hidden`}
+      className={`timeline-main-page flex h-screen w-screen flex-col justify-between overflow-hidden`}
       style={{ backgroundColor: theme.primaryColor }}
     >
       <NavBar />
 
-      <div className="relative flex h-[calc(100vh-80px)] items-center">
+      <div className="relative flex min-h-0 flex-1 items-center overflow-hidden">
         <Timeline />
 
         {/* Timeline bar*/}
@@ -80,8 +80,8 @@ export default function TimelineMainPage() {
           />
         </div>
       </div>
-      {/* Date toggler */}
-      <div className="pointer-events-auto fixed bottom-[20px] left-1/2 z-[10] -translate-x-1/2 select-none ">
+      <div className="flex shrink-0 justify-center pb-5">
+        {/* Date toggler */}
         <DateToggler />
       </div>
     </div>

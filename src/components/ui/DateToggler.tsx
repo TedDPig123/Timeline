@@ -34,33 +34,41 @@ export default function DateToggler() {
 
   return (
     <div
-      className="flex w-[18vw] min-w-[300px] items-center justify-between rounded-full p-3 font-editorial text-2xl text-white"
+      className="flex w-[100vw] items-center justify-center p-4"
       style={{
-        border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
-        color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
-        backgroundColor: theme.isDark
-          ? theme.primaryColor
-          : theme.secondaryColor,
+        backgroundColor: theme.primaryColor,
+        color: theme.secondaryColor,
       }}
     >
-      <LeftArrow
-        onClick={() => shiftDate("prev")}
-        className="ml-[-10px] h-[30px] w-[50px] cursor-pointer"
-      />
-      <div className="scale-y-[1.1] justify-center text-center">
-        {viewMode === "year"
-          ? currentDate.getFullYear()
-          : viewMode === "month"
-            ? currentDate.toLocaleString("default", {
-                month: "long",
-                year: "numeric",
-              })
-            : `Week of ${getMonday(currentDate).toLocaleDateString()}`}
+      <div
+        className="mb-4 flex w-[18vw] min-w-[300px] items-center justify-between rounded-full p-3 font-editorial text-2xl text-white"
+        style={{
+          border: theme.isDark ? `2px solid ${theme.secondaryColor}` : `none`,
+          color: theme.isDark ? theme.secondaryColor : theme.primaryColor,
+          backgroundColor: theme.isDark
+            ? theme.primaryColor
+            : theme.secondaryColor,
+        }}
+      >
+        <LeftArrow
+          onClick={() => shiftDate("prev")}
+          className="ml-[-10px] h-[30px] w-[50px] cursor-pointer"
+        />
+        <div className="scale-y-[1.1] justify-center text-center">
+          {viewMode === "year"
+            ? currentDate.getFullYear()
+            : viewMode === "month"
+              ? currentDate.toLocaleString("default", {
+                  month: "long",
+                  year: "numeric",
+                })
+              : `Week of ${getMonday(currentDate).toLocaleDateString()}`}
+        </div>
+        <LeftArrow
+          onClick={() => shiftDate("next")}
+          className="mr-[-10px] h-[30px] w-[50px] scale-x-[-1] cursor-pointer"
+        />
       </div>
-      <LeftArrow
-        onClick={() => shiftDate("next")}
-        className="mr-[-10px] h-[30px] w-[50px] scale-x-[-1] cursor-pointer"
-      />
     </div>
   );
 }

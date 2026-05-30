@@ -26,6 +26,7 @@ interface TimelineSlot {
 export default function Timeline() {
   const scrollContainer1 = useRef<HTMLDivElement | null>(null);
   const scrollContainer2 = useRef<HTMLDivElement | null>(null);
+  const timelineRef = useRef<HTMLDivElement | null>(null);
 
   // const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -129,9 +130,15 @@ export default function Timeline() {
 
         // Scale the thumbnail inside this item
         const thumbnail = el.querySelector(".thumbnail") as HTMLElement;
-        if (thumbnail) {
-          thumbnail.style.width = `${Math.min(450 * scale)}px`;
-          thumbnail.style.height = `${Math.min(540 * scale)}px`;
+        if (thumbnail && timelineRef.current) {
+          const timelineHeight = timelineRef.current.clientHeight;
+
+          const maxHeight = timelineHeight * 0.8;
+          const aspectRatio = 450 / 540;
+          const targetHeight = maxHeight * scale;
+          const targetWidth = targetHeight * aspectRatio;
+          thumbnail.style.width = `${targetWidth}px`;
+          thumbnail.style.height = `${targetHeight}px`;
         }
 
         // Update current date when item is near center
@@ -154,6 +161,11 @@ export default function Timeline() {
       isSyncing.current = false;
     });
   };
+
+  //adjust size when windo resize
+  useEffect(() => {
+    window.addEventListener("resize", adjustSizes, false);
+  }, []);
 
   // Drag handling
   useEffect(() => {
@@ -362,13 +374,14 @@ export default function Timeline() {
 
   return (
     <div
-      className="relative flex h-full w-[100vw] flex-col items-center justify-center"
+      ref={timelineRef}
+      className="relative flex h-[80vh] w-[100vw] flex-col items-center justify-center"
       style={{ backgroundColor: theme.primaryColor }}
     >
       {/* Top row - thumbnails above the line */}
       <div
         ref={scrollContainer1}
-        className="flex h-[50%] w-full items-end overflow-x-auto overflow-y-hidden"
+        className="flex h-full w-full items-end overflow-x-auto overflow-y-hidden"
         style={{ scrollbarWidth: "none" }}
       >
         <div
@@ -429,7 +442,7 @@ export default function Timeline() {
       {/* Bottom row - thumbnails below the line */}
       <div
         ref={scrollContainer2}
-        className="flex h-[50%] w-full items-start overflow-x-auto overflow-y-hidden"
+        className="flex h-full w-full items-start overflow-x-auto overflow-y-hidden"
         style={{ scrollbarWidth: "none" }}
       >
         <div
