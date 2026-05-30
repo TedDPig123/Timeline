@@ -32,7 +32,10 @@ export default function Login() {
   return (
     <div className="flex h-screen flex-col bg-white">
       <div className="px-10 pt-6" onClick={() => navigate("/")}>
-        <h1 className="scale-y-[1.1] cursor-pointer font-editorial text-6xl tracking-[-2px]">
+        <h1
+          className="scale-y-[1.1] cursor-pointer font-editorial text-6xl tracking-[-2px]"
+          style={{ fontSize: "clamp(3rem, 5vw, 4rem)" }}
+        >
           Timeline.
         </h1>
       </div>

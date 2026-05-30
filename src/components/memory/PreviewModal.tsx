@@ -82,7 +82,7 @@ export default function PreviewModal({
 
         {/* canvas */}
         <div
-          className="relative h-[550px] w-[550px] overflow-hidden"
+          className="relative h-[60vh] w-[60vh] overflow-hidden"
           style={{
             backgroundImage: theme.isDark
               ? "radial-gradient(circle, rgba(229, 229, 229, 0.3) 1px, transparent 1px)"

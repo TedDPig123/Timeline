@@ -31,6 +31,10 @@ const MemModal = ({
     height: memModal.height,
   });
 
+  const CANVAS_SIZE = 700;
+  const pxToLogical = (px: number, canvasPx: number) =>
+    (px / canvasPx) * CANVAS_SIZE;
+
   const { memModals, setMemModals } = useMemModalContext();
   const { isEditMode } = useEditingContext();
   const [resizeMode, setResizeMode] = useState(false);
@@ -81,10 +85,15 @@ const MemModal = ({
     const cardEl = memModalRef.current;
 
     const handleMouseDown = (e: MouseEvent) => {
-      coords.current.lastX = cardEl.offsetLeft;
-      coords.current.lastY = cardEl.offsetTop;
-      dimensions.current.lastWidth = cardEl.clientWidth;
-      dimensions.current.lastHeight = cardEl.clientHeight;
+      if (!memPageRef.current) return;
+      const canvasWidth = memPageRef.current.clientWidth;
+      const canvasHeight = memPageRef.current.clientHeight;
+
+      coords.current.lastX = (position.x / CANVAS_SIZE) * canvasWidth;
+      coords.current.lastY = (position.y / CANVAS_SIZE) * canvasHeight;
+      dimensions.current.lastWidth = (size.width / CANVAS_SIZE) * canvasWidth;
+      dimensions.current.lastHeight =
+        (size.height / CANVAS_SIZE) * canvasHeight;
 
       isClicked.current = true;
       coords.current.startX = e.clientX;
@@ -108,23 +117,31 @@ const MemModal = ({
         const nextY = diffY + coords.current.lastY;
         cardEl.style.left = `${nextX}px`;
         cardEl.style.top = `${nextY}px`;
-        setPosition({ x: nextX, y: nextY });
       }
     };
 
     const handleMouseUp = () => {
       if (!isClicked.current) return;
       isClicked.current = false;
+      if (!memPageRef.current) return;
 
-      const finalX = cardEl.offsetLeft;
-      const finalY = cardEl.offsetTop;
-      const finalWidth = cardEl.clientWidth;
-      const finalHeight = cardEl.clientHeight;
+      const canvasWidth = memPageRef.current.clientWidth;
+      const canvasHeight = memPageRef.current.clientHeight;
 
-      coords.current.lastX = finalX;
-      coords.current.lastY = finalY;
-      dimensions.current.lastWidth = finalWidth;
-      dimensions.current.lastHeight = finalHeight;
+      const finalXpx = cardEl.offsetLeft;
+      const finalYpx = cardEl.offsetTop;
+      const finalWidthPx = cardEl.clientWidth;
+      const finalHeightPx = cardEl.clientHeight;
+
+      const finalX = pxToLogical(finalXpx, canvasWidth);
+      const finalY = pxToLogical(finalYpx, canvasHeight);
+      const finalWidth = pxToLogical(finalWidthPx, canvasWidth);
+      const finalHeight = pxToLogical(finalHeightPx, canvasHeight);
+
+      coords.current.lastX = finalXpx;
+      coords.current.lastY = finalYpx;
+      dimensions.current.lastWidth = finalWidthPx;
+      dimensions.current.lastHeight = finalHeightPx;
 
       updatePosition(id, { x: finalX, y: finalY });
 
@@ -143,6 +160,7 @@ const MemModal = ({
         ),
       );
 
+      setPosition({ x: finalX, y: finalY });
       setSize({ width: finalWidth, height: finalHeight });
     };
 
@@ -165,16 +183,20 @@ const MemModal = ({
     setMemModals,
     updatePosition,
     memPageRef,
+    position.x,
+    position.y,
+    size.width,
+    size.height,
   ]);
 
   return (
     <div
       className="memory-modal absolute rounded-lg border p-2"
       style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: `${size.width}px`,
-        height: `${size.height}px`,
+        left: `${(position.x / CANVAS_SIZE) * 100}%`,
+        top: `${(position.y / CANVAS_SIZE) * 100}%`,
+        width: `${(size.width / CANVAS_SIZE) * 100}%`,
+        height: `${(size.height / CANVAS_SIZE) * 100}%`,
         borderColor: theme.secondaryColor,
         backgroundColor: theme.primaryColor,
       }}
