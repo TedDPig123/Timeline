@@ -104,6 +104,24 @@ export const useViewMode = () => {
   return ctx;
 };
 
+//context for current date
+
+type CurrentDateContextType = {
+  currentDate: Date;
+  setCurrentDate: (currentDate: Date) => void;
+};
+
+export const CurrentDateContext = createContext<
+  CurrentDateContextType | undefined
+>(undefined);
+
+export const useCurrentDate = () => {
+  const ctx = useContext(CurrentDateContext);
+  if (!ctx)
+    throw new Error("useCurrentDate must be used within CurrentDateContext");
+  return ctx;
+};
+
 //SETTINGS!!!
 export type settings = {
   useVerticalScroll: boolean;
