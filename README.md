@@ -2,8 +2,7 @@
 
 ![Screenshot of Landing Page](https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/LoginScreenshot.jpeg "Screenshot of landing page")
 
-- Write a short introduction to the project.
-- If you are using badges, add them here.
+Timeline is a personal multimedia memory-keeping platform that allows you to document your memories for each day of your life.
 
 ## :ledger: Index
 
@@ -27,26 +26,21 @@
 - [Credit/Acknowledgment](#star2-creditacknowledgment)
 - [License](#lock-license)
 
-## :beginner: About
+## What is Timeline?
 
-Add a detailed introduction about the project here, everything you want the reader to know.
+Life comes fast, and it also goes quick. And if you're anything like me, you have a hard time remembering all the memories it leaves behind. But what is our life if not our memories? How could we make sense of who we are without a sense of our history?
 
-## :zap: Usage
+_Enter: **Timeline!**_
+
+At its core, Timeline is a journalling site, but what sets it apart is its presentation and style. For any date in your life, you can create your own memories like a page in a scrapbook: each memory is a customizable canvas where you can add text, images, video, and audio and arrange it however you want.
+
+And all your memories are displayed on a single timeline you can scroll through, with different temporal views.
+
+Timeline arose from my desire to conveniently map out the story of my life on a single timeline, one memory at a time. It was first brought to life as part of a team project for my college web development class, in which we made a prototype site with mock data. Since then, I've been further developing it as a passion project, utilizing Google OAuth for authentication, AWS S3 for storage, and Neon for database management. In addition, I've been polishing the UI to further reflect the "Timeline" theme.
+
+## How to Use Timeline
 
 Write about how to use this project.
-
-### :electric_plug: Installation
-
-- Steps on how to install this project, to use it.
-- Be very detailed here, For example, if you have tools which run on different operating systems, write installation steps for all of them.
-
-```
-$ add installations steps if you have to.
-```
-
-### :package: Commands
-
-- Commands to start the project.
 
 ## :wrench: Development
 
