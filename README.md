@@ -1,32 +1,31 @@
-# Introduction
+# Timeline
 
 ![Screenshot of Landing Page](https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/LoginScreenshot.jpeg "Screenshot of landing page")
 
-Timeline is a personal multimedia memory-keeping platform that allows you to document your memories for each day of your life.
+**Timeline** is a personal multimedia memory-keeping platform that lets you document your life one memory at a time and revisit it as a single, scrollable line through time.
+
+> 🔗 **Live site:** [Timeline](https://timeline-one-omega.vercel.app/)
+> 📺 **Demo video:** _coming soon_
+
+---
 
 ## :ledger: Index
 
 - [About](#beginner-about)
-- [Usage](#zap-usage)
-  - [Installation](#electric_plug-installation)
-  - [Commands](#package-commands)
-- [Development](#wrench-development)
-  - [Pre-Requisites](#notebook-pre-requisites)
-  - [Development Environment](#nut_and_bolt-development-environment)
-  - [File Structure](#file_folder-file-structure)
-  - [Build](#hammer-build)
-  - [Deployment](#rocket-deployment)
-- [Community](#cherry_blossom-community)
-  - [Contribution](#fire-contribution)
-  - [Branches](#cactus-branches)
-  - [Guideline](#exclamation-guideline)
+- [Features](#sparkles-features)
+- [Tech Stack](#computer-tech-stack)
+- [Architecture](#triangular_ruler-architecture)
+- [Roadmap](#world_map-roadmap)
 - [FAQ](#question-faq)
-- [Resources](#page_facing_up-resources)
 - [Gallery](#camera-gallery)
-- [Credit/Acknowledgment](#star2-creditacknowledgment)
+- [Acknowledgments](#star2-acknowledgments)
 - [License](#lock-license)
 
-## What is Timeline?
+---
+
+## :beginner: About
+
+### What is Timeline?
 
 Life comes fast, and it also goes quick. And if you're anything like me, you have a hard time remembering all the memories it leaves behind. But what is our life if not our memories? How could we make sense of who we are without a sense of our history?
 
@@ -34,131 +33,191 @@ _Enter: **Timeline!**_
 
 At its core, Timeline is a journalling site, but what sets it apart is its presentation and style. For any date in your life, you can create your own memories like a page in a scrapbook: each memory is a customizable canvas where you can add text, images, video, and audio and arrange it however you want.
 
-And all your memories are displayed on a single timeline you can scroll through, with different temporal views.
+And all your memories are displayed on a single timeline you can scroll through, with different temporal views - by week, by month, or by year.
 
-Timeline arose from my desire to conveniently map out the story of my life on a single timeline, one memory at a time. It was first brought to life as part of a team project for my college web development class, in which we made a prototype site with mock data. Since then, I've been further developing it as a passion project, utilizing Google OAuth for authentication, AWS S3 for storage, and Neon for database management. In addition, I've been polishing the UI to further reflect the "Timeline" theme.
+### How it started, where it's going
 
-## How to Use Timeline
+I've moved between countries since I was young, and each time I couldn't bring much with me except my memories. I wanted a single place to keep them, something to hold onto from my travels, if not the things themselves, so I came up with the idea of laying them all out on one timeline, a digital scrapbook.
 
-Write about how to use this project.
+It then came to life as a four-person team project for my college web development class, where we built a prototype with mock data. Since then I've taken it over as the sole developer and turned it into a full-stack, deployed product: real authentication, real database, real media storage, real users. Every part of the pipeline (frontend, backend, deployment, schema, infrastructure) has been touched by my hands at this point.
 
-## :wrench: Development
+Below is what currently exists, what's in the works, and how to run it locally if you want to poke around.
 
-If you want other people to contribute to this project, this is the section, make sure you always add this.
+---
 
-### :notebook: Pre-Requisites
+## :sparkles: Features
 
-List all the pre-requisites the system needs to develop this project.
+- **Interactive timeline view.** Scroll horizontally through your memories with smooth animations. Thumbnails scale according to their distance from the viewport center, drawing your eye to whatever you're focused on.
+- **Three temporal views.** Zoom in to a single week, out to a month, or all the way out to a year. Clicking a month in year view drills you into that month in month view.
+- **Free-form memory canvases.** Each date is a blank canvas. Drag, drop, resize, and arrange text cards, images, audio clips, and videos exactly where you want them.
+- **Multimedia upload.** Upload directly from your device. Images, audio, and video are stored securely on AWS S3 and served via presigned URLs.
+- **Google OAuth login.** Simply log in and sign up with your google account.
+- **Themes.** Light mode, dark mode, and a few in between.
+- **Responsive design.** Works on tablets and laptops only (for now).
+- **Save / cancel editing flow.** Make changes, undo them if you don't like them, save when you do.
 
-- A tool
-- B tool
+---
 
-### :nut_and_bolt: Development Environment
+## :computer: Tech Stack
 
-Write about setting up the working environment for your project.
+### Frontend
 
-- How to download the project...
-- How to install dependencies...
+- **React 18 + TypeScript** — component model and type safety.
+- **Vite** — fast dev server and bundler.
+- **Tailwind CSS** — utility-first styling.
+- **GSAP** — fluid animations for the timeline.
+- **React Router** — client-side routing.
+
+### Backend
+
+- **Node.js + Express** — REST API.
+- **Prisma ORM** — type-safe database access and migrations.
+- **Passport.js** — Google OAuth 2.0 strategy.
+- **JWT** — stateless session tokens.
+
+### Infrastructure
+
+- **Vercel** — frontend hosting and serverless functions.
+- **Neon** — serverless Postgres database.
+- **AWS S3** — object storage for user-uploaded media, served via presigned URLs for security.
+- **Git + GitHub** — version control.
+
+---
+
+## :triangular_ruler: Architecture
+
+```
+┌──────────────────┐        ┌──────────────────┐        ┌──────────────────┐
+│   React Client   │  ───>  │  Express Server  │  ───>  │   Neon Postgres  │
+│   (Vercel)       │  <───  │  (REST + Auth)   │  <───  │   (via Prisma)   │
+└──────────────────┘        └──────────────────┘        └──────────────────┘
+         │                          │
+         │ presigned URLs           │
+         ▼                          ▼
+┌──────────────────┐        ┌──────────────────┐
+│     AWS S3       │        │   Google OAuth   │
+│  (media files)   │        │  (identity)      │
+└──────────────────┘        └──────────────────┘
+```
+
+**Auth flow.** User signs in via Google OAuth → backend issues a JWT → client stores the token and includes it on every API request.
+
+**Media flow.** When the user uploads a file, the client requests a presigned upload URL from the backend, uploads directly to S3, then sends only the S3 key back to the server for storage. Reads work the same way in reverse: the backend issues a presigned GET URL, the client fetches the asset directly from S3. The Express server never touches the binary payload.
+
+**Data model.** Users own Memories (one per date); Memories own MemoryCards (the individual draggable elements). Card layout (position, size, z-index) is stored so layouts scale across viewport sizes.
 
 ### :file_folder: File Structure
 
-Add a file structure here with the basic details about files, below is an example.
-
 ```
 .
-├── assets
-│   ├── css
-│   │   ├── index-ui.css
-│   │   └── rate-ui.css
-│   ├── images
-│   │   ├── icons
-│   │   │   ├── shrink-button.png
-│   │   │   └── umbrella.png
-│   │   ├── logo_144.png
-│   │   └── Untitled-1.psd
-│   └── javascript
-│       ├── index.js
-│       └── rate.js
-├── CNAME
+├── public/                          # Static assets served as-is
+├── server/                          # Express backend
+│   ├── prisma/
+│   │   ├── schema.prisma            # DB schema
+│   │   └── migrations/              # Migration history
+│   ├── src/
+│   │   ├── auth/                    # Passport strategy, JWT helpers
+│   │   ├── routes/                  # REST endpoints
+│   │   ├── s3.ts                    # Presigned URL helpers
+│   │   └── index.ts                 # Entry point
+│   └── package.json
+├── src/                             # React frontend
+│   ├── assets/                      # Images, SVGs, fonts
+│   ├── components/
+│   │   ├── memory/                  # MemoryCard, MemoryPage, PreviewModal
+│   │   ├── timeline/                # Timeline, Thumbnail, DateToggler
+│   │   └── ui/                      # NavBar, Settings
+│   ├── context/                     # React contexts (theme, auth, etc.)
+│   ├── pages/                       # Top-level route pages
+│   ├── services/                    # API client
+│   ├── types/                       # Shared TypeScript types
+│   ├── utils/                       # Helper functions
+│   ├── App.tsx
+│   └── main.tsx
+├── documentation/                   # Reference docs (e.g. encryption plan)
 ├── index.html
-├── rate.html
+├── package.json
+├── tailwind.config.js
 └── README.md
 ```
 
-| No  | File Name | Details     |
-| --- | --------- | ----------- |
-| 1   | index     | Entry point |
+| Path                          | What's in it                                                       |
+| ----------------------------- | ------------------------------------------------------------------ |
+| `src/components/timeline/`    | The horizontal scrolling timeline, thumbnails, view toggler.       |
+| `src/components/memory/`      | The memory canvas — card rendering, drag/resize, save/cancel flow. |
+| `src/context/`                | Global state: auth, theme, view mode, current date, memory cards.  |
+| `server/src/routes/`          | All API endpoints (auth, memories, cards, uploads).                |
+| `server/prisma/schema.prisma` | Source of truth for the database structure.                        |
 
-### :hammer: Build
+---
 
-Write the build Instruction here.
+## :world_map: Roadmap
 
-### :rocket: Deployment
+Things in progress or planned:
 
-Write the deployment instruction here.
+- [ ] **Mobile responsive timeline.** Currently only optimized for desktop/tablet.
+- [ ] **Search.** Find memories by keyword across text cards.
+- [ ] **Client-side end-to-end encryption.** Memories encrypted before they leave the browser, so the server never sees plaintext.
+- [ ] **Shared timelines.** Invite friends or family to contribute to a collective memory line ( trip journals, family albums, etc.)
+- [ ] **Memory templates.** Quick-start layouts for common memory types.
+- [ ] **More theme customization.** Want to add more themes as well as the option to choose your own color palette.
+- [ ] **Thumbnail Customization.** Add ways to customize the way the thumbnails look on the timeline, including the color of the thumbnails as well as the ability to choose which text and/or image is displayed.
 
-## :cherry_blossom: Community
+---
 
-If it's open-source, talk about the community here, ask social media links and other links.
+## :hammer: Fixes in Progress
 
-### :fire: Contribution
+- [ ] **Image Resizing that Maintains Aspect Ratio.** Currently they can be any shape, but I want the resizing to respect the original aspect ratio.
+- [ ] **Cropping.** I wanna add cropping for images.
 
-Your contributions are always welcome and appreciated. Following are the things you can do to contribute to this project.
-
-1.  **Report a bug** <br>
-    If you think you have encountered a bug, and I should know about it, feel free to report it [here]() and I will take care of it.
-
-2.  **Request a feature** <br>
-    You can also request for a feature [here](), and if it will viable, it will be picked for development.
-
-3.  **Create a pull request** <br>
-    It can't get better then this, your pull request will be appreciated by the community. You can get started by picking up any open issues from [here]() and make a pull request.
-
-> If you are new to open-source, make sure to check read more about it [here](https://www.digitalocean.com/community/tutorial_series/an-introduction-to-open-source) and learn more about creating a pull request [here](https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github).
-
-### :cactus: Branches
-
-I use an agile continuous integration methodology, so the version is frequently updated and development is really fast.
-
-1. **`stage`** is the development branch.
-
-2. **`master`** is the production branch.
-
-3. No other permanent branches should be created in the main repository, you can create feature branches but they should get merged with the master.
-
-**Steps to work with feature branch**
-
-1. To start working on a new feature, create a new branch prefixed with `feat` and followed by feature name. (ie. `feat-FEATURE-NAME`)
-2. Once you are done with your changes, you can raise PR.
-
-**Steps to create a pull request**
-
-1. Make a PR to `stage` branch.
-2. Comply with the best practices and guidelines e.g. where the PR concerns visual elements it should have an image showing the effect.
-3. It must pass all continuous integration checks and get positive reviews.
-
-After this, changes will be merged.
-
-### :exclamation: Guideline
-
-coding guidelines or other things you want people to follow should follow.
+---
 
 ## :question: FAQ
 
-You can optionally add a FAQ section about the project.
+**Q: Why not use Notion / Google Photos / Day One?**
+A: Those tools either treat memories as a content library or as a strictly linear journal. Timeline is built around the metaphor of a _line through time_...
 
-## :page_facing_up: Resources
+**Q: Is my data private?**
+A: Today, content is encrypted at rest by the database and storage providers. However, the data is still viewable to the owner of the S3 Bucket in use (me). **Thus, I plan on implementing end-to-end client-side encryption as the next major feature** — when shipped, the server will only ever see ciphertext.
 
-Add important resources here
+**Q: Does it work offline?**
+A: Not yet. Offline-first support is something I'll consider in the future. Perhaps I'll make an ElectronJS app to facilitate it.
+
+---
 
 ## :camera: Gallery
 
-Pictures of your project.
+### Landing page
 
-## :star2: Credit/Acknowledgment
+> _Image placeholder_
 
-Credit the authors here.
+### Timeline — month view
+
+> _Image placeholder_
+
+### Memory canvas (edit mode)
+
+> _Image placeholder_
+
+### Drilling down from year to month
+
+> _Short video placeholder (gif or mp4)_
+
+### Theme switcher
+
+> _Image placeholder_
+
+---
+
+## :star2: Acknowledgments
+
+- The original four-person team at the college web dev course who shaped the first prototype with me. The core concept and a few of the rougher early decisions are theirs as much as mine.
+- [Prisma](https://www.prisma.io/) for making the database layer manageable
+- [Neon](https://neon.tech/) for free serverless Postgres
+- Every illustrator on [Notioly](https://notioly.com/) whose work fills in the landing page.
+
+---
 
 ## :lock: License
 
-Add a license here, or a link to it.
+This project is licensed under the [MIT License](LICENSE).
