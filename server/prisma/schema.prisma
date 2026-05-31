@@ -28,7 +28,7 @@ model Memory {
   user         User         @relation(fields: [user_id], references: [id])
   user_id      String
   created_at   DateTime     @default(now())
-  date         DateTime
+  date         DateTime     @db.Date
   memory_cards MemoryCard[]
 
   @@unique([user_id, date]) //so each user can only have one memory per day

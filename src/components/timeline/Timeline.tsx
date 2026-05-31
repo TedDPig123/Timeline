@@ -35,7 +35,7 @@ export default function Timeline() {
   const [isLoading, setIsLoading] = useState(true);
   const { viewMode, setViewMode } = useViewMode();
   const { theme } = useThemeContext();
-  const { currentDate, setCurrentDate } = useCurrentDate();
+  const { setCurrentDate } = useCurrentDate();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -90,7 +90,7 @@ export default function Timeline() {
 
   // Generate ALL slots for the view
   const slots = useMemo(() => {
-    return generateAllSlots(viewMode, currentDate, allCards);
+    return generateAllSlots(viewMode, baseDate, allCards);
   }, [viewMode, baseDate, allCards]);
 
   // Split into top (even indices) and bottom (odd indices)
@@ -145,7 +145,8 @@ export default function Timeline() {
         if (distance < 200) {
           const dateAttr = el.getAttribute("data-date");
           if (dateAttr) {
-            setCurrentDate(new Date(dateAttr));
+            const [y, m, d] = dateAttr.split("-").map(Number);
+            setCurrentDate(new Date(y, m - 1, d));
           }
         }
       });
@@ -164,7 +165,8 @@ export default function Timeline() {
 
   //adjust size when windo resize
   useEffect(() => {
-    window.addEventListener("resize", adjustSizes, false);
+    window.addEventListener("resize", adjustSizes);
+    return () => window.removeEventListener("resize", adjustSizes);
   }, []);
 
   // Drag handling
@@ -177,7 +179,7 @@ export default function Timeline() {
     let startX = 0;
     let startScrollLeft = 0;
     let hasMoved = false;
-    const DRAG_THRESHOLD = 5; // px before we consider it a drag
+    const DRAG_THRESHOLD = 10; // px before we consider it a drag
 
     const handleMouseDown = (e: MouseEvent) => {
       if (e.button !== 0) return; // left-click only
@@ -220,11 +222,11 @@ export default function Timeline() {
 
     const handleMouseUp = () => {
       if (!isDragging) return;
+      const wasDrag = hasMoved;
       isDragging = false;
+      hasMoved = false;
 
-      // If the user actually dragged (not just clicked), suppress the click
-      // event that would otherwise fire on a thumbnail button when releasing.
-      if (hasMoved) {
+      if (wasDrag) {
         const suppressClick = (clickEvent: MouseEvent) => {
           clickEvent.stopPropagation();
           clickEvent.preventDefault();
@@ -522,6 +524,13 @@ export default function Timeline() {
   );
 }
 
+function toLocalDateString(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 // generate all slots for the view (empty or not)
 function generateAllSlots(
   viewMode: "week" | "month" | "year",
@@ -551,12 +560,15 @@ function generateAllSlots(
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = toLocalDateString(d);
 
-      const slotDate = new Date(dateStr);
+      const slotDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       const isFuture = slotDate > today;
 
-      const dayCards = cards.filter((c) => c.date.split("T")[0] === dateStr);
+      const dayCards = cards.filter((c) => {
+        const cardDate = new Date(c.date);
+        return toLocalDateString(cardDate) === dateStr;
+      });
       const hasMemory = dayCards.length > 0;
 
       slots.push({
@@ -580,12 +592,15 @@ function generateAllSlots(
 
     for (let day = 1; day <= daysInMonth; day++) {
       const d = new Date(year, month, day);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = toLocalDateString(d);
 
-      const slotDate = new Date(dateStr);
+      const slotDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       const isFuture = slotDate > today;
 
-      const dayCards = cards.filter((c) => c.date.split("T")[0] === dateStr);
+      const dayCards = cards.filter((c) => {
+        const cardDate = new Date(c.date);
+        return toLocalDateString(cardDate) === dateStr;
+      });
       const hasMemory = dayCards.length > 0;
 
       slots.push({
@@ -622,7 +637,7 @@ function generateAllSlots(
     for (let month = 0; month < 12; month++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-01`;
 
-      const slotDate = new Date(dateStr);
+      const slotDate = new Date(year, month, 1);
       const isFuture = slotDate > today;
 
       const monthCards = cards.filter((c) => {

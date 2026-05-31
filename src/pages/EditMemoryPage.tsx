@@ -82,12 +82,15 @@ export default function EditMemoryPage() {
       <div className="flex flex-col items-center">
         <div className="mb-2 flex w-full items-center justify-center gap-4">
           <h1 className="font-editorial text-2xl">
-            {new Date(date).toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+            {(() => {
+              const [y, m, d] = date.split("-").map(Number);
+              return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+            })()}
           </h1>
         </div>
         <MemoryPage date={date} memoryId={memory?.id} />
