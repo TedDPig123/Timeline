@@ -6,9 +6,7 @@
 
 > 🔗 **Live site:** [Timeline](https://timeline-one-omega.vercel.app/)
 
-<p align="center" width="100%">
-<video src="https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/DemoVideo.mp4" width="80%" controls></video>
-</p>
+https://github.com/user-attachments/assets/a9b7ceee-75d6-480a-bc9f-66d71fa3a861
 
 ---
 
@@ -192,23 +190,23 @@ A: Not yet. Offline-first support is something I'll consider in the future. Perh
 
 ### Landing page
 
-> _Image placeholder_
+![Landing](https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/LoginScreenshot.jpeg)
 
 ### Timeline — month view
 
-> _Image placeholder_
+![MonthView](https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/MonthView.png)
 
 ### Memory canvas (edit mode)
 
-> _Image placeholder_
+![MemoryCanvas](https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/EditScreenshot.jpg)
 
 ### Drilling down from year to month
 
-> _Short video placeholder (gif or mp4)_
+https://github.com/user-attachments/assets/f4601723-7d63-49d6-a802-2032438e3ca9
 
 ### Theme switcher
 
-> _Image placeholder_
+https://github.com/user-attachments/assets/da19f26b-530f-4348-b0ec-e5bc8afe1855
 
 ---
 
