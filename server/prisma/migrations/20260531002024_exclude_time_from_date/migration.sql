@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Memory" ALTER COLUMN "date" SET DATA TYPE DATE;
