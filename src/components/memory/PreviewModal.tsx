@@ -24,14 +24,15 @@ export default function PreviewModal({
   if (!isOpen) return null;
 
   // Format date with ordinal
-  const day = new Date(date).getDate();
+  const [y, m, d] = date.split("-").map(Number);
+  const localDate = new Date(y, m - 1, d);
+  const day = localDate.getDate();
   const ordinal = (n: number) => {
     const s = ["th", "st", "nd", "rd"];
     const v = n % 100;
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   };
-  const displayDate = `${ordinal(day)} ${new Date(date).toLocaleDateString("en-US", { month: "long", year: "numeric" }).toLowerCase()}`;
-
+  const displayDate = `${ordinal(day)} ${localDate.toLocaleDateString("en-US", { month: "long", year: "numeric" }).toLowerCase()}`;
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
@@ -52,6 +53,8 @@ export default function PreviewModal({
         >
           <button
             onClick={() => {
+              console.log("PREVIEW navigate date:", date);
+
               onClose();
               navigate(`/edit/${date}`);
             }}

@@ -78,6 +78,14 @@ export default function Timeline() {
       try {
         const memories: Memory[] = await getAllMemories();
         const cards = memories?.flatMap((m) => m.memory_cards || []) || [];
+        console.log(
+          "RAW CARDS:",
+          cards.map((c) => ({
+            id: c.id,
+            date: c.date,
+            dateType: typeof c.date,
+          })),
+        );
         setAllCards(cards);
       } catch (error) {
         console.error("Error fetching memories:", error);
@@ -566,8 +574,8 @@ function generateAllSlots(
       const isFuture = slotDate > today;
 
       const dayCards = cards.filter((c) => {
-        const cardDate = new Date(c.date);
-        return toLocalDateString(cardDate) === dateStr;
+        const cardDateStr = String(c.date).slice(0, 10); // grab "YYYY-MM-DD"
+        return cardDateStr === dateStr;
       });
       const hasMemory = dayCards.length > 0;
 
@@ -598,8 +606,8 @@ function generateAllSlots(
       const isFuture = slotDate > today;
 
       const dayCards = cards.filter((c) => {
-        const cardDate = new Date(c.date);
-        return toLocalDateString(cardDate) === dateStr;
+        const cardDateStr = String(c.date).slice(0, 10); // grab "YYYY-MM-DD"
+        return cardDateStr === dateStr;
       });
       const hasMemory = dayCards.length > 0;
 
@@ -641,8 +649,9 @@ function generateAllSlots(
       const isFuture = slotDate > today;
 
       const monthCards = cards.filter((c) => {
-        const cardDate = new Date(c.date);
-        return cardDate.getFullYear() === year && cardDate.getMonth() === month;
+        const cardDateStr = String(c.date).slice(0, 10);
+        const [cy, cm] = cardDateStr.split("-").map(Number);
+        return cy === year && cm - 1 === month;
       });
       const hasMemory = monthCards.length > 0;
 

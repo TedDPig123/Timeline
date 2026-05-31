@@ -5,7 +5,8 @@
 **Timeline** is a personal multimedia memory-keeping platform that lets you document your life one memory at a time and revisit it as a single, scrollable line through time.
 
 > 🔗 **Live site:** [Timeline](https://timeline-one-omega.vercel.app/)
-> 📺 **Demo video:** _coming soon_
+
+![Video Demo](https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/DemoVide.mp4 "Screenshot of landing page")
 
 ---
 
@@ -41,7 +42,7 @@ I've moved between countries since I was young, and each time I couldn't bring m
 
 It then came to life as a four-person team project for my college web development class, where we built a prototype with mock data. Since then I've taken it over as the sole developer and turned it into a full-stack, deployed product: real authentication, real database, real media storage, real users. Every part of the pipeline (frontend, backend, deployment, schema, infrastructure) has been touched by my hands at this point.
 
-Below is what currently exists, what's in the works, and how to run it locally if you want to poke around.
+Below is what currently exists, and what's in the works.
 
 ---
 
