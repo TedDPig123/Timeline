@@ -20,7 +20,10 @@ export default function TimelineMainPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div
+        className="flex h-screen items-center justify-center"
+        style={{ color: theme.secondaryColor, background: theme.primaryColor }}
+      >
         <p>Loading...</p>
       </div>
     );
