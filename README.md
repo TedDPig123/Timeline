@@ -6,11 +6,7 @@
 
 > 🔗 **Live site:** [Timeline](https://timeline-one-omega.vercel.app/)
 
-<p align="center" width="100%">
-<video src="https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/DemoVideo.mp4" width="80%" controls></video>
-</p>
-
----
+![VIDEO-TITLE](https://github.com/TedDPig123/Timeline/blob/main/src/assets/readme-images/DemoVideo.mp4)
 
 ## :ledger: Index
 
