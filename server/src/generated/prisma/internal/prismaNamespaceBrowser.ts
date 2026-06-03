@@ -100,6 +100,7 @@ export type MemoryScalarFieldEnum = (typeof MemoryScalarFieldEnum)[keyof typeof 
 export const MemoryCardScalarFieldEnum = {
   type: 'type',
   content: 'content',
+  content_iv: 'content_iv',
   id: 'id',
   date: 'date',
   style: 'style',
