@@ -22,6 +22,7 @@ import Login from "./pages/Login";
 import EditMemoryPage from "./pages/EditMemoryPage";
 import TimelineMainPage from "./pages/TimelineMainPage";
 import Landing from "./pages/Landing";
+import RequireUnlock from "./components/crypto/RequireUnlock";
 
 function App() {
   const [baseDate, setBaseDate] = useState(new Date());
@@ -75,11 +76,19 @@ function App() {
                         />
                         <Route
                           path="/edit/:date"
-                          element={<EditMemoryPage />}
+                          element={
+                            <RequireUnlock>
+                              <EditMemoryPage />
+                            </RequireUnlock>
+                          }
                         />
                         <Route
                           path="/timeline"
-                          element={<TimelineMainPage />}
+                          element={
+                            <RequireUnlock>
+                              <TimelineMainPage />
+                            </RequireUnlock>
+                          }
                         />
                       </Routes>
                     </Router>
