@@ -4,10 +4,21 @@ import {
   useState,
   useEffect,
   useLayoutEffect,
+  useRef,
   ReactNode,
 } from "react";
 import { User, CryptoBundle } from "../types";
-import { deriveKEK, unwrapDEK, b64ToBuf } from "../services/crypto";
+import {
+  deriveKEK,
+  unwrapDEK,
+  generateDEK,
+  generateSalt,
+  generateRecoveryCode,
+  wrapDEK,
+  bufToB64,
+  b64ToBuf,
+} from "../services/crypto";
+import { saveCryptoBundle } from "../services/api";
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +31,11 @@ interface AuthContextType {
   // Never persisted; lost on tab close; re-derived at next login.
   dek: CryptoKey | null;
   isUnlocked: boolean;
+  // First-time setup: generates the DEK, wraps it under the passphrase and a
+  // recovery code, stores the bundle, and unlocks. Returns the recovery code
+  // to show the user once.
+  setupEncryption: (passphrase: string) => Promise<string>;
+  completeSetup: () => void;
   unlock: (passphrase: string, bundle: CryptoBundle) => Promise<void>;
   lock: () => void;
 }
@@ -45,6 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [dek, setDek] = useState<CryptoKey | null>(null);
+  // DEK generated during setup, held until the user acknowledges the recovery
+  // code (so the app doesn't unlock out from under the recovery screen).
+  const pendingDekRef = useRef<CryptoKey | null>(null);
 
   useLayoutEffect(() => {
     const savedToken = localStorage.getItem("token");
@@ -94,6 +113,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setDek(null);
   };
 
+  // Generate a fresh DEK, wrap it twice (passphrase + recovery code), persist
+  // the bundle, and unlock for this session. Returns the recovery code.
+  const setupEncryption = async (passphrase: string): Promise<string> => {
+    const newDek = await generateDEK();
+    const recoveryCode = generateRecoveryCode();
+
+    const passphraseSalt = generateSalt();
+    const recoverySalt = generateSalt();
+    const passphraseKek = await deriveKEK(passphrase, passphraseSalt);
+    const recoveryKek = await deriveKEK(recoveryCode, recoverySalt);
+
+    const wrappedByPassphrase = await wrapDEK(newDek, passphraseKek);
+    const wrappedByRecovery = await wrapDEK(newDek, recoveryKek);
+
+    await saveCryptoBundle({
+      passphrase_salt: bufToB64(passphraseSalt),
+      recovery_salt: bufToB64(recoverySalt),
+      wrapped_dek_passphrase: wrappedByPassphrase.wrapped,
+      wrapped_dek_passphrase_iv: wrappedByPassphrase.iv,
+      wrapped_dek_recovery: wrappedByRecovery.wrapped,
+      wrapped_dek_recovery_iv: wrappedByRecovery.iv,
+    });
+
+    // Don't unlock yet — hold the DEK until completeSetup() so the recovery
+    // code screen stays up.
+    pendingDekRef.current = newDek;
+    return recoveryCode;
+  };
+
+  // Called once the user confirms they've saved their recovery code.
+  const completeSetup = () => {
+    if (pendingDekRef.current) {
+      setDek(pendingDekRef.current);
+      pendingDekRef.current = null;
+    }
+  };
+
   // Derive the KEK from the passphrase + stored salt, then unwrap the DEK.
   // A wrong passphrase makes AES-GCM auth fail and unwrapDEK throws.
   const unlock = async (passphrase: string, bundle: CryptoBundle) => {
@@ -119,6 +175,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken,
         dek,
         isUnlocked: dek !== null,
+        setupEncryption,
+        completeSetup,
         unlock,
         lock,
       }}
