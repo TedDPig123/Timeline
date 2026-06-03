@@ -41,7 +41,13 @@ function App() {
     setMemModals((prevModals) => {
       const updatedModals = prevModals.map((modal) =>
         modal.id === id
-          ? { ...modal, position_x: newPosition.x, position_y: newPosition.y }
+          ? {
+              ...modal,
+              style: {
+                ...modal.style,
+                position: { x: newPosition.x, y: newPosition.y },
+              },
+            }
           : modal,
       );
       return updatedModals;

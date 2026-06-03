@@ -20,26 +20,8 @@ export type MemoryCardModel = runtime.Types.Result.DefaultSelection<Prisma.$Memo
 
 export type AggregateMemoryCard = {
   _count: MemoryCardCountAggregateOutputType | null
-  _avg: MemoryCardAvgAggregateOutputType | null
-  _sum: MemoryCardSumAggregateOutputType | null
   _min: MemoryCardMinAggregateOutputType | null
   _max: MemoryCardMaxAggregateOutputType | null
-}
-
-export type MemoryCardAvgAggregateOutputType = {
-  position_x: number | null
-  position_y: number | null
-  z_index: number | null
-  width: number | null
-  height: number | null
-}
-
-export type MemoryCardSumAggregateOutputType = {
-  position_x: number | null
-  position_y: number | null
-  z_index: number | null
-  width: number | null
-  height: number | null
 }
 
 export type MemoryCardMinAggregateOutputType = {
@@ -47,11 +29,6 @@ export type MemoryCardMinAggregateOutputType = {
   content: string | null
   id: string | null
   date: Date | null
-  position_x: number | null
-  position_y: number | null
-  z_index: number | null
-  width: number | null
-  height: number | null
   user_id: string | null
   memory_id: string | null
 }
@@ -61,11 +38,6 @@ export type MemoryCardMaxAggregateOutputType = {
   content: string | null
   id: string | null
   date: Date | null
-  position_x: number | null
-  position_y: number | null
-  z_index: number | null
-  width: number | null
-  height: number | null
   user_id: string | null
   memory_id: string | null
 }
@@ -75,43 +47,18 @@ export type MemoryCardCountAggregateOutputType = {
   content: number
   id: number
   date: number
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: number
   user_id: number
   memory_id: number
   _all: number
 }
 
 
-export type MemoryCardAvgAggregateInputType = {
-  position_x?: true
-  position_y?: true
-  z_index?: true
-  width?: true
-  height?: true
-}
-
-export type MemoryCardSumAggregateInputType = {
-  position_x?: true
-  position_y?: true
-  z_index?: true
-  width?: true
-  height?: true
-}
-
 export type MemoryCardMinAggregateInputType = {
   type?: true
   content?: true
   id?: true
   date?: true
-  position_x?: true
-  position_y?: true
-  z_index?: true
-  width?: true
-  height?: true
   user_id?: true
   memory_id?: true
 }
@@ -121,11 +68,6 @@ export type MemoryCardMaxAggregateInputType = {
   content?: true
   id?: true
   date?: true
-  position_x?: true
-  position_y?: true
-  z_index?: true
-  width?: true
-  height?: true
   user_id?: true
   memory_id?: true
 }
@@ -135,11 +77,7 @@ export type MemoryCardCountAggregateInputType = {
   content?: true
   id?: true
   date?: true
-  position_x?: true
-  position_y?: true
-  z_index?: true
-  width?: true
-  height?: true
+  style?: true
   user_id?: true
   memory_id?: true
   _all?: true
@@ -183,18 +121,6 @@ export type MemoryCardAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: MemoryCardAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: MemoryCardSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: MemoryCardMinAggregateInputType
@@ -225,8 +151,6 @@ export type MemoryCardGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: MemoryCardCountAggregateInputType | true
-  _avg?: MemoryCardAvgAggregateInputType
-  _sum?: MemoryCardSumAggregateInputType
   _min?: MemoryCardMinAggregateInputType
   _max?: MemoryCardMaxAggregateInputType
 }
@@ -236,16 +160,10 @@ export type MemoryCardGroupByOutputType = {
   content: string
   id: string
   date: Date
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: runtime.JsonValue
   user_id: string
   memory_id: string
   _count: MemoryCardCountAggregateOutputType | null
-  _avg: MemoryCardAvgAggregateOutputType | null
-  _sum: MemoryCardSumAggregateOutputType | null
   _min: MemoryCardMinAggregateOutputType | null
   _max: MemoryCardMaxAggregateOutputType | null
 }
@@ -273,11 +191,7 @@ export type MemoryCardWhereInput = {
   content?: Prisma.StringFilter<"MemoryCard"> | string
   id?: Prisma.StringFilter<"MemoryCard"> | string
   date?: Prisma.DateTimeFilter<"MemoryCard"> | Date | string
-  position_x?: Prisma.IntFilter<"MemoryCard"> | number
-  position_y?: Prisma.IntFilter<"MemoryCard"> | number
-  z_index?: Prisma.IntFilter<"MemoryCard"> | number
-  width?: Prisma.IntFilter<"MemoryCard"> | number
-  height?: Prisma.IntFilter<"MemoryCard"> | number
+  style?: Prisma.JsonFilter<"MemoryCard">
   user_id?: Prisma.StringFilter<"MemoryCard"> | string
   memory_id?: Prisma.StringFilter<"MemoryCard"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -289,11 +203,7 @@ export type MemoryCardOrderByWithRelationInput = {
   content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  position_x?: Prisma.SortOrder
-  position_y?: Prisma.SortOrder
-  z_index?: Prisma.SortOrder
-  width?: Prisma.SortOrder
-  height?: Prisma.SortOrder
+  style?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   memory_id?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -308,11 +218,7 @@ export type MemoryCardWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumContentTypeFilter<"MemoryCard"> | $Enums.ContentType
   content?: Prisma.StringFilter<"MemoryCard"> | string
   date?: Prisma.DateTimeFilter<"MemoryCard"> | Date | string
-  position_x?: Prisma.IntFilter<"MemoryCard"> | number
-  position_y?: Prisma.IntFilter<"MemoryCard"> | number
-  z_index?: Prisma.IntFilter<"MemoryCard"> | number
-  width?: Prisma.IntFilter<"MemoryCard"> | number
-  height?: Prisma.IntFilter<"MemoryCard"> | number
+  style?: Prisma.JsonFilter<"MemoryCard">
   user_id?: Prisma.StringFilter<"MemoryCard"> | string
   memory_id?: Prisma.StringFilter<"MemoryCard"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -324,18 +230,12 @@ export type MemoryCardOrderByWithAggregationInput = {
   content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  position_x?: Prisma.SortOrder
-  position_y?: Prisma.SortOrder
-  z_index?: Prisma.SortOrder
-  width?: Prisma.SortOrder
-  height?: Prisma.SortOrder
+  style?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   memory_id?: Prisma.SortOrder
   _count?: Prisma.MemoryCardCountOrderByAggregateInput
-  _avg?: Prisma.MemoryCardAvgOrderByAggregateInput
   _max?: Prisma.MemoryCardMaxOrderByAggregateInput
   _min?: Prisma.MemoryCardMinOrderByAggregateInput
-  _sum?: Prisma.MemoryCardSumOrderByAggregateInput
 }
 
 export type MemoryCardScalarWhereWithAggregatesInput = {
@@ -346,11 +246,7 @@ export type MemoryCardScalarWhereWithAggregatesInput = {
   content?: Prisma.StringWithAggregatesFilter<"MemoryCard"> | string
   id?: Prisma.StringWithAggregatesFilter<"MemoryCard"> | string
   date?: Prisma.DateTimeWithAggregatesFilter<"MemoryCard"> | Date | string
-  position_x?: Prisma.IntWithAggregatesFilter<"MemoryCard"> | number
-  position_y?: Prisma.IntWithAggregatesFilter<"MemoryCard"> | number
-  z_index?: Prisma.IntWithAggregatesFilter<"MemoryCard"> | number
-  width?: Prisma.IntWithAggregatesFilter<"MemoryCard"> | number
-  height?: Prisma.IntWithAggregatesFilter<"MemoryCard"> | number
+  style?: Prisma.JsonWithAggregatesFilter<"MemoryCard">
   user_id?: Prisma.StringWithAggregatesFilter<"MemoryCard"> | string
   memory_id?: Prisma.StringWithAggregatesFilter<"MemoryCard"> | string
 }
@@ -360,11 +256,7 @@ export type MemoryCardCreateInput = {
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user: Prisma.UserCreateNestedOneWithoutMemoryCardsInput
   memory: Prisma.MemoryCreateNestedOneWithoutMemory_cardsInput
 }
@@ -374,11 +266,7 @@ export type MemoryCardUncheckedCreateInput = {
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user_id: string
   memory_id: string
 }
@@ -388,11 +276,7 @@ export type MemoryCardUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user?: Prisma.UserUpdateOneRequiredWithoutMemoryCardsNestedInput
   memory?: Prisma.MemoryUpdateOneRequiredWithoutMemory_cardsNestedInput
 }
@@ -402,11 +286,7 @@ export type MemoryCardUncheckedUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   memory_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -416,11 +296,7 @@ export type MemoryCardCreateManyInput = {
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user_id: string
   memory_id: string
 }
@@ -430,11 +306,7 @@ export type MemoryCardUpdateManyMutationInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
 export type MemoryCardUncheckedUpdateManyInput = {
@@ -442,11 +314,7 @@ export type MemoryCardUncheckedUpdateManyInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   memory_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -466,21 +334,9 @@ export type MemoryCardCountOrderByAggregateInput = {
   content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  position_x?: Prisma.SortOrder
-  position_y?: Prisma.SortOrder
-  z_index?: Prisma.SortOrder
-  width?: Prisma.SortOrder
-  height?: Prisma.SortOrder
+  style?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   memory_id?: Prisma.SortOrder
-}
-
-export type MemoryCardAvgOrderByAggregateInput = {
-  position_x?: Prisma.SortOrder
-  position_y?: Prisma.SortOrder
-  z_index?: Prisma.SortOrder
-  width?: Prisma.SortOrder
-  height?: Prisma.SortOrder
 }
 
 export type MemoryCardMaxOrderByAggregateInput = {
@@ -488,11 +344,6 @@ export type MemoryCardMaxOrderByAggregateInput = {
   content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  position_x?: Prisma.SortOrder
-  position_y?: Prisma.SortOrder
-  z_index?: Prisma.SortOrder
-  width?: Prisma.SortOrder
-  height?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   memory_id?: Prisma.SortOrder
 }
@@ -502,21 +353,8 @@ export type MemoryCardMinOrderByAggregateInput = {
   content?: Prisma.SortOrder
   id?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  position_x?: Prisma.SortOrder
-  position_y?: Prisma.SortOrder
-  z_index?: Prisma.SortOrder
-  width?: Prisma.SortOrder
-  height?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   memory_id?: Prisma.SortOrder
-}
-
-export type MemoryCardSumOrderByAggregateInput = {
-  position_x?: Prisma.SortOrder
-  position_y?: Prisma.SortOrder
-  z_index?: Prisma.SortOrder
-  width?: Prisma.SortOrder
-  height?: Prisma.SortOrder
 }
 
 export type MemoryCardCreateNestedManyWithoutUserInput = {
@@ -607,24 +445,12 @@ export type EnumContentTypeFieldUpdateOperationsInput = {
   set?: $Enums.ContentType
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type MemoryCardCreateWithoutUserInput = {
   type: $Enums.ContentType
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   memory: Prisma.MemoryCreateNestedOneWithoutMemory_cardsInput
 }
 
@@ -633,11 +459,7 @@ export type MemoryCardUncheckedCreateWithoutUserInput = {
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   memory_id: string
 }
 
@@ -675,11 +497,7 @@ export type MemoryCardScalarWhereInput = {
   content?: Prisma.StringFilter<"MemoryCard"> | string
   id?: Prisma.StringFilter<"MemoryCard"> | string
   date?: Prisma.DateTimeFilter<"MemoryCard"> | Date | string
-  position_x?: Prisma.IntFilter<"MemoryCard"> | number
-  position_y?: Prisma.IntFilter<"MemoryCard"> | number
-  z_index?: Prisma.IntFilter<"MemoryCard"> | number
-  width?: Prisma.IntFilter<"MemoryCard"> | number
-  height?: Prisma.IntFilter<"MemoryCard"> | number
+  style?: Prisma.JsonFilter<"MemoryCard">
   user_id?: Prisma.StringFilter<"MemoryCard"> | string
   memory_id?: Prisma.StringFilter<"MemoryCard"> | string
 }
@@ -689,11 +507,7 @@ export type MemoryCardCreateWithoutMemoryInput = {
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user: Prisma.UserCreateNestedOneWithoutMemoryCardsInput
 }
 
@@ -702,11 +516,7 @@ export type MemoryCardUncheckedCreateWithoutMemoryInput = {
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user_id: string
 }
 
@@ -741,11 +551,7 @@ export type MemoryCardCreateManyUserInput = {
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   memory_id: string
 }
 
@@ -754,11 +560,7 @@ export type MemoryCardUpdateWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   memory?: Prisma.MemoryUpdateOneRequiredWithoutMemory_cardsNestedInput
 }
 
@@ -767,11 +569,7 @@ export type MemoryCardUncheckedUpdateWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   memory_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -780,11 +578,7 @@ export type MemoryCardUncheckedUpdateManyWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   memory_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -793,11 +587,7 @@ export type MemoryCardCreateManyMemoryInput = {
   content: string
   id?: string
   date: Date | string
-  position_x: number
-  position_y: number
-  z_index: number
-  width: number
-  height: number
+  style: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user_id: string
 }
 
@@ -806,11 +596,7 @@ export type MemoryCardUpdateWithoutMemoryInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user?: Prisma.UserUpdateOneRequiredWithoutMemoryCardsNestedInput
 }
 
@@ -819,11 +605,7 @@ export type MemoryCardUncheckedUpdateWithoutMemoryInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -832,11 +614,7 @@ export type MemoryCardUncheckedUpdateManyWithoutMemoryInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position_x?: Prisma.IntFieldUpdateOperationsInput | number
-  position_y?: Prisma.IntFieldUpdateOperationsInput | number
-  z_index?: Prisma.IntFieldUpdateOperationsInput | number
-  width?: Prisma.IntFieldUpdateOperationsInput | number
-  height?: Prisma.IntFieldUpdateOperationsInput | number
+  style?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -847,11 +625,7 @@ export type MemoryCardSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   content?: boolean
   id?: boolean
   date?: boolean
-  position_x?: boolean
-  position_y?: boolean
-  z_index?: boolean
-  width?: boolean
-  height?: boolean
+  style?: boolean
   user_id?: boolean
   memory_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -863,11 +637,7 @@ export type MemoryCardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   content?: boolean
   id?: boolean
   date?: boolean
-  position_x?: boolean
-  position_y?: boolean
-  z_index?: boolean
-  width?: boolean
-  height?: boolean
+  style?: boolean
   user_id?: boolean
   memory_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -879,11 +649,7 @@ export type MemoryCardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   content?: boolean
   id?: boolean
   date?: boolean
-  position_x?: boolean
-  position_y?: boolean
-  z_index?: boolean
-  width?: boolean
-  height?: boolean
+  style?: boolean
   user_id?: boolean
   memory_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -895,16 +661,12 @@ export type MemoryCardSelectScalar = {
   content?: boolean
   id?: boolean
   date?: boolean
-  position_x?: boolean
-  position_y?: boolean
-  z_index?: boolean
-  width?: boolean
-  height?: boolean
+  style?: boolean
   user_id?: boolean
   memory_id?: boolean
 }
 
-export type MemoryCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"type" | "content" | "id" | "date" | "position_x" | "position_y" | "z_index" | "width" | "height" | "user_id" | "memory_id", ExtArgs["result"]["memoryCard"]>
+export type MemoryCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"type" | "content" | "id" | "date" | "style" | "user_id" | "memory_id", ExtArgs["result"]["memoryCard"]>
 export type MemoryCardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   memory?: boolean | Prisma.MemoryDefaultArgs<ExtArgs>
@@ -929,11 +691,7 @@ export type $MemoryCardPayload<ExtArgs extends runtime.Types.Extensions.Internal
     content: string
     id: string
     date: Date
-    position_x: number
-    position_y: number
-    z_index: number
-    width: number
-    height: number
+    style: runtime.JsonValue
     user_id: string
     memory_id: string
   }, ExtArgs["result"]["memoryCard"]>
@@ -1365,11 +1123,7 @@ export interface MemoryCardFieldRefs {
   readonly content: Prisma.FieldRef<"MemoryCard", 'String'>
   readonly id: Prisma.FieldRef<"MemoryCard", 'String'>
   readonly date: Prisma.FieldRef<"MemoryCard", 'DateTime'>
-  readonly position_x: Prisma.FieldRef<"MemoryCard", 'Int'>
-  readonly position_y: Prisma.FieldRef<"MemoryCard", 'Int'>
-  readonly z_index: Prisma.FieldRef<"MemoryCard", 'Int'>
-  readonly width: Prisma.FieldRef<"MemoryCard", 'Int'>
-  readonly height: Prisma.FieldRef<"MemoryCard", 'Int'>
+  readonly style: Prisma.FieldRef<"MemoryCard", 'Json'>
   readonly user_id: Prisma.FieldRef<"MemoryCard", 'String'>
   readonly memory_id: Prisma.FieldRef<"MemoryCard", 'String'>
 }

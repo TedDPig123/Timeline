@@ -103,11 +103,11 @@ export default function PreviewModal({
                 key={card.id}
                 className="absolute overflow-hidden rounded-lg border bg-white p-1 shadow-sm"
                 style={{
-                  left: `${100 * (card.position_x / 700)}%`,
-                  top: `${100 * (card.position_y / 700)}%`,
-                  width: `${100 * (card.width / 700)}%`,
-                  height: `${100 * (card.height / 700)}%`,
-                  zIndex: card.z_index,
+                  left: `${100 * (card.style.position.x / 700)}%`,
+                  top: `${100 * (card.style.position.y / 700)}%`,
+                  width: `${100 * (card.style.size.width / 700)}%`,
+                  height: `${100 * (card.style.size.height / 700)}%`,
+                  zIndex: card.style.zIndex,
                   borderColor: theme.secondaryColor,
                   color: theme.secondaryColor,
                   backgroundColor: theme.primaryColor,

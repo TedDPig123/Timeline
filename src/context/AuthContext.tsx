@@ -6,7 +6,8 @@ import {
   useLayoutEffect,
   ReactNode,
 } from "react";
-import { User } from "../types";
+import { User, CryptoBundle } from "../types";
+import { deriveKEK, unwrapDEK, b64ToBuf } from "../services/crypto";
 
 interface AuthContextType {
   user: User | null;
@@ -15,6 +16,12 @@ interface AuthContextType {
   login: () => void;
   logout: () => void;
   setToken: (token: string) => void;
+  // Client-side encryption: the unwrapped DEK lives here for the session only.
+  // Never persisted; lost on tab close; re-derived at next login.
+  dek: CryptoKey | null;
+  isUnlocked: boolean;
+  unlock: (passphrase: string, bundle: CryptoBundle) => Promise<void>;
+  lock: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -37,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setTokenState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [dek, setDek] = useState<CryptoKey | null>(null);
 
   useLayoutEffect(() => {
     const savedToken = localStorage.getItem("token");
@@ -83,11 +91,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("token");
     setTokenState(null);
     setUser(null);
+    setDek(null);
   };
+
+  // Derive the KEK from the passphrase + stored salt, then unwrap the DEK.
+  // A wrong passphrase makes AES-GCM auth fail and unwrapDEK throws.
+  const unlock = async (passphrase: string, bundle: CryptoBundle) => {
+    const kek = await deriveKEK(passphrase, b64ToBuf(bundle.passphrase_salt));
+    const unwrapped = await unwrapDEK(
+      bundle.wrapped_dek_passphrase,
+      bundle.wrapped_dek_passphrase_iv,
+      kek,
+    );
+    setDek(unwrapped);
+  };
+
+  const lock = () => setDek(null);
 
   return (
     <AuthContext.Provider
-      value={{ user, token, isLoading, login, logout, setToken }}
+      value={{
+        user,
+        token,
+        isLoading,
+        login,
+        logout,
+        setToken,
+        dek,
+        isUnlocked: dek !== null,
+        unlock,
+        lock,
+      }}
     >
       {children}
     </AuthContext.Provider>
