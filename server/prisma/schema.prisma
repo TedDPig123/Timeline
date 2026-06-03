@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -21,6 +21,17 @@ model User {
   createdAt   DateTime     @default(now())
   memories    Memory[]
   memoryCards MemoryCard[]
+
+  // Client-side encryption wrapping bundle. All null until the user sets up a
+  // passphrase. The server stores these but cannot read user data with them.
+  // Salts and wrapped DEKs/IVs are base64 strings. See encryption-guide.html.
+  crypto_version            Int?
+  passphrase_salt           String?
+  recovery_salt             String?
+  wrapped_dek_passphrase    String?
+  wrapped_dek_passphrase_iv String?
+  wrapped_dek_recovery      String?
+  wrapped_dek_recovery_iv   String?
 }
 
 model Memory {
@@ -35,15 +46,13 @@ model Memory {
 }
 
 model MemoryCard {
-  type       ContentType
-  content    String //either a text or a url, can check using type
-  id         String      @id @default(uuid())
-  date       DateTime
-  position_x Int
-  position_y Int
-  z_index    Int
-  width      Int
-  height     Int
+  type    ContentType
+  content String //either a text or a url, can check using type
+  id      String      @id @default(uuid())
+  date    DateTime
+  // render data: { position: { x, y }, size: { width, height }, zIndex }
+  // future card features (font, fontSize, color, ...) live here too
+  style   Json
 
   user      User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id   String

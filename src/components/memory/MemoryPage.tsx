@@ -11,8 +11,7 @@ import AddCardModal from "./AddCardModal";
 import {
   createCardWithFile,
   deleteCard,
-  updateCardPosition,
-  updateCardSize,
+  updateCardStyle,
 } from "../../services/api";
 
 interface MemoryPageProps {
@@ -72,60 +71,23 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
       ),
     );
 
-    // persist position/size changes for cards surviving the culling
+    // persist style (position/size/zIndex) changes for surviving cards
     const updatePromises = curModals.flatMap((current) => {
       //this is the original card
       const original = snapshot.find((s) => s.id === current.id);
-      // const isNew = newCardIds.current.has(current.id);
-      // skipping new cards
-      const promises: Promise<unknown>[] = [];
 
-      if (!original) {
-        console.log("saving new");
-        promises.push(
-          updateCardPosition(current.id, {
-            position_x: current.position_x,
-            position_y: current.position_y,
-            z_index: current.z_index,
-          }).catch((err) => console.error("Error saving position:", err)),
-        );
-        promises.push(
-          updateCardSize(current.id, {
-            width: current.width,
-            height: current.height,
-          }).catch((err) => console.error("Error saving size:", err)),
-        );
-        return promises;
-      }
+      // new cards have no snapshot; otherwise only save if the style changed
+      const styleChanged =
+        !original ||
+        JSON.stringify(original.style) !== JSON.stringify(current.style);
 
-      if (
-        original.position_x !== current.position_x ||
-        original.position_y !== current.position_y ||
-        original.z_index !== current.z_index
-      ) {
-        console.log("saving position");
-        promises.push(
-          updateCardPosition(current.id, {
-            position_x: current.position_x,
-            position_y: current.position_y,
-            z_index: current.z_index,
-          }).catch((err) => console.error("Error saving position:", err)),
-        );
-      }
+      if (!styleChanged) return [];
 
-      if (
-        original.width !== current.width ||
-        original.height !== current.height
-      ) {
-        promises.push(
-          updateCardSize(current.id, {
-            width: current.width,
-            height: current.height,
-          }).catch((err) => console.error("Error saving size:", err)),
-        );
-      }
-
-      return promises;
+      return [
+        updateCardStyle(current.id, current.style).catch((err) =>
+          console.error("Error saving style:", err),
+        ),
+      ];
     });
 
     await Promise.all([...deletePromises, ...updatePromises]);
@@ -178,11 +140,11 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
         content: data.content,
         file: data.file,
         date: date,
-        position_x: 50 + Math.random() * 100,
-        position_y: 50 + Math.random() * 100,
-        z_index: curModals.length + 1,
-        width: 200,
-        height: 200,
+        style: {
+          position: { x: 50 + Math.random() * 100, y: 50 + Math.random() * 100 },
+          size: { width: 200, height: 200 },
+          zIndex: curModals.length + 1,
+        },
         memory_id: memoryId,
       });
 

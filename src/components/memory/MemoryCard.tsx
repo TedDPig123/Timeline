@@ -23,12 +23,12 @@ const MemModal = ({
   memPageRef: React.RefObject<HTMLDivElement>;
 }) => {
   const [position, setPosition] = useState({
-    x: memModal.position_x,
-    y: memModal.position_y,
+    x: memModal.style.position.x,
+    y: memModal.style.position.y,
   });
   const [size, setSize] = useState({
-    width: memModal.width,
-    height: memModal.height,
+    width: memModal.style.size.width,
+    height: memModal.style.size.height,
   });
 
   const CANVAS_SIZE = 700;
@@ -42,13 +42,16 @@ const MemModal = ({
 
   // Keep local state in sync if memModals is reset (e.g. cancel)
   useEffect(() => {
-    setPosition({ x: memModal.position_x, y: memModal.position_y });
-    setSize({ width: memModal.width, height: memModal.height });
+    setPosition({ x: memModal.style.position.x, y: memModal.style.position.y });
+    setSize({
+      width: memModal.style.size.width,
+      height: memModal.style.size.height,
+    });
   }, [
-    memModal.position_x,
-    memModal.position_y,
-    memModal.width,
-    memModal.height,
+    memModal.style.position.x,
+    memModal.style.position.y,
+    memModal.style.size.width,
+    memModal.style.size.height,
   ]);
 
   const bringToTop = (card: HTMLDivElement) => {
@@ -73,8 +76,8 @@ const MemModal = ({
 
   const coords = useRef({ startX: 0, startY: 0, lastX: 0, lastY: 0 });
   const dimensions = useRef({
-    lastWidth: memModal.width,
-    lastHeight: memModal.height,
+    lastWidth: memModal.style.size.width,
+    lastHeight: memModal.style.size.height,
   });
 
   useEffect(() => {
@@ -150,11 +153,12 @@ const MemModal = ({
           m.id === id
             ? {
                 ...m,
-                position_x: finalX,
-                position_y: finalY,
-                width: finalWidth,
-                height: finalHeight,
-                z_index: parseInt(cardEl.style.zIndex) || 1,
+                style: {
+                  ...m.style,
+                  position: { x: finalX, y: finalY },
+                  size: { width: finalWidth, height: finalHeight },
+                  zIndex: parseInt(cardEl.style.zIndex) || 1,
+                },
               }
             : m,
         ),

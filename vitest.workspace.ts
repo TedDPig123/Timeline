@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,16 +11,29 @@ const dirname =
     ? __dirname
     : path.dirname(fileURLToPath(import.meta.url));
 
-// More info at: https://storybook.js.org/docs/writing-tests/test-addon
-export default defineWorkspace([
-  "vite.config.ts",
+// Plain node unit tests (e.g. the crypto service).
+const projects = [
   {
     extends: "vite.config.ts",
-    plugins: [
-      // The plugin will run tests for the stories defined in your Storybook config
-      // See options at: https://storybook.js.org/docs/writing-tests/test-addon#storybooktest
-      storybookTest({ configDir: path.join(dirname, ".storybook") }),
-    ],
+    test: {
+      name: "unit",
+      environment: "node",
+      include: ["src/**/*.test.ts"],
+    },
+  },
+];
+
+// The Storybook test project only works when a .storybook config is present.
+// Guard it so the absence of that config doesn't break the whole test runner.
+// More info at: https://storybook.js.org/docs/writing-tests/test-addon
+if (
+  existsSync(path.join(dirname, ".storybook/main.ts")) ||
+  existsSync(path.join(dirname, ".storybook/main.js"))
+) {
+  projects.push({
+    extends: "vite.config.ts",
+    // @ts-expect-error plugins is valid here; the unit project just omits it
+    plugins: [storybookTest({ configDir: path.join(dirname, ".storybook") })],
     test: {
       name: "storybook",
       browser: {
@@ -30,5 +44,7 @@ export default defineWorkspace([
       },
       setupFiles: [".storybook/vitest.setup.ts"],
     },
-  },
-]);
+  });
+}
+
+export default defineWorkspace(projects);

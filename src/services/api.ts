@@ -1,3 +1,5 @@
+import { CardStyle, CryptoBundle } from "@/types";
+
 const API_URL = import.meta.env.PROD
   ? "https://timeline-production-600c.up.railway.app/api"
   : "http://localhost:3001/api";
@@ -17,6 +19,25 @@ function authHeaders(): HeadersInit {
 // authentication
 export function loginWithGoogle() {
   window.location.href = `${API_URL}/auth/google`;
+}
+
+// crypto wrapping bundle
+export async function getCryptoBundle(): Promise<CryptoBundle | null> {
+  const res = await fetch(`${API_URL}/crypto/bundle`, {
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+export async function saveCryptoBundle(
+  bundle: Omit<CryptoBundle, "crypto_version">,
+) {
+  const res = await fetch(`${API_URL}/crypto/bundle`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(bundle),
+  });
+  return res.json();
 }
 
 // memories
@@ -56,11 +77,7 @@ export async function createCard(data: {
   type: string;
   content: string;
   date: string;
-  position_x: number;
-  position_y: number;
-  z_index: number;
-  width: number;
-  height: number;
+  style: CardStyle;
   memory_id: string;
 }) {
   const res = await fetch(`${API_URL}/cards`, {
@@ -71,26 +88,11 @@ export async function createCard(data: {
   return res.json();
 }
 
-export async function updateCardPosition(
-  id: string,
-  position: { position_x: number; position_y: number; z_index: number },
-) {
-  const res = await fetch(`${API_URL}/cards/position/${id}`, {
+export async function updateCardStyle(id: string, style: CardStyle) {
+  const res = await fetch(`${API_URL}/cards/style/${id}`, {
     method: "PATCH",
     headers: authHeaders(),
-    body: JSON.stringify(position),
-  });
-  return res.json();
-}
-
-export async function updateCardSize(
-  id: string,
-  size: { width: number; height: number },
-) {
-  const res = await fetch(`${API_URL}/cards/size/${id}`, {
-    method: "PATCH",
-    headers: authHeaders(),
-    body: JSON.stringify(size),
+    body: JSON.stringify({ style }),
   });
   return res.json();
 }
@@ -108,11 +110,7 @@ export async function createCardWithFile(data: {
   content?: string;
   file?: File;
   date: string;
-  position_x: number;
-  position_y: number;
-  z_index: number;
-  width: number;
-  height: number;
+  style: CardStyle;
   memory_id: string;
 }) {
   const token = getToken();
@@ -120,11 +118,8 @@ export async function createCardWithFile(data: {
 
   formData.append("type", data.type);
   formData.append("date", data.date);
-  formData.append("position_x", data.position_x.toString());
-  formData.append("position_y", data.position_y.toString());
-  formData.append("z_index", data.z_index.toString());
-  formData.append("width", data.width.toString());
-  formData.append("height", data.height.toString());
+  // style is a nested object; multipart fields are strings, so JSON-encode it
+  formData.append("style", JSON.stringify(data.style));
   formData.append("memory_id", data.memory_id);
 
   if (data.file) {
