@@ -13,6 +13,7 @@ import {
   useCurrentDate,
   useBaseDate,
 } from "../../context/context"; // adjust path if needed
+import { useAuth } from "../../context/AuthContext";
 interface TimelineSlot {
   date: string;
   label: string;
@@ -36,6 +37,7 @@ export default function Timeline() {
   const { viewMode, setViewMode } = useViewMode();
   const { theme } = useThemeContext();
   const { setCurrentDate } = useCurrentDate();
+  const { dek } = useAuth();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -61,8 +63,10 @@ export default function Timeline() {
       return;
     }
 
+    if (!dek) return;
+
     try {
-      const memory = await getMemory(date);
+      const memory = await getMemory(date, dek);
       setPreviewDate(date);
       setPreviewCards(memory?.memory_cards || []);
       setPreviewOpen(true);
@@ -74,9 +78,10 @@ export default function Timeline() {
 
   // Fetch all memories on mount
   useEffect(() => {
+    if (!dek) return;
     async function fetchMemories() {
       try {
-        const memories: Memory[] = await getAllMemories();
+        const memories: Memory[] = await getAllMemories(dek!);
         const cards = memories?.flatMap((m) => m.memory_cards || []) || [];
         console.log(
           "RAW CARDS:",
@@ -94,7 +99,7 @@ export default function Timeline() {
       }
     }
     fetchMemories();
-  }, []);
+  }, [dek]);
 
   // Generate ALL slots for the view
   const slots = useMemo(() => {

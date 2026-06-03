@@ -39,6 +39,8 @@ export interface MemoryCard {
   id: string;
   type: ContentType;
   content: string;
+  // IV for client-side-encrypted TEXT content. Null/absent = legacy plaintext.
+  content_iv?: string | null;
   date: string;
   style: CardStyle;
   user_id: string;

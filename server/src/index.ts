@@ -228,6 +228,8 @@ app.post(
         data: {
           type: request.type as ContentType,
           content: content,
+          // client-side encryption IV for TEXT content; null for media/legacy
+          content_iv: request.content_iv ?? null,
           date: new Date(request.date),
           style: style,
 

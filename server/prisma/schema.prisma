@@ -47,7 +47,9 @@ model Memory {
 
 model MemoryCard {
   type    ContentType
-  content String //either a text or a url, can check using type
+  content String //ciphertext (TEXT) or an S3 key (media); disambiguated by type
+  // IV used to encrypt `content`. Null = legacy plaintext (not yet encrypted).
+  content_iv String?
   id      String      @id @default(uuid())
   date    DateTime
   // render data: { position: { x, y }, size: { width, height }, zIndex }

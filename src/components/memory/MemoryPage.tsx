@@ -6,6 +6,7 @@ import {
   useEditingContext,
   useThemeContext,
 } from "../../context/context";
+import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AddCardModal from "./AddCardModal";
 import {
@@ -24,6 +25,7 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
   const { memModals, setMemModals, updateMemModalPosition } =
     useMemModalContext();
   const { isEditMode, changeMode } = useEditingContext();
+  const { dek } = useAuth();
   const navigate = useNavigate();
   const [showAddModal, setShowAddModal] = useState(false);
   const { theme } = useThemeContext();
@@ -134,19 +136,30 @@ const MemoryPage = ({ date, memoryId }: MemoryPageProps) => {
       return;
     }
 
+    if (!dek) {
+      console.error("Vault is locked; cannot add card");
+      return;
+    }
+
     try {
-      const newCard = await createCardWithFile({
-        type: data.type,
-        content: data.content,
-        file: data.file,
-        date: date,
-        style: {
-          position: { x: 50 + Math.random() * 100, y: 50 + Math.random() * 100 },
-          size: { width: 200, height: 200 },
-          zIndex: curModals.length + 1,
+      const newCard = await createCardWithFile(
+        {
+          type: data.type,
+          content: data.content,
+          file: data.file,
+          date: date,
+          style: {
+            position: {
+              x: 50 + Math.random() * 100,
+              y: 50 + Math.random() * 100,
+            },
+            size: { width: 200, height: 200 },
+            zIndex: curModals.length + 1,
+          },
+          memory_id: memoryId,
         },
-        memory_id: memoryId,
-      });
+        dek,
+      );
 
       newCardIds.current.add(newCard.id);
       setMemModals([...memModals, newCard]);

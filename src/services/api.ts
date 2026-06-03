@@ -1,8 +1,25 @@
-import { CardStyle, CryptoBundle } from "@/types";
+import { CardStyle, CryptoBundle, MemoryCard } from "@/types";
+import { encryptText, decryptText } from "./crypto";
 
 const API_URL = import.meta.env.PROD
   ? "https://timeline-production-600c.up.railway.app/api"
   : "http://localhost:3001/api";
+
+// Decrypt a card's TEXT content with the session DEK. Cards without a
+// content_iv are legacy plaintext and returned unchanged. Media cards (whose
+// content is an S3 presigned URL) are also returned unchanged.
+async function decryptCard(
+  card: MemoryCard,
+  dek: CryptoKey,
+): Promise<MemoryCard> {
+  if (card.type !== "TEXT" || !card.content_iv) return card;
+  try {
+    const content = await decryptText(card.content, card.content_iv, dek);
+    return { ...card, content };
+  } catch {
+    return { ...card, content: "[unable to decrypt]" };
+  }
+}
 
 function getToken(): string | null {
   return localStorage.getItem("token");
@@ -41,18 +58,31 @@ export async function saveCryptoBundle(
 }
 
 // memories
-export async function getAllMemories() {
+export async function getAllMemories(dek: CryptoKey) {
   const res = await fetch(`${API_URL}/memories`, {
     headers: authHeaders(),
   });
-  return res.json();
+  const memories = await res.json();
+  if (!Array.isArray(memories)) return memories;
+  for (const memory of memories) {
+    memory.memory_cards = await Promise.all(
+      (memory.memory_cards ?? []).map((c: MemoryCard) => decryptCard(c, dek)),
+    );
+  }
+  return memories;
 }
 
-export async function getMemory(date: string) {
+export async function getMemory(date: string, dek: CryptoKey) {
   const res = await fetch(`${API_URL}/memories/${date}`, {
     headers: authHeaders(),
   });
-  return res.json();
+  const memory = await res.json();
+  if (memory && memory.memory_cards) {
+    memory.memory_cards = await Promise.all(
+      memory.memory_cards.map((c: MemoryCard) => decryptCard(c, dek)),
+    );
+  }
+  return memory;
 }
 
 export async function createMemory(date: string) {
@@ -105,14 +135,17 @@ export async function deleteCard(id: string) {
   return res.json();
 }
 
-export async function createCardWithFile(data: {
-  type: string;
-  content?: string;
-  file?: File;
-  date: string;
-  style: CardStyle;
-  memory_id: string;
-}) {
+export async function createCardWithFile(
+  data: {
+    type: string;
+    content?: string;
+    file?: File;
+    date: string;
+    style: CardStyle;
+    memory_id: string;
+  },
+  dek: CryptoKey,
+) {
   const token = getToken();
   const formData = new FormData();
 
@@ -123,7 +156,13 @@ export async function createCardWithFile(data: {
   formData.append("memory_id", data.memory_id);
 
   if (data.file) {
+    // Files aren't encrypted yet (later pass) — uploaded as-is.
     formData.append("file", data.file);
+  } else if (data.type === "TEXT" && data.content) {
+    // Encrypt TEXT content client-side; the server only ever sees ciphertext.
+    const { ciphertext, iv } = await encryptText(data.content, dek);
+    formData.append("content", ciphertext);
+    formData.append("content_iv", iv);
   } else if (data.content) {
     formData.append("content", data.content);
   }
@@ -136,5 +175,11 @@ export async function createCardWithFile(data: {
     },
     body: formData,
   });
-  return res.json();
+  const card = await res.json();
+  // The server echoes back the ciphertext; restore the plaintext we just sent
+  // so the new card renders correctly in-session.
+  if (data.type === "TEXT" && data.content) {
+    card.content = data.content;
+  }
+  return card;
 }
