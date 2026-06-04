@@ -152,13 +152,43 @@ Below is what currently exists, and what's in the works.
 
 ---
 
+## :lock: Security & encryption
+
+Timeline uses **client-side end-to-end encryption** for memory content. Your
+passphrase derives a key (PBKDF2, 600k iterations) that unwraps a per-user data
+key (AES-256-GCM); that key encrypts each card's text and files **in your
+browser** before anything is sent. The server and storage only ever hold
+ciphertext, salts, wrapped keys, and IVs.
+
+**What the server can read:** dates, card types, layout (positions/sizes), file
+sizes, and timestamps — the *structure* of your timeline, never the *content*.
+Dates and layout stay readable so the timeline can render and order without
+unlocking.
+
+**What it cannot read:** your passphrase, recovery code, keys, or any text,
+image, audio, or video content.
+
+**What this does _not_ protect against (be aware):**
+
+- **A compromised device or browser.** While you're logged in and unlocked, the
+  data key is in memory and your content is readable on your machine. This is
+  inherent to client-side encryption.
+- **A malicious frontend build.** Web E2EE can't prove the served JavaScript is
+  honest the way a signed native app can.
+- **Metadata.** As above, the server still sees dates, counts, sizes, and
+  sharing relationships.
+
+**There is no password reset.** If you forget your passphrase, your one-time
+recovery code is the only way back in. Lose both and the content is
+unrecoverable — that's the cost of the server never being able to read it.
+
 ## :world_map: Roadmap
 
 Things in progress or planned:
 
 - [ ] **Mobile responsive timeline.** Currently only optimized for desktop/tablet.
 - [ ] **Search.** Find memories by keyword across text cards.
-- [ ] **Client-side end-to-end encryption.** Memories encrypted before they leave the browser, so the server never sees plaintext.
+- [x] **Client-side end-to-end encryption.** Memories encrypted before they leave the browser, so the server never sees plaintext. (See [Security & encryption](#lock-security--encryption).)
 - [ ] **Shared timelines.** Invite friends or family to contribute to a collective memory line ( trip journals, family albums, etc.)
 - [ ] **Memory templates.** Quick-start layouts for common memory types.
 - [ ] **More theme customization.** Want to add more themes as well as the option to choose your own color palette.
@@ -179,7 +209,7 @@ Things in progress or planned:
 A: Those tools either treat memories as a content library or as a strictly linear journal. Timeline is built around the metaphor of a _line through time_...
 
 **Q: Is my data private?**
-A: Today, content is encrypted at rest by the database and storage providers. However, the data is still viewable to the owner of the S3 Bucket in use (me). **Thus, I plan on implementing end-to-end client-side encryption as the next major feature** — when shipped, the server will only ever see ciphertext.
+A: Yes — Timeline now uses **client-side end-to-end encryption**. Your memory content is encrypted in your browser before it's sent, so the server (and I, the operator) only ever see ciphertext. See [Security & encryption](#lock-security--encryption) for what is and isn't protected, including the no-password-reset tradeoff.
 
 **Q: Does it work offline?**
 A: Not yet. Offline-first support is something I'll consider in the future. Perhaps I'll make an ElectronJS app to facilitate it.

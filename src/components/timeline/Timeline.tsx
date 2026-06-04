@@ -13,6 +13,7 @@ import {
   useCurrentDate,
   useBaseDate,
 } from "../../context/context"; // adjust path if needed
+import { useAuth } from "../../context/AuthContext";
 interface TimelineSlot {
   date: string;
   label: string;
@@ -20,6 +21,7 @@ interface TimelineSlot {
   hasMemory: boolean;
   text: string | null;
   image: string | null;
+  imageIv: string | null;
   isFuture: boolean;
 }
 
@@ -36,6 +38,7 @@ export default function Timeline() {
   const { viewMode, setViewMode } = useViewMode();
   const { theme } = useThemeContext();
   const { setCurrentDate } = useCurrentDate();
+  const { dek } = useAuth();
 
   // states just for previews
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -61,8 +64,10 @@ export default function Timeline() {
       return;
     }
 
+    if (!dek) return;
+
     try {
-      const memory = await getMemory(date);
+      const memory = await getMemory(date, dek);
       setPreviewDate(date);
       setPreviewCards(memory?.memory_cards || []);
       setPreviewOpen(true);
@@ -74,9 +79,10 @@ export default function Timeline() {
 
   // Fetch all memories on mount
   useEffect(() => {
+    if (!dek) return;
     async function fetchMemories() {
       try {
-        const memories: Memory[] = await getAllMemories();
+        const memories: Memory[] = await getAllMemories(dek!);
         const cards = memories?.flatMap((m) => m.memory_cards || []) || [];
         console.log(
           "RAW CARDS:",
@@ -94,7 +100,7 @@ export default function Timeline() {
       }
     }
     fetchMemories();
-  }, []);
+  }, [dek]);
 
   // Generate ALL slots for the view
   const slots = useMemo(() => {
@@ -431,6 +437,7 @@ export default function Timeline() {
                   <Thumbnail
                     text={slot.hasMemory ? slot.text : null}
                     image={slot.hasMemory ? slot.image : null}
+                    imageIv={slot.hasMemory ? slot.imageIv : null}
                     date={slot.label}
                     dayLabel={slot.dayLabel}
                   />
@@ -500,6 +507,7 @@ export default function Timeline() {
                   <Thumbnail
                     text={slot.hasMemory ? slot.text : null}
                     image={slot.hasMemory ? slot.image : null}
+                    imageIv={slot.hasMemory ? slot.imageIv : null}
                     date={slot.label}
                     dayLabel={slot.dayLabel}
                   />
@@ -591,6 +599,9 @@ function generateAllSlots(
         image: hasMemory
           ? dayCards.find((c) => c.type === "IMAGE")?.content || null
           : null,
+        imageIv: hasMemory
+          ? dayCards.find((c) => c.type === "IMAGE")?.content_iv || null
+          : null,
       });
     }
   } else if (viewMode === "month") {
@@ -622,6 +633,9 @@ function generateAllSlots(
           : null,
         image: hasMemory
           ? dayCards.find((c) => c.type === "IMAGE")?.content || null
+          : null,
+        imageIv: hasMemory
+          ? dayCards.find((c) => c.type === "IMAGE")?.content_iv || null
           : null,
       });
     }
@@ -666,6 +680,9 @@ function generateAllSlots(
           : null,
         image: hasMemory
           ? monthCards.find((c) => c.type === "IMAGE")?.content || null
+          : null,
+        imageIv: hasMemory
+          ? monthCards.find((c) => c.type === "IMAGE")?.content_iv || null
           : null,
       });
     }

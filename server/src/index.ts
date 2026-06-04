@@ -15,7 +15,7 @@ import { ContentType } from "./generated/prisma/enums";
 import express from "express";
 import multer from "multer";
 import prisma from "./db";
-import { getPresignedUrl, uploadFile } from "./s3";
+import { getPresignedUrl, uploadFile, deleteFile } from "./s3";
 
 const app = express();
 const port = 3001;
@@ -46,34 +46,10 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// ------------------------------ ALL USER ROUTES -----------------------------
-//get all users
-app.get("/api/users", async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.send(users);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ error: "Failed to fetch users" });
-  }
-});
-
-//create a user
-app.post("/api/users", async (req, res) => {
-  try {
-    const request = req.body;
-    const user = await prisma.user.create({
-      data: {
-        username: request.username,
-        email: request.email,
-      },
-    });
-    res.json(user);
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ error: "Failed to create new user" });
-  }
-});
+// Note: the old unauthenticated GET/POST /api/users debug routes were removed.
+// GET /api/users leaked every user's wrapping bundle (salts + wrapped DEKs),
+// which would allow offline brute-forcing of passphrases. Users are created via
+// Google OAuth; the owner-only GET /api/crypto/bundle serves the bundle.
 
 // ------------------------------ ALL MEMORY ROUTES ----------------------------------
 //TODO: POST create memory given user and date
@@ -191,9 +167,12 @@ app.delete(
   async (req: AuthRequest, res) => {
     try {
       const memory_id = req.params.id as string;
-      await prisma.memory.delete({
-        where: { id: memory_id },
+      const { count } = await prisma.memory.deleteMany({
+        where: { id: memory_id, user_id: req.userId! },
       });
+      if (count === 0) {
+        return res.status(404).json({ error: "Memory not found" });
+      }
       res.json({ message: "Memory deleted" });
     } catch (error) {
       console.error("Error deleting memory:", error);
@@ -218,16 +197,28 @@ app.post(
         content = await uploadFile(req.file);
       }
 
+      // style arrives as an object (JSON body) or a string (multipart form)
+      const style =
+        typeof request.style === "string"
+          ? JSON.parse(request.style)
+          : request.style;
+
+      // ensure the target memory belongs to the authenticated user
+      const memory = await prisma.memory.findFirst({
+        where: { id: request.memory_id, user_id: req.userId! },
+      });
+      if (!memory) {
+        return res.status(404).json({ error: "Memory not found" });
+      }
+
       const memory_card = await prisma.memoryCard.create({
         data: {
           type: request.type as ContentType,
           content: content,
+          // client-side encryption IV for TEXT content; null for media/legacy
+          content_iv: request.content_iv ?? null,
           date: new Date(request.date),
-          position_x: parseInt(request.position_x),
-          position_y: parseInt(request.position_y),
-          z_index: parseInt(request.z_index),
-          width: parseInt(request.width),
-          height: parseInt(request.height),
+          style: style,
 
           user_id: req.userId!,
           memory_id: request.memory_id,
@@ -250,60 +241,93 @@ app.post(
   },
 );
 
-//TODO: update memory card position
+// update a card's render style (position, size, zIndex, and any future fields)
 app.patch(
-  "/api/cards/position/:id",
+  "/api/cards/style/:id",
   authenticateToken,
   async (req: AuthRequest, res) => {
     try {
       const request = req.body;
-      const card_id = req.params.id;
-      const memory_card = await prisma.memoryCard.update({
-        where: { id: card_id as string },
+      const card_id = req.params.id as string;
+      const { count } = await prisma.memoryCard.updateMany({
+        where: { id: card_id, user_id: req.userId! },
         data: {
-          position_x: request.position_x,
-          position_y: request.position_y,
-          z_index: request.z_index,
+          style: request.style,
         },
+      });
+      if (count === 0) {
+        return res.status(404).json({ error: "Card not found" });
+      }
+      const memory_card = await prisma.memoryCard.findFirst({
+        where: { id: card_id, user_id: req.userId! },
       });
       res.json(memory_card);
     } catch (error) {
-      console.error("Error updating memory card position:", error);
-      res.status(500).json({ error: "Failed to update memory card position" });
+      console.error("Error updating memory card style:", error);
+      res.status(500).json({ error: "Failed to update memory card style" });
     }
   },
 );
 
-//TODO: update memory card size
+// Replace a card's content with its encrypted version (used by the
+// migrate-at-first-unlock pass). TEXT sends ciphertext as JSON; media uploads
+// the encrypted bytes. content_iv marks the card as encrypted.
 app.patch(
-  "/api/cards/size/:id",
+  "/api/cards/content/:id",
   authenticateToken,
+  upload.single("file"),
   async (req: AuthRequest, res) => {
     try {
-      const request = req.body;
-      const card_id = req.params.id;
-      const memory_card = await prisma.memoryCard.update({
-        where: { id: card_id as string },
-        data: {
-          width: request.width,
-          height: request.height,
-        },
+      const card_id = req.params.id as string;
+      const existing = await prisma.memoryCard.findFirst({
+        where: { id: card_id, user_id: req.userId! },
       });
-      res.json(memory_card);
+      if (!existing) {
+        return res.status(404).json({ error: "Card not found" });
+      }
+
+      let content = existing.content;
+      let oldKey: string | null = null;
+      if (req.file) {
+        // upload ciphertext to a NEW key, then repoint and delete the old one,
+        // so the plaintext object is never left dangling on partial failure
+        content = await uploadFile(req.file);
+        oldKey = existing.content;
+      } else {
+        content = req.body.content; // ciphertext for TEXT
+      }
+
+      await prisma.memoryCard.update({
+        where: { id: card_id },
+        data: { content, content_iv: req.body.content_iv },
+      });
+
+      if (oldKey && oldKey !== content) {
+        try {
+          await deleteFile(oldKey);
+        } catch (err) {
+          console.error("Failed to delete old plaintext object:", oldKey, err);
+        }
+      }
+
+      res.json({ ok: true });
     } catch (error) {
-      console.error("Error updating memory card position:", error);
-      res.status(500).json({ error: "Failed to update memory card position" });
+      console.error("Error updating card content:", error);
+      res.status(500).json({ error: "Failed to update card content" });
     }
   },
 );
 
 //deleting memory card
-app.delete("/api/cards/:id", authenticateToken, async (req, res) => {
+app.delete("/api/cards/:id", authenticateToken, async (req: AuthRequest, res) => {
   try {
     const card_id = req.params.id as string;
-    await prisma.memoryCard.delete({
-      where: { id: card_id },
+    const { count } = await prisma.memoryCard.deleteMany({
+      where: { id: card_id, user_id: req.userId! },
     });
+    if (count === 0) {
+      return res.status(404).json({ error: "Card not found" });
+    }
     res.json({ message: "Card deleted" });
   } catch (error) {
     console.error("Error deleting memory card:", error);
@@ -330,6 +354,88 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     res.status(500).json({ error: "Failed to upload file" });
   }
 });
+
+// ------------------------------ CRYPTO ROUTES -----------------------------
+// Per-user client-side-encryption wrapping bundle. The server stores these
+// opaque values but can never read the user's data with them.
+
+const CRYPTO_BUNDLE_FIELDS = [
+  "passphrase_salt",
+  "recovery_salt",
+  "wrapped_dek_passphrase",
+  "wrapped_dek_passphrase_iv",
+  "wrapped_dek_recovery",
+  "wrapped_dek_recovery_iv",
+] as const;
+
+// Returns the wrapping bundle for the logged-in user, or null if they haven't
+// set up encryption yet. The client uses null to decide signup vs unlock.
+app.get(
+  "/api/crypto/bundle",
+  authenticateToken,
+  async (req: AuthRequest, res) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: req.userId! },
+        select: {
+          crypto_version: true,
+          passphrase_salt: true,
+          recovery_salt: true,
+          wrapped_dek_passphrase: true,
+          wrapped_dek_passphrase_iv: true,
+          wrapped_dek_recovery: true,
+          wrapped_dek_recovery_iv: true,
+        },
+      });
+
+      if (!user || user.crypto_version == null) {
+        return res.json(null);
+      }
+
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching crypto bundle:", error);
+      res.status(500).json({ error: "Failed to fetch crypto bundle" });
+    }
+  },
+);
+
+// Stores the wrapping bundle for the logged-in user (used by the signup flow).
+app.post(
+  "/api/crypto/bundle",
+  authenticateToken,
+  async (req: AuthRequest, res) => {
+    try {
+      const request = req.body;
+
+      const missing = CRYPTO_BUNDLE_FIELDS.filter((f) => !request[f]);
+      if (missing.length > 0) {
+        return res
+          .status(400)
+          .json({ error: `Missing fields: ${missing.join(", ")}` });
+      }
+
+      const user = await prisma.user.update({
+        where: { id: req.userId! },
+        data: {
+          crypto_version: 1,
+          passphrase_salt: request.passphrase_salt,
+          recovery_salt: request.recovery_salt,
+          wrapped_dek_passphrase: request.wrapped_dek_passphrase,
+          wrapped_dek_passphrase_iv: request.wrapped_dek_passphrase_iv,
+          wrapped_dek_recovery: request.wrapped_dek_recovery,
+          wrapped_dek_recovery_iv: request.wrapped_dek_recovery_iv,
+        },
+        select: { crypto_version: true },
+      });
+
+      res.json(user);
+    } catch (error) {
+      console.error("Error saving crypto bundle:", error);
+      res.status(500).json({ error: "Failed to save crypto bundle" });
+    }
+  },
+);
 
 // ------------------------------ AUTH ROUTES -----------------------------
 

@@ -33,3 +33,5 @@ node_modules/
 /server/.env.local
 .vercel
 /server/node_modules
+
+CLAUDE.md

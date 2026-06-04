@@ -12,7 +12,7 @@ import { Memory } from "../types";
 
 export default function EditMemoryPage() {
   const { date } = useParams<{ date: string }>();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, dek } = useAuth();
   const { changeMode } = useEditingContext();
   const { setMemModals } = useMemModalContext();
   const navigate = useNavigate();
@@ -29,10 +29,10 @@ export default function EditMemoryPage() {
   // Fetch memory for this date
   useEffect(() => {
     async function fetchMemory() {
-      if (!date) return;
+      if (!date || !dek) return;
 
       try {
-        let mem = await getMemory(date);
+        let mem = await getMemory(date, dek);
 
         // If no memory exists for this date, create one
         if (!mem) {
@@ -50,7 +50,7 @@ export default function EditMemoryPage() {
     }
 
     fetchMemory();
-  }, [date, setMemModals]);
+  }, [date, setMemModals, dek]);
 
   // Redirect to login if not authenticated
   useEffect(() => {

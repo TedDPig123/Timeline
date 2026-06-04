@@ -1,53 +1,26 @@
-import { ContentType } from "../../types";
+import { MemoryCard } from "../../types";
+import MediaContent from "./MediaContent";
 
 interface MemoryModuleProps {
-  type: ContentType;
-  content: string;
+  card: MemoryCard;
 }
 
-//the module takes in the type of the media and its content and displays them accordingly
-export default function MemoryModule({ type, content }: MemoryModuleProps) {
-  switch (type) {
-    case "TEXT":
-      return (
-        <div className="text-memory h-full overflow-auto">
-          <p>{content}</p>
-        </div>
-      );
-    case "IMAGE":
-      return (
-        <div className="image-memory h-full items-start justify-start">
-          <img
-            src={content}
-            alt="memory"
-            className="h-full w-full rounded object-cover"
-            onDragStart={(event) => event.preventDefault()}
-          />
-        </div>
-      );
-    case "AUDIO":
-      return (
-        <div className="audio-memory flex h-full items-center justify-center">
-          <audio controls className="w-full">
-            <source src={content} type="audio/mpeg" />
-          </audio>
-        </div>
-      );
-    case "VIDEO":
-      return (
-        <div className="video-memory h-full">
-          <video controls className="h-full w-full rounded object-cover">
-            <source src={content} type="video/mp4" />
-          </video>
-        </div>
-      );
-    default:
-      return (
-        <div className="unknown-memory">
-          <p>Unsupported memory type</p>
-        </div>
-      );
+// Displays a card by type. TEXT content arrives already decrypted; media is
+// decrypted on the fly by MediaContent.
+export default function MemoryModule({ card }: MemoryModuleProps) {
+  if (card.type === "TEXT") {
+    return (
+      <div className="text-memory h-full overflow-auto">
+        <p>{card.content}</p>
+      </div>
+    );
   }
+
+  return (
+    <div className={`${card.type.toLowerCase()}-memory h-full`}>
+      <MediaContent card={card} />
+    </div>
+  );
 }
 
 export { MemoryModule };
