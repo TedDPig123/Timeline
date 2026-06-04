@@ -144,10 +144,15 @@ export async function wrapDEK(
 
 // Unwrap the DEK with a KEK. A wrong passphrase makes AES-GCM authentication
 // fail and this throws — the crypto operation *is* the password check.
+//
+// extractable defaults to false: the session DEK should never be exportable to
+// raw bytes in JS. Pass true only for flows that must re-wrap it (change
+// passphrase / recovery), where wrapKey requires an extractable key.
 export async function unwrapDEK(
   wrapped: string,
   iv: string,
   kek: CryptoKey,
+  extractable = false,
 ): Promise<CryptoKey> {
   return crypto.subtle.unwrapKey(
     "raw",
@@ -155,7 +160,7 @@ export async function unwrapDEK(
     kek,
     { name: "AES-GCM", iv: b64ToBuf(iv) },
     { name: "AES-GCM", length: 256 },
-    true, // extractable so change-passphrase can re-wrap the same DEK
+    extractable,
     ["encrypt", "decrypt"],
   );
 }

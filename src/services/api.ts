@@ -103,20 +103,8 @@ export async function deleteMemory(id: string) {
 }
 
 // memcards
-export async function createCard(data: {
-  type: string;
-  content: string;
-  date: string;
-  style: CardStyle;
-  memory_id: string;
-}) {
-  const res = await fetch(`${API_URL}/cards`, {
-    method: "POST",
-    headers: authHeaders(),
-    body: JSON.stringify(data),
-  });
-  return res.json();
-}
+// Note: cards are always created via createCardWithFile, which encrypts content
+// client-side. There is intentionally no plaintext-content create path.
 
 export async function updateCardStyle(id: string, style: CardStyle) {
   const res = await fetch(`${API_URL}/cards/style/${id}`, {
