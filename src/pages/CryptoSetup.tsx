@@ -47,7 +47,10 @@ export default function CryptoSetup() {
   return (
     <div
       className="flex h-screen items-center justify-center"
-      style={{ backgroundColor: theme.primaryColor, color: theme.secondaryColor }}
+      style={{
+        backgroundColor: theme.primaryColor,
+        color: theme.secondaryColor,
+      }}
     >
       {recoveryCode === null ? (
         <form
@@ -71,7 +74,7 @@ export default function CryptoSetup() {
               Lose both and they're gone for good.
             </p>
             <p>
-              Your content is unreadable to the server — but encryption can't
+              Your content is unreadable to the server, but encryption can't
               protect a device someone else is already using while you're logged
               in, and the server can still see non-content details like dates,
               file sizes, and how many memories you have.
