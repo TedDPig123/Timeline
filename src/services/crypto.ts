@@ -195,6 +195,49 @@ export async function encryptText(
   return encryptBytes(new TextEncoder().encode(plaintext), dek);
 }
 
+// ---------------------------------------------------------------------------
+// File encryption. The MIME type is prepended to the bytes ("mime\n" + data)
+// and encrypted with them, so the server never learns it and we can rebuild a
+// displayable Blob on decrypt. Returns raw ciphertext (uploaded as-is, no
+// base64 inflation) plus the base64 IV (stored in content_iv).
+// ---------------------------------------------------------------------------
+
+export async function encryptFile(
+  data: ArrayBuffer,
+  mimeType: string,
+  dek: CryptoKey,
+): Promise<{ ciphertext: ArrayBuffer; iv: string }> {
+  const header = new TextEncoder().encode(`${mimeType}\n`);
+  const framed = new Uint8Array(header.length + data.byteLength);
+  framed.set(header, 0);
+  framed.set(new Uint8Array(data), header.length);
+
+  const iv = generateIV();
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    dek,
+    framed,
+  );
+  return { ciphertext, iv: bufToB64(iv) };
+}
+
+export async function decryptFile(
+  ciphertext: BufferSource,
+  iv: string,
+  dek: CryptoKey,
+): Promise<Blob> {
+  const plain = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: b64ToBuf(iv) },
+    dek,
+    ciphertext,
+  );
+  const bytes = new Uint8Array(plain);
+  const newline = bytes.indexOf(10); // '\n' separating mime header from body
+  const mimeType = new TextDecoder().decode(bytes.subarray(0, newline));
+  const body = bytes.subarray(newline + 1);
+  return new Blob([body], { type: mimeType });
+}
+
 export async function decryptText(
   ciphertext: string,
   iv: string,

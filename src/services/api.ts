@@ -1,5 +1,5 @@
 import { CardStyle, CryptoBundle, MemoryCard } from "@/types";
-import { encryptText, decryptText } from "./crypto";
+import { encryptText, decryptText, encryptFile } from "./crypto";
 
 const API_URL = import.meta.env.PROD
   ? "https://timeline-production-600c.up.railway.app/api"
@@ -156,8 +156,16 @@ export async function createCardWithFile(
   formData.append("memory_id", data.memory_id);
 
   if (data.file) {
-    // Files aren't encrypted yet (later pass) — uploaded as-is.
-    formData.append("file", data.file);
+    // Encrypt file bytes client-side; upload only ciphertext. A generic name
+    // keeps the original filename out of the server / S3 key.
+    const plainBytes = await data.file.arrayBuffer();
+    const { ciphertext, iv } = await encryptFile(
+      plainBytes,
+      data.file.type,
+      dek,
+    );
+    formData.append("file", new Blob([ciphertext]), "enc");
+    formData.append("content_iv", iv);
   } else if (data.type === "TEXT" && data.content) {
     // Encrypt TEXT content client-side; the server only ever sees ciphertext.
     const { ciphertext, iv } = await encryptText(data.content, dek);
