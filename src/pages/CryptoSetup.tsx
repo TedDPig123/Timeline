@@ -62,12 +62,20 @@ export default function CryptoSetup() {
           </p>
 
           <div
-            className="rounded-lg p-3 text-xs"
+            className="flex flex-col gap-2 rounded-lg p-3 text-xs"
             style={{ border: `1px solid ${theme.highlightColor}` }}
           >
-            <strong>Important:</strong> there is no password reset. If you forget
-            your passphrase, only your recovery code can get your memories back.
-            If you lose both, they're gone for good.
+            <p>
+              <strong>There is no password reset.</strong> If you forget your
+              passphrase, only your recovery code can get your memories back.
+              Lose both and they're gone for good.
+            </p>
+            <p>
+              Your content is unreadable to the server — but encryption can't
+              protect a device someone else is already using while you're logged
+              in, and the server can still see non-content details like dates,
+              file sizes, and how many memories you have.
+            </p>
           </div>
 
           <input

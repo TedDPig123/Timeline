@@ -154,9 +154,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       wrapped_dek_recovery_iv: wrappedByRecovery.iv,
     });
 
-    // Don't unlock yet — hold the DEK until completeSetup() so the recovery
-    // code screen stays up.
-    pendingDekRef.current = newDek;
+    // Hold a NON-extractable handle for the session (newDek had to be
+    // extractable so it could be wrapped above). Don't unlock yet — wait for
+    // completeSetup() so the recovery-code screen stays up.
+    pendingDekRef.current = await unwrapDEK(
+      wrappedByPassphrase.wrapped,
+      wrappedByPassphrase.iv,
+      passphraseKek,
+    );
     return recoveryCode;
   };
 
@@ -221,6 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       bundle.wrapped_dek_recovery,
       bundle.wrapped_dek_recovery_iv,
       recoveryKek,
+      true, // must be extractable to re-wrap under the new passphrase
     );
     await rewrapPassphrase(recoveredDek, newPassphrase, bundle);
     setDek(recoveredDek);
@@ -244,6 +250,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       bundle.wrapped_dek_passphrase,
       bundle.wrapped_dek_passphrase_iv,
       oldKek,
+      true, // must be extractable to re-wrap under the new passphrase
     );
     await rewrapPassphrase(currentDek, newPassphrase, bundle);
     setDek(currentDek);

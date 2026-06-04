@@ -46,34 +46,10 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// ------------------------------ ALL USER ROUTES -----------------------------
-//get all users
-app.get("/api/users", async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.send(users);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ error: "Failed to fetch users" });
-  }
-});
-
-//create a user
-app.post("/api/users", async (req, res) => {
-  try {
-    const request = req.body;
-    const user = await prisma.user.create({
-      data: {
-        username: request.username,
-        email: request.email,
-      },
-    });
-    res.json(user);
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ error: "Failed to create new user" });
-  }
-});
+// Note: the old unauthenticated GET/POST /api/users debug routes were removed.
+// GET /api/users leaked every user's wrapping bundle (salts + wrapped DEKs),
+// which would allow offline brute-forcing of passphrases. Users are created via
+// Google OAuth; the owner-only GET /api/crypto/bundle serves the bundle.
 
 // ------------------------------ ALL MEMORY ROUTES ----------------------------------
 //TODO: POST create memory given user and date
@@ -191,9 +167,12 @@ app.delete(
   async (req: AuthRequest, res) => {
     try {
       const memory_id = req.params.id as string;
-      await prisma.memory.delete({
-        where: { id: memory_id },
+      const { count } = await prisma.memory.deleteMany({
+        where: { id: memory_id, user_id: req.userId! },
       });
+      if (count === 0) {
+        return res.status(404).json({ error: "Memory not found" });
+      }
       res.json({ message: "Memory deleted" });
     } catch (error) {
       console.error("Error deleting memory:", error);
@@ -223,6 +202,14 @@ app.post(
         typeof request.style === "string"
           ? JSON.parse(request.style)
           : request.style;
+
+      // ensure the target memory belongs to the authenticated user
+      const memory = await prisma.memory.findFirst({
+        where: { id: request.memory_id, user_id: req.userId! },
+      });
+      if (!memory) {
+        return res.status(404).json({ error: "Memory not found" });
+      }
 
       const memory_card = await prisma.memoryCard.create({
         data: {
@@ -261,12 +248,18 @@ app.patch(
   async (req: AuthRequest, res) => {
     try {
       const request = req.body;
-      const card_id = req.params.id;
-      const memory_card = await prisma.memoryCard.update({
-        where: { id: card_id as string },
+      const card_id = req.params.id as string;
+      const { count } = await prisma.memoryCard.updateMany({
+        where: { id: card_id, user_id: req.userId! },
         data: {
           style: request.style,
         },
+      });
+      if (count === 0) {
+        return res.status(404).json({ error: "Card not found" });
+      }
+      const memory_card = await prisma.memoryCard.findFirst({
+        where: { id: card_id, user_id: req.userId! },
       });
       res.json(memory_card);
     } catch (error) {
@@ -326,12 +319,15 @@ app.patch(
 );
 
 //deleting memory card
-app.delete("/api/cards/:id", authenticateToken, async (req, res) => {
+app.delete("/api/cards/:id", authenticateToken, async (req: AuthRequest, res) => {
   try {
     const card_id = req.params.id as string;
-    await prisma.memoryCard.delete({
-      where: { id: card_id },
+    const { count } = await prisma.memoryCard.deleteMany({
+      where: { id: card_id, user_id: req.userId! },
     });
+    if (count === 0) {
+      return res.status(404).json({ error: "Card not found" });
+    }
     res.json({ message: "Card deleted" });
   } catch (error) {
     console.error("Error deleting memory card:", error);
