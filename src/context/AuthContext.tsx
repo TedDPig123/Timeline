@@ -14,11 +14,12 @@ import {
   generateDEK,
   generateSalt,
   generateRecoveryCode,
+  normalizeRecoveryCode,
   wrapDEK,
   bufToB64,
   b64ToBuf,
 } from "../services/crypto";
-import { saveCryptoBundle } from "../services/api";
+import { saveCryptoBundle, getCryptoBundle } from "../services/api";
 import { migrateLegacyCards } from "../services/migrate";
 
 interface AuthContextType {
@@ -38,6 +39,17 @@ interface AuthContextType {
   setupEncryption: (passphrase: string) => Promise<string>;
   completeSetup: () => void;
   unlock: (passphrase: string, bundle: CryptoBundle) => Promise<void>;
+  // Recover access with the recovery code and set a new passphrase, then unlock.
+  recoverWithCode: (
+    recoveryCode: string,
+    newPassphrase: string,
+    bundle: CryptoBundle,
+  ) => Promise<void>;
+  // Change the passphrase (re-wraps the same DEK). Requires the old passphrase.
+  changePassphrase: (
+    oldPassphrase: string,
+    newPassphrase: string,
+  ) => Promise<void>;
   lock: () => void;
 }
 
@@ -111,7 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("token");
     setTokenState(null);
     setUser(null);
+    // Drop the session key (and any pending one) so it can't be used post-logout.
     setDek(null);
+    pendingDekRef.current = null;
   };
 
   // Generate a fresh DEK, wrap it twice (passphrase + recovery code), persist
@@ -123,7 +137,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const passphraseSalt = generateSalt();
     const recoverySalt = generateSalt();
     const passphraseKek = await deriveKEK(passphrase, passphraseSalt);
-    const recoveryKek = await deriveKEK(recoveryCode, recoverySalt);
+    const recoveryKek = await deriveKEK(
+      normalizeRecoveryCode(recoveryCode),
+      recoverySalt,
+    );
 
     const wrappedByPassphrase = await wrapDEK(newDek, passphraseKek);
     const wrappedByRecovery = await wrapDEK(newDek, recoveryKek);
@@ -168,6 +185,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void migrateLegacyCards(unwrapped);
   };
 
+  // Re-wrap the DEK under a new passphrase and persist the bundle, leaving the
+  // recovery wrapper untouched. Shared by recovery and change-passphrase.
+  const rewrapPassphrase = async (
+    dek: CryptoKey,
+    newPassphrase: string,
+    bundle: CryptoBundle,
+  ) => {
+    const newSalt = generateSalt();
+    const newKek = await deriveKEK(newPassphrase, newSalt);
+    const wrapped = await wrapDEK(dek, newKek);
+    await saveCryptoBundle({
+      passphrase_salt: bufToB64(newSalt),
+      wrapped_dek_passphrase: wrapped.wrapped,
+      wrapped_dek_passphrase_iv: wrapped.iv,
+      // recovery wrapper unchanged
+      recovery_salt: bundle.recovery_salt,
+      wrapped_dek_recovery: bundle.wrapped_dek_recovery,
+      wrapped_dek_recovery_iv: bundle.wrapped_dek_recovery_iv,
+    });
+  };
+
+  // Forgot passphrase: unwrap the DEK with the recovery code, set a new
+  // passphrase, and unlock. The recovery code itself is unchanged.
+  const recoverWithCode = async (
+    recoveryCode: string,
+    newPassphrase: string,
+    bundle: CryptoBundle,
+  ) => {
+    const recoveryKek = await deriveKEK(
+      normalizeRecoveryCode(recoveryCode),
+      b64ToBuf(bundle.recovery_salt),
+    );
+    const recoveredDek = await unwrapDEK(
+      bundle.wrapped_dek_recovery,
+      bundle.wrapped_dek_recovery_iv,
+      recoveryKek,
+    );
+    await rewrapPassphrase(recoveredDek, newPassphrase, bundle);
+    setDek(recoveredDek);
+    void migrateLegacyCards(recoveredDek);
+  };
+
+  // Change passphrase: verify the old one by unwrapping, then re-wrap the same
+  // DEK under the new passphrase.
+  const changePassphrase = async (
+    oldPassphrase: string,
+    newPassphrase: string,
+  ) => {
+    const bundle = await getCryptoBundle();
+    if (!bundle) throw new Error("Encryption is not set up");
+    const oldKek = await deriveKEK(
+      oldPassphrase,
+      b64ToBuf(bundle.passphrase_salt),
+    );
+    // Throws on a wrong old passphrase (AES-GCM auth failure).
+    const currentDek = await unwrapDEK(
+      bundle.wrapped_dek_passphrase,
+      bundle.wrapped_dek_passphrase_iv,
+      oldKek,
+    );
+    await rewrapPassphrase(currentDek, newPassphrase, bundle);
+    setDek(currentDek);
+  };
+
   const lock = () => setDek(null);
 
   return (
@@ -184,6 +265,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setupEncryption,
         completeSetup,
         unlock,
+        recoverWithCode,
+        changePassphrase,
         lock,
       }}
     >
