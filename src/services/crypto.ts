@@ -77,6 +77,12 @@ export function generateRecoveryCode(): string {
   return raw.match(/.{1,4}/g)!.join("-");
 }
 
+// Canonical form for deriving the recovery KEK, so entry is forgiving of the
+// display dashes, spaces, and lower-case. Derive from this on both ends.
+export function normalizeRecoveryCode(code: string): string {
+  return code.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+}
+
 // ---------------------------------------------------------------------------
 // Keys
 // ---------------------------------------------------------------------------

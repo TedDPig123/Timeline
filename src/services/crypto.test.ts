@@ -3,6 +3,7 @@ import {
   generateSalt,
   generateDEK,
   generateRecoveryCode,
+  normalizeRecoveryCode,
   deriveKEK,
   wrapDEK,
   unwrapDEK,
@@ -34,6 +35,23 @@ describe("recovery code", () => {
 
   it("is different every time", () => {
     expect(generateRecoveryCode()).not.toBe(generateRecoveryCode());
+  });
+
+  it("normalizes for forgiving entry (dashes, spaces, case)", async () => {
+    // The recovery KEK must derive the same whether the user types the code
+    // with dashes/spaces/case or not — this is what makes recovery work.
+    const code = generateRecoveryCode();
+    const salt = generateSalt();
+    const kek = await deriveKEK(normalizeRecoveryCode(code), salt);
+    const dek = await generateDEK();
+    const { wrapped, iv } = await wrapDEK(dek, kek);
+
+    const messyEntry = ` ${code.toLowerCase().replace(/-/g, " ")} `;
+    const kek2 = await deriveKEK(normalizeRecoveryCode(messyEntry), salt);
+    const dek2 = await unwrapDEK(wrapped, iv, kek2);
+
+    const enc = await encryptText("recovered", dek);
+    expect(await decryptText(enc.ciphertext, enc.iv, dek2)).toBe("recovered");
   });
 });
 
