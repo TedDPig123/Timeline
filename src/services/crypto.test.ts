@@ -8,6 +8,8 @@ import {
   unwrapDEK,
   encryptText,
   decryptText,
+  encryptFile,
+  decryptFile,
   bufToB64,
   b64ToBuf,
 } from "./crypto";
@@ -95,5 +97,23 @@ describe("content encryption", () => {
     const tampered = bufToB64(bytes);
 
     await expect(decryptText(tampered, iv, dek)).rejects.toBeTruthy();
+  });
+});
+
+describe("file encryption", () => {
+  it("round-trips bytes and preserves the MIME type", async () => {
+    const dek = await generateDEK();
+    const original = new Uint8Array([0, 1, 2, 250, 255, 10, 42]); // includes 0x0A
+    const { ciphertext, iv } = await encryptFile(
+      original.buffer,
+      "image/png",
+      dek,
+    );
+
+    const blob = await decryptFile(ciphertext, iv, dek);
+    expect(blob.type).toBe("image/png");
+
+    const out = new Uint8Array(await blob.arrayBuffer());
+    expect(Array.from(out)).toEqual(Array.from(original));
   });
 });

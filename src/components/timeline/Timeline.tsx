@@ -21,6 +21,7 @@ interface TimelineSlot {
   hasMemory: boolean;
   text: string | null;
   image: string | null;
+  imageIv: string | null;
   isFuture: boolean;
 }
 
@@ -436,6 +437,7 @@ export default function Timeline() {
                   <Thumbnail
                     text={slot.hasMemory ? slot.text : null}
                     image={slot.hasMemory ? slot.image : null}
+                    imageIv={slot.hasMemory ? slot.imageIv : null}
                     date={slot.label}
                     dayLabel={slot.dayLabel}
                   />
@@ -505,6 +507,7 @@ export default function Timeline() {
                   <Thumbnail
                     text={slot.hasMemory ? slot.text : null}
                     image={slot.hasMemory ? slot.image : null}
+                    imageIv={slot.hasMemory ? slot.imageIv : null}
                     date={slot.label}
                     dayLabel={slot.dayLabel}
                   />
@@ -596,6 +599,9 @@ function generateAllSlots(
         image: hasMemory
           ? dayCards.find((c) => c.type === "IMAGE")?.content || null
           : null,
+        imageIv: hasMemory
+          ? dayCards.find((c) => c.type === "IMAGE")?.content_iv || null
+          : null,
       });
     }
   } else if (viewMode === "month") {
@@ -627,6 +633,9 @@ function generateAllSlots(
           : null,
         image: hasMemory
           ? dayCards.find((c) => c.type === "IMAGE")?.content || null
+          : null,
+        imageIv: hasMemory
+          ? dayCards.find((c) => c.type === "IMAGE")?.content_iv || null
           : null,
       });
     }
@@ -671,6 +680,9 @@ function generateAllSlots(
           : null,
         image: hasMemory
           ? monthCards.find((c) => c.type === "IMAGE")?.content || null
+          : null,
+        imageIv: hasMemory
+          ? monthCards.find((c) => c.type === "IMAGE")?.content_iv || null
           : null,
       });
     }

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { MemoryCard } from "../../types";
+import MediaContent from "./MediaContent";
 import ExitIcon from "../../assets/graphics/cancel.svg?react";
 import FullScreen from "../../assets/graphics/fullscreen.svg?react";
 import { Tooltip } from "react-tooltip";
@@ -113,29 +114,12 @@ export default function PreviewModal({
                   backgroundColor: theme.primaryColor,
                 }}
               >
-                {card.type === "IMAGE" && (
-                  <img
-                    src={card.content}
-                    alt="memory"
-                    className="h-full w-full rounded object-cover"
-                  />
-                )}
-                {card.type === "TEXT" && (
+                {card.type === "TEXT" ? (
                   <div className="h-full w-full overflow-hidden text-xs">
                     {card.content}
                   </div>
-                )}
-                {card.type === "VIDEO" && (
-                  <video
-                    src={card.content}
-                    className="h-full w-full rounded object-cover"
-                    controls
-                  />
-                )}
-                {card.type === "AUDIO" && (
-                  <div className="flex h-full w-full items-center">
-                    <audio src={card.content} className="w-full" controls />
-                  </div>
+                ) : (
+                  <MediaContent card={card} />
                 )}
               </div>
             ))

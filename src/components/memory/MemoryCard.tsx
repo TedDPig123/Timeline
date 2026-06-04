@@ -206,7 +206,7 @@ const MemModal = ({
       }}
       ref={memModalRef}
     >
-      <MemoryModule type={memModal.type} content={memModal.content} />
+      <MemoryModule card={memModal} />
       {isEditMode && (
         <>
           <button
