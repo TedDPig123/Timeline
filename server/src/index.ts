@@ -15,7 +15,7 @@ import { ContentType } from "./generated/prisma/enums";
 import express from "express";
 import multer from "multer";
 import prisma from "./db";
-import { getPresignedUrl, uploadFile } from "./s3";
+import { getPresignedUrl, uploadFile, deleteFile } from "./s3";
 
 const app = express();
 const port = 3001;
@@ -272,6 +272,55 @@ app.patch(
     } catch (error) {
       console.error("Error updating memory card style:", error);
       res.status(500).json({ error: "Failed to update memory card style" });
+    }
+  },
+);
+
+// Replace a card's content with its encrypted version (used by the
+// migrate-at-first-unlock pass). TEXT sends ciphertext as JSON; media uploads
+// the encrypted bytes. content_iv marks the card as encrypted.
+app.patch(
+  "/api/cards/content/:id",
+  authenticateToken,
+  upload.single("file"),
+  async (req: AuthRequest, res) => {
+    try {
+      const card_id = req.params.id as string;
+      const existing = await prisma.memoryCard.findFirst({
+        where: { id: card_id, user_id: req.userId! },
+      });
+      if (!existing) {
+        return res.status(404).json({ error: "Card not found" });
+      }
+
+      let content = existing.content;
+      let oldKey: string | null = null;
+      if (req.file) {
+        // upload ciphertext to a NEW key, then repoint and delete the old one,
+        // so the plaintext object is never left dangling on partial failure
+        content = await uploadFile(req.file);
+        oldKey = existing.content;
+      } else {
+        content = req.body.content; // ciphertext for TEXT
+      }
+
+      await prisma.memoryCard.update({
+        where: { id: card_id },
+        data: { content, content_iv: req.body.content_iv },
+      });
+
+      if (oldKey && oldKey !== content) {
+        try {
+          await deleteFile(oldKey);
+        } catch (err) {
+          console.error("Failed to delete old plaintext object:", oldKey, err);
+        }
+      }
+
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Error updating card content:", error);
+      res.status(500).json({ error: "Failed to update card content" });
     }
   },
 );

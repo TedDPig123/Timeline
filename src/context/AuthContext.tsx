@@ -19,6 +19,7 @@ import {
   b64ToBuf,
 } from "../services/crypto";
 import { saveCryptoBundle } from "../services/api";
+import { migrateLegacyCards } from "../services/migrate";
 
 interface AuthContextType {
   user: User | null;
@@ -145,8 +146,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Called once the user confirms they've saved their recovery code.
   const completeSetup = () => {
     if (pendingDekRef.current) {
-      setDek(pendingDekRef.current);
+      const newDek = pendingDekRef.current;
+      setDek(newDek);
       pendingDekRef.current = null;
+      // Encrypt any pre-existing plaintext cards in the background.
+      void migrateLegacyCards(newDek);
     }
   };
 
@@ -160,6 +164,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       kek,
     );
     setDek(unwrapped);
+    // Encrypt any remaining legacy plaintext cards in the background.
+    void migrateLegacyCards(unwrapped);
   };
 
   const lock = () => setDek(null);

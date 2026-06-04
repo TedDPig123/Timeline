@@ -127,6 +127,40 @@ export async function updateCardStyle(id: string, style: CardStyle) {
   return res.json();
 }
 
+// Replace a TEXT card's content with ciphertext (migration). content is base64.
+export async function updateCardContent(
+  id: string,
+  content: string,
+  content_iv: string,
+) {
+  const res = await fetch(`${API_URL}/cards/content/${id}`, {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify({ content, content_iv }),
+  });
+  return res.json();
+}
+
+// Replace a media card's stored file with its encrypted bytes (migration).
+export async function updateCardFileContent(
+  id: string,
+  ciphertext: ArrayBuffer,
+  content_iv: string,
+) {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("file", new Blob([ciphertext]), "enc");
+  formData.append("content_iv", content_iv);
+  const res = await fetch(`${API_URL}/cards/content/${id}`, {
+    method: "PATCH",
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: formData,
+  });
+  return res.json();
+}
+
 export async function deleteCard(id: string) {
   const res = await fetch(`${API_URL}/cards/${id}`, {
     method: "DELETE",
