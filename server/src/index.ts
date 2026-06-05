@@ -319,21 +319,25 @@ app.patch(
 );
 
 //deleting memory card
-app.delete("/api/cards/:id", authenticateToken, async (req: AuthRequest, res) => {
-  try {
-    const card_id = req.params.id as string;
-    const { count } = await prisma.memoryCard.deleteMany({
-      where: { id: card_id, user_id: req.userId! },
-    });
-    if (count === 0) {
-      return res.status(404).json({ error: "Card not found" });
+app.delete(
+  "/api/cards/:id",
+  authenticateToken,
+  async (req: AuthRequest, res) => {
+    try {
+      const card_id = req.params.id as string;
+      const { count } = await prisma.memoryCard.deleteMany({
+        where: { id: card_id, user_id: req.userId! },
+      });
+      if (count === 0) {
+        return res.status(404).json({ error: "Card not found" });
+      }
+      res.json({ message: "Card deleted" });
+    } catch (error) {
+      console.error("Error deleting memory card:", error);
+      res.status(500).json({ error: "Failed to delete memory card" });
     }
-    res.json({ message: "Card deleted" });
-  } catch (error) {
-    console.error("Error deleting memory card:", error);
-    res.status(500).json({ error: "Failed to delete memory card" });
-  }
-});
+  },
+);
 
 //TODO: test for multer
 app.post("/api/upload", upload.single("file"), async (req, res) => {
