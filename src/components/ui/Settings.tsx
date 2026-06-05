@@ -151,6 +151,9 @@ const Settings = ({ isSettingsOpen, onClose }: SettingsButtonProps) => {
 
           {/* Security: change passphrase */}
           <p className="mb-2 mt-6">Security</p>
+          <p className="mb-2 mt-6 text-sm">
+            Change your passphrase, given your current passphrase.
+          </p>
           <form
             onSubmit={handleChangePassphrase}
             className="flex w-full flex-col gap-2"
