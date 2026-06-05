@@ -11,7 +11,7 @@ console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
 
 import cors from "cors";
 
-import { ContentType } from "./generated/prisma/enums";
+import { ContentType } from "@prisma/client";
 import express from "express";
 import multer from "multer";
 import prisma from "./db";
@@ -21,7 +21,7 @@ const app = express();
 const port = 3001;
 const upload = multer({ storage: multer.memoryStorage() });
 
-import { User } from "./generated/prisma/client";
+import { User } from "@prisma/client";
 
 import jwt from "jsonwebtoken";
 import passport from "./auth/auth";
