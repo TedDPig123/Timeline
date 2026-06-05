@@ -1,18 +1,24 @@
 import { useState, useEffect, useRef } from "react";
 import { useThemeContext } from "@/context/context";
+import { useDecryptedMedia } from "@/hooks/useDecryptedMedia";
 
 export default function Thumbnail({
   text,
   image = null,
+  imageIv = null,
   date,
   dayLabel = null,
 }: {
   text: string | null;
   image: string | null;
+  imageIv?: string | null;
   date: string | null;
   dayLabel?: string | null;
 }) {
   const { theme } = useThemeContext();
+  // Encrypted thumbnails (imageIv set) are fetched + decrypted; legacy images
+  // resolve straight to their presigned URL.
+  const imageSrc = useDecryptedMedia(image, imageIv);
   const [lineClamp, setLineClamp] = useState(2);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -76,14 +82,14 @@ export default function Thumbnail({
       </span>
       <div className="flex h-full w-full flex-col items-center overflow-hidden p-2">
         <>
-          {image && (
+          {image && imageSrc && (
             <div
               className="w-full overflow-hidden rounded-[16px] border-[3px] "
               style={{ borderColor: theme.primaryColor }}
             >
               <img
                 className="h-auto w-full rounded-[12px] object-cover"
-                src={image}
+                src={imageSrc}
                 alt="thumbnail"
               />
             </div>

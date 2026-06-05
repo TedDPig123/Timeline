@@ -1,0 +1,12 @@
+[
+  {
+    "AllowedOrigins": [
+      "http://localhost:5173",
+      "https://timeline-one-omega.vercel.app"
+    ],
+    "AllowedMethods": ["GET"],
+    "AllowedHeaders": ["*"],
+    "ExposeHeaders": ["Content-Type"],
+    "MaxAgeSeconds": 3000
+  }
+]

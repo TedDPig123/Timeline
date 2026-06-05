@@ -88,11 +88,11 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 6.19.2
+ * Prisma Client JS version: 6.19.3
  * Query Engine version: c2990dca591cba766e3b7ef5d9e8a84796e47ab7
  */
 export const prismaVersion: PrismaVersion = {
-  client: "6.19.2",
+  client: "6.19.3",
   engine: "c2990dca591cba766e3b7ef5d9e8a84796e47ab7"
 }
 
@@ -677,7 +677,14 @@ export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   username: 'username',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  crypto_version: 'crypto_version',
+  passphrase_salt: 'passphrase_salt',
+  recovery_salt: 'recovery_salt',
+  wrapped_dek_passphrase: 'wrapped_dek_passphrase',
+  wrapped_dek_passphrase_iv: 'wrapped_dek_passphrase_iv',
+  wrapped_dek_recovery: 'wrapped_dek_recovery',
+  wrapped_dek_recovery_iv: 'wrapped_dek_recovery_iv'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -696,13 +703,10 @@ export type MemoryScalarFieldEnum = (typeof MemoryScalarFieldEnum)[keyof typeof 
 export const MemoryCardScalarFieldEnum = {
   type: 'type',
   content: 'content',
+  content_iv: 'content_iv',
   id: 'id',
   date: 'date',
-  position_x: 'position_x',
-  position_y: 'position_y',
-  z_index: 'z_index',
-  width: 'width',
-  height: 'height',
+  style: 'style',
   user_id: 'user_id',
   memory_id: 'memory_id'
 } as const
@@ -718,12 +722,36 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -761,6 +789,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
  * Reference to a field of type 'ContentType'
  */
 export type EnumContentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentType'>
@@ -775,16 +817,16 @@ export type ListEnumContentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$
 
 
 /**
- * Reference to a field of type 'Int'
+ * Reference to a field of type 'Json'
  */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
 
 
 /**
- * Reference to a field of type 'Int[]'
+ * Reference to a field of type 'QueryMode'
  */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 

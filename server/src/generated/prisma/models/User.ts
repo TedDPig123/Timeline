@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  crypto_version: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  crypto_version: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -29,6 +39,13 @@ export type UserMinAggregateOutputType = {
   email: string | null
   username: string | null
   createdAt: Date | null
+  crypto_version: number | null
+  passphrase_salt: string | null
+  recovery_salt: string | null
+  wrapped_dek_passphrase: string | null
+  wrapped_dek_passphrase_iv: string | null
+  wrapped_dek_recovery: string | null
+  wrapped_dek_recovery_iv: string | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -36,6 +53,13 @@ export type UserMaxAggregateOutputType = {
   email: string | null
   username: string | null
   createdAt: Date | null
+  crypto_version: number | null
+  passphrase_salt: string | null
+  recovery_salt: string | null
+  wrapped_dek_passphrase: string | null
+  wrapped_dek_passphrase_iv: string | null
+  wrapped_dek_recovery: string | null
+  wrapped_dek_recovery_iv: string | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -43,15 +67,37 @@ export type UserCountAggregateOutputType = {
   email: number
   username: number
   createdAt: number
+  crypto_version: number
+  passphrase_salt: number
+  recovery_salt: number
+  wrapped_dek_passphrase: number
+  wrapped_dek_passphrase_iv: number
+  wrapped_dek_recovery: number
+  wrapped_dek_recovery_iv: number
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  crypto_version?: true
+}
+
+export type UserSumAggregateInputType = {
+  crypto_version?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
   email?: true
   username?: true
   createdAt?: true
+  crypto_version?: true
+  passphrase_salt?: true
+  recovery_salt?: true
+  wrapped_dek_passphrase?: true
+  wrapped_dek_passphrase_iv?: true
+  wrapped_dek_recovery?: true
+  wrapped_dek_recovery_iv?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -59,6 +105,13 @@ export type UserMaxAggregateInputType = {
   email?: true
   username?: true
   createdAt?: true
+  crypto_version?: true
+  passphrase_salt?: true
+  recovery_salt?: true
+  wrapped_dek_passphrase?: true
+  wrapped_dek_passphrase_iv?: true
+  wrapped_dek_recovery?: true
+  wrapped_dek_recovery_iv?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -66,6 +119,13 @@ export type UserCountAggregateInputType = {
   email?: true
   username?: true
   createdAt?: true
+  crypto_version?: true
+  passphrase_salt?: true
+  recovery_salt?: true
+  wrapped_dek_passphrase?: true
+  wrapped_dek_passphrase_iv?: true
+  wrapped_dek_recovery?: true
+  wrapped_dek_recovery_iv?: true
   _all?: true
 }
 
@@ -107,6 +167,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -137,6 +209,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -146,7 +220,16 @@ export type UserGroupByOutputType = {
   email: string
   username: string
   createdAt: Date
+  crypto_version: number | null
+  passphrase_salt: string | null
+  recovery_salt: string | null
+  wrapped_dek_passphrase: string | null
+  wrapped_dek_passphrase_iv: string | null
+  wrapped_dek_recovery: string | null
+  wrapped_dek_recovery_iv: string | null
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -174,6 +257,13 @@ export type UserWhereInput = {
   email?: Prisma.StringFilter<"User"> | string
   username?: Prisma.StringFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  crypto_version?: Prisma.IntNullableFilter<"User"> | number | null
+  passphrase_salt?: Prisma.StringNullableFilter<"User"> | string | null
+  recovery_salt?: Prisma.StringNullableFilter<"User"> | string | null
+  wrapped_dek_passphrase?: Prisma.StringNullableFilter<"User"> | string | null
+  wrapped_dek_passphrase_iv?: Prisma.StringNullableFilter<"User"> | string | null
+  wrapped_dek_recovery?: Prisma.StringNullableFilter<"User"> | string | null
+  wrapped_dek_recovery_iv?: Prisma.StringNullableFilter<"User"> | string | null
   memories?: Prisma.MemoryListRelationFilter
   memoryCards?: Prisma.MemoryCardListRelationFilter
 }
@@ -183,6 +273,13 @@ export type UserOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  crypto_version?: Prisma.SortOrderInput | Prisma.SortOrder
+  passphrase_salt?: Prisma.SortOrderInput | Prisma.SortOrder
+  recovery_salt?: Prisma.SortOrderInput | Prisma.SortOrder
+  wrapped_dek_passphrase?: Prisma.SortOrderInput | Prisma.SortOrder
+  wrapped_dek_passphrase_iv?: Prisma.SortOrderInput | Prisma.SortOrder
+  wrapped_dek_recovery?: Prisma.SortOrderInput | Prisma.SortOrder
+  wrapped_dek_recovery_iv?: Prisma.SortOrderInput | Prisma.SortOrder
   memories?: Prisma.MemoryOrderByRelationAggregateInput
   memoryCards?: Prisma.MemoryCardOrderByRelationAggregateInput
 }
@@ -195,6 +292,13 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   username?: Prisma.StringFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  crypto_version?: Prisma.IntNullableFilter<"User"> | number | null
+  passphrase_salt?: Prisma.StringNullableFilter<"User"> | string | null
+  recovery_salt?: Prisma.StringNullableFilter<"User"> | string | null
+  wrapped_dek_passphrase?: Prisma.StringNullableFilter<"User"> | string | null
+  wrapped_dek_passphrase_iv?: Prisma.StringNullableFilter<"User"> | string | null
+  wrapped_dek_recovery?: Prisma.StringNullableFilter<"User"> | string | null
+  wrapped_dek_recovery_iv?: Prisma.StringNullableFilter<"User"> | string | null
   memories?: Prisma.MemoryListRelationFilter
   memoryCards?: Prisma.MemoryCardListRelationFilter
 }, "id" | "email">
@@ -204,9 +308,18 @@ export type UserOrderByWithAggregationInput = {
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  crypto_version?: Prisma.SortOrderInput | Prisma.SortOrder
+  passphrase_salt?: Prisma.SortOrderInput | Prisma.SortOrder
+  recovery_salt?: Prisma.SortOrderInput | Prisma.SortOrder
+  wrapped_dek_passphrase?: Prisma.SortOrderInput | Prisma.SortOrder
+  wrapped_dek_passphrase_iv?: Prisma.SortOrderInput | Prisma.SortOrder
+  wrapped_dek_recovery?: Prisma.SortOrderInput | Prisma.SortOrder
+  wrapped_dek_recovery_iv?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -217,6 +330,13 @@ export type UserScalarWhereWithAggregatesInput = {
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   username?: Prisma.StringWithAggregatesFilter<"User"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
+  crypto_version?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
+  passphrase_salt?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  recovery_salt?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  wrapped_dek_passphrase?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  wrapped_dek_passphrase_iv?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  wrapped_dek_recovery?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  wrapped_dek_recovery_iv?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
 }
 
 export type UserCreateInput = {
@@ -224,6 +344,13 @@ export type UserCreateInput = {
   email: string
   username: string
   createdAt?: Date | string
+  crypto_version?: number | null
+  passphrase_salt?: string | null
+  recovery_salt?: string | null
+  wrapped_dek_passphrase?: string | null
+  wrapped_dek_passphrase_iv?: string | null
+  wrapped_dek_recovery?: string | null
+  wrapped_dek_recovery_iv?: string | null
   memories?: Prisma.MemoryCreateNestedManyWithoutUserInput
   memoryCards?: Prisma.MemoryCardCreateNestedManyWithoutUserInput
 }
@@ -233,6 +360,13 @@ export type UserUncheckedCreateInput = {
   email: string
   username: string
   createdAt?: Date | string
+  crypto_version?: number | null
+  passphrase_salt?: string | null
+  recovery_salt?: string | null
+  wrapped_dek_passphrase?: string | null
+  wrapped_dek_passphrase_iv?: string | null
+  wrapped_dek_recovery?: string | null
+  wrapped_dek_recovery_iv?: string | null
   memories?: Prisma.MemoryUncheckedCreateNestedManyWithoutUserInput
   memoryCards?: Prisma.MemoryCardUncheckedCreateNestedManyWithoutUserInput
 }
@@ -242,6 +376,13 @@ export type UserUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crypto_version?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  passphrase_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recovery_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memories?: Prisma.MemoryUpdateManyWithoutUserNestedInput
   memoryCards?: Prisma.MemoryCardUpdateManyWithoutUserNestedInput
 }
@@ -251,6 +392,13 @@ export type UserUncheckedUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crypto_version?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  passphrase_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recovery_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memories?: Prisma.MemoryUncheckedUpdateManyWithoutUserNestedInput
   memoryCards?: Prisma.MemoryCardUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -260,6 +408,13 @@ export type UserCreateManyInput = {
   email: string
   username: string
   createdAt?: Date | string
+  crypto_version?: number | null
+  passphrase_salt?: string | null
+  recovery_salt?: string | null
+  wrapped_dek_passphrase?: string | null
+  wrapped_dek_passphrase_iv?: string | null
+  wrapped_dek_recovery?: string | null
+  wrapped_dek_recovery_iv?: string | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -267,6 +422,13 @@ export type UserUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crypto_version?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  passphrase_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recovery_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -274,6 +436,13 @@ export type UserUncheckedUpdateManyInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crypto_version?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  passphrase_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recovery_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -281,6 +450,17 @@ export type UserCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  crypto_version?: Prisma.SortOrder
+  passphrase_salt?: Prisma.SortOrder
+  recovery_salt?: Prisma.SortOrder
+  wrapped_dek_passphrase?: Prisma.SortOrder
+  wrapped_dek_passphrase_iv?: Prisma.SortOrder
+  wrapped_dek_recovery?: Prisma.SortOrder
+  wrapped_dek_recovery_iv?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  crypto_version?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -288,6 +468,13 @@ export type UserMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  crypto_version?: Prisma.SortOrder
+  passphrase_salt?: Prisma.SortOrder
+  recovery_salt?: Prisma.SortOrder
+  wrapped_dek_passphrase?: Prisma.SortOrder
+  wrapped_dek_passphrase_iv?: Prisma.SortOrder
+  wrapped_dek_recovery?: Prisma.SortOrder
+  wrapped_dek_recovery_iv?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -295,6 +482,17 @@ export type UserMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  crypto_version?: Prisma.SortOrder
+  passphrase_salt?: Prisma.SortOrder
+  recovery_salt?: Prisma.SortOrder
+  wrapped_dek_passphrase?: Prisma.SortOrder
+  wrapped_dek_passphrase_iv?: Prisma.SortOrder
+  wrapped_dek_recovery?: Prisma.SortOrder
+  wrapped_dek_recovery_iv?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  crypto_version?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -308,6 +506,18 @@ export type StringFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type UserCreateNestedOneWithoutMemoriesInput = {
@@ -343,6 +553,13 @@ export type UserCreateWithoutMemoriesInput = {
   email: string
   username: string
   createdAt?: Date | string
+  crypto_version?: number | null
+  passphrase_salt?: string | null
+  recovery_salt?: string | null
+  wrapped_dek_passphrase?: string | null
+  wrapped_dek_passphrase_iv?: string | null
+  wrapped_dek_recovery?: string | null
+  wrapped_dek_recovery_iv?: string | null
   memoryCards?: Prisma.MemoryCardCreateNestedManyWithoutUserInput
 }
 
@@ -351,6 +568,13 @@ export type UserUncheckedCreateWithoutMemoriesInput = {
   email: string
   username: string
   createdAt?: Date | string
+  crypto_version?: number | null
+  passphrase_salt?: string | null
+  recovery_salt?: string | null
+  wrapped_dek_passphrase?: string | null
+  wrapped_dek_passphrase_iv?: string | null
+  wrapped_dek_recovery?: string | null
+  wrapped_dek_recovery_iv?: string | null
   memoryCards?: Prisma.MemoryCardUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -375,6 +599,13 @@ export type UserUpdateWithoutMemoriesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crypto_version?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  passphrase_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recovery_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memoryCards?: Prisma.MemoryCardUpdateManyWithoutUserNestedInput
 }
 
@@ -383,6 +614,13 @@ export type UserUncheckedUpdateWithoutMemoriesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crypto_version?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  passphrase_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recovery_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memoryCards?: Prisma.MemoryCardUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -391,6 +629,13 @@ export type UserCreateWithoutMemoryCardsInput = {
   email: string
   username: string
   createdAt?: Date | string
+  crypto_version?: number | null
+  passphrase_salt?: string | null
+  recovery_salt?: string | null
+  wrapped_dek_passphrase?: string | null
+  wrapped_dek_passphrase_iv?: string | null
+  wrapped_dek_recovery?: string | null
+  wrapped_dek_recovery_iv?: string | null
   memories?: Prisma.MemoryCreateNestedManyWithoutUserInput
 }
 
@@ -399,6 +644,13 @@ export type UserUncheckedCreateWithoutMemoryCardsInput = {
   email: string
   username: string
   createdAt?: Date | string
+  crypto_version?: number | null
+  passphrase_salt?: string | null
+  recovery_salt?: string | null
+  wrapped_dek_passphrase?: string | null
+  wrapped_dek_passphrase_iv?: string | null
+  wrapped_dek_recovery?: string | null
+  wrapped_dek_recovery_iv?: string | null
   memories?: Prisma.MemoryUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -423,6 +675,13 @@ export type UserUpdateWithoutMemoryCardsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crypto_version?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  passphrase_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recovery_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memories?: Prisma.MemoryUpdateManyWithoutUserNestedInput
 }
 
@@ -431,6 +690,13 @@ export type UserUncheckedUpdateWithoutMemoryCardsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crypto_version?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  passphrase_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recovery_salt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_passphrase_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wrapped_dek_recovery_iv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memories?: Prisma.MemoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -479,6 +745,13 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   username?: boolean
   createdAt?: boolean
+  crypto_version?: boolean
+  passphrase_salt?: boolean
+  recovery_salt?: boolean
+  wrapped_dek_passphrase?: boolean
+  wrapped_dek_passphrase_iv?: boolean
+  wrapped_dek_recovery?: boolean
+  wrapped_dek_recovery_iv?: boolean
   memories?: boolean | Prisma.User$memoriesArgs<ExtArgs>
   memoryCards?: boolean | Prisma.User$memoryCardsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -489,6 +762,13 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   username?: boolean
   createdAt?: boolean
+  crypto_version?: boolean
+  passphrase_salt?: boolean
+  recovery_salt?: boolean
+  wrapped_dek_passphrase?: boolean
+  wrapped_dek_passphrase_iv?: boolean
+  wrapped_dek_recovery?: boolean
+  wrapped_dek_recovery_iv?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -496,6 +776,13 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   username?: boolean
   createdAt?: boolean
+  crypto_version?: boolean
+  passphrase_salt?: boolean
+  recovery_salt?: boolean
+  wrapped_dek_passphrase?: boolean
+  wrapped_dek_passphrase_iv?: boolean
+  wrapped_dek_recovery?: boolean
+  wrapped_dek_recovery_iv?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -503,9 +790,16 @@ export type UserSelectScalar = {
   email?: boolean
   username?: boolean
   createdAt?: boolean
+  crypto_version?: boolean
+  passphrase_salt?: boolean
+  recovery_salt?: boolean
+  wrapped_dek_passphrase?: boolean
+  wrapped_dek_passphrase_iv?: boolean
+  wrapped_dek_recovery?: boolean
+  wrapped_dek_recovery_iv?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "username" | "createdAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "username" | "createdAt" | "crypto_version" | "passphrase_salt" | "recovery_salt" | "wrapped_dek_passphrase" | "wrapped_dek_passphrase_iv" | "wrapped_dek_recovery" | "wrapped_dek_recovery_iv", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memories?: boolean | Prisma.User$memoriesArgs<ExtArgs>
   memoryCards?: boolean | Prisma.User$memoryCardsArgs<ExtArgs>
@@ -525,6 +819,13 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string
     username: string
     createdAt: Date
+    crypto_version: number | null
+    passphrase_salt: string | null
+    recovery_salt: string | null
+    wrapped_dek_passphrase: string | null
+    wrapped_dek_passphrase_iv: string | null
+    wrapped_dek_recovery: string | null
+    wrapped_dek_recovery_iv: string | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -954,6 +1255,13 @@ export interface UserFieldRefs {
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly username: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly crypto_version: Prisma.FieldRef<"User", 'Int'>
+  readonly passphrase_salt: Prisma.FieldRef<"User", 'String'>
+  readonly recovery_salt: Prisma.FieldRef<"User", 'String'>
+  readonly wrapped_dek_passphrase: Prisma.FieldRef<"User", 'String'>
+  readonly wrapped_dek_passphrase_iv: Prisma.FieldRef<"User", 'String'>
+  readonly wrapped_dek_recovery: Prisma.FieldRef<"User", 'String'>
+  readonly wrapped_dek_recovery_iv: Prisma.FieldRef<"User", 'String'>
 }
     
 
